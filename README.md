@@ -1,10 +1,10 @@
 # MCV M5 - Visual Recognition
 # Project: Cross-modal Retrieval
 ## Team 01 Members
-- Rachid Boukir Fatimi
-- Ana Harris Martinez
-- Marcos Melgar Segovia
-- Pau Torras Coloma
+- Rachid Boukir Fatimi ([email](mailto:rachid.boukir@autonoma.cat))
+- Ana Harris Martinez ([email](mailto:ana.harris@autonoma.cat))
+- Marcos Melgar Segovia ([email](mailto:marcos.melgar@autonoma.cat))
+- Pau Torras Coloma ([email](mailto:pau.torras@autonoma.cat))
 
 
 ## Week 1
