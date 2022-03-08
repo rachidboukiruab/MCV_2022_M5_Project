@@ -10,7 +10,7 @@ class SimpleNet(nn.Module):
         self.relu = nn.ReLU()
         self.maxp = nn.MaxPool2d(kernel_size=2)
         self.gmap = nn.MaxPool2d(kernel_size=8)
-        self.sigmoid = 
+        #self.sigmoid =
 
         self.conv1 = nn.Conv2d(3  ,  64, 3, stride=1, padding="same")
         self.conv2 = nn.Conv2d(64 ,  24, 3, stride=1, padding="same")
@@ -50,5 +50,7 @@ class SimpleNet(nn.Module):
 
         x = self.gmap(x)
         x = self.linear(x)
+
+        print(x)
 
         return x # UNNORMALISED LOGITS! CAREFUL! (to use w/ cross entropy loss)
