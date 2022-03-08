@@ -52,4 +52,5 @@ class SmallNet(nn.Module):
         x = torch.squeeze(x)    # Batch x 384 x 1 x 1
         x = self.linear(x)      # Batch x 384 -> Batch x Classes
 
+        print(x)
         return x  # UNNORMALISED LOGITS! CAREFUL! (to use w/ cross entropy loss)
