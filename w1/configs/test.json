@@ -1,0 +1,15 @@
+{
+  	"exp_name": "test",
+	"data_path": "/home/pau/Documents/master/M3/project/MIT_split",
+	"out_path": "/home/pau/Documents/master/M5/project/w1",
+	"load_weights": null,
+	"freeze": true,
+	"batch_size": 12,
+	"lr": 0.0003,
+	"epochs": 20,
+	"model": "smallnet",
+	"model_params": {},
+	"classes": 8,
+	"wandb_project": "m5project",
+	"wandb_entity": "m5project"
+}
