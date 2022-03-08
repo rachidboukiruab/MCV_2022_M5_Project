@@ -1,6 +1,5 @@
 from torch import nn
 
-
 class SimpleNet(nn.Module):
     def __init__(self, nclasses):
         super(SimpleNet, self).__init__()
@@ -10,7 +9,6 @@ class SimpleNet(nn.Module):
         self.relu = nn.ReLU()
         self.maxp = nn.MaxPool2d(kernel_size=2)
         self.gmap = nn.MaxPool2d(kernel_size=8)
-        self.sigmoid = 
 
         self.conv1 = nn.Conv2d(3  ,  64, 3, stride=1, padding="same")
         self.conv2 = nn.Conv2d(64 ,  24, 3, stride=1, padding="same")
