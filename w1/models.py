@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+
 class SmallNet(nn.Module):
     def __init__(self, nclasses):
         super(SmallNet, self).__init__()
@@ -11,13 +12,13 @@ class SmallNet(nn.Module):
         self.maxp = nn.MaxPool2d(kernel_size=2)
         self.gmap = nn.MaxPool2d(kernel_size=4)
 
-        self.conv1 = nn.Conv2d(3  ,  64, 3, stride=1, padding="same")
-        self.conv2 = nn.Conv2d(64 ,  24, 3, stride=1, padding="same")
-        self.conv3 = nn.Conv2d(24 ,  48, 3, stride=1, padding="same")
-        self.conv4 = nn.Conv2d(48 ,  96, 3, stride=1, padding="same")
-        self.conv5 = nn.Conv2d(96 , 192, 3, stride=1, padding="same")
-        self.conv6 = nn.Conv2d(192, 192, 3, stride=1, padding="same")
-        self.conv7 = nn.Conv2d(192, 384, 3, stride=1, padding="same")
+        self.conv1 = nn.Conv2d(3, 64, (3, 3), stride=(1, 1), padding="same")
+        self.conv2 = nn.Conv2d(64, 24, (3, 3), stride=(1, 1), padding="same")
+        self.conv3 = nn.Conv2d(24, 48, (3, 3), stride=(1, 1), padding="same")
+        self.conv4 = nn.Conv2d(48, 96, (3, 3), stride=(1, 1), padding="same")
+        self.conv5 = nn.Conv2d(96, 192, (3, 3), stride=(1, 1), padding="same")
+        self.conv6 = nn.Conv2d(192, 192, (3, 3), stride=(1, 1), padding="same")
+        self.conv7 = nn.Conv2d(192, 384, (3, 3), stride=(1, 1), padding="same")
         self.linear = nn.Linear(384, self.nclasses)
 
     def forward(self, x):
