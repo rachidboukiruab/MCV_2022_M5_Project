@@ -86,6 +86,9 @@ def main(exp: ExperimentSettings) -> None:
     test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
 
     train_loader = DataLoader(train_data, batch_size=int(exp["batch_size"]), pin_memory=True, shuffle=True)
+    test_loader = DataLoader(test_data, batch_size=int(exp["batch_size"]), pin_memory=True)
+
+    print()
 
     # load model
     if str(exp["model"]) == "smallnet":
@@ -96,6 +99,7 @@ def main(exp: ExperimentSettings) -> None:
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Using {device} for training")
+    print(f">>{len(train_loader.dataset)}")
     train_model(exp, train_loader, model, device)
 
 
@@ -112,8 +116,7 @@ def train_model(exp, train_loader, model, device):
 
     for epoch in range(int(exp["epochs"])):
         print(f"DB: epoch {epoch}")
-
-        # wandb.log({"loss": loss})
+        running_loss = 0.0
         for i, tdata in enumerate(train_loader):
 
             # get imgs & labels -> to GPU/CPU
@@ -124,7 +127,7 @@ def train_model(exp, train_loader, model, device):
 
             output = model(data)
             loss = criterion(output, labels)
-
+            running_loss += loss.item()
             # stop if cracks (?)
             if not math.isfinite(loss):
                 print("Loss is {}, stopping training".format(loss))
@@ -133,12 +136,14 @@ def train_model(exp, train_loader, model, device):
             loss.backward()
             lr_scheduler.step()
         # w&b logger
-        wandb.log({"loss": loss})
+        wandb.log({"loss": running_loss})
 
 
 @torch.no_grad()
-def test_model():
-    pass
+def test_model(exp, test_loader, model, device):
+    model = model.to(device)
+
+
 
 
 if __name__ == "__main__":
