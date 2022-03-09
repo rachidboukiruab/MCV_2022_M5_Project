@@ -106,8 +106,8 @@ def train_model(exp, train_loader, model, device):
     model.train()
 
     # TODO choose between SGD & Adam
-    optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
-    # optimizer = optim.Adam(model.parameters(), lr=exp["lr"])
+    # optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
+    optimizer = optim.Adam(model.parameters(), lr=exp["lr"])
 
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                    step_size=10000,
@@ -142,9 +142,11 @@ def train_model(exp, train_loader, model, device):
             optimizer.step()
             lr_scheduler.step()
         # w&b logger
-        wandb.log({"loss": running_loss / i})
-        wandb.log({"lr": lr_scheduler.get_last_lr()})
-
+        wandb.log({
+            "epoch": epoch,
+            "train_loss": running_loss / len(train_loader.dataset),
+            "learning_rate": lr_scheduler.get_last_lr()[0],
+        })
 
 @torch.no_grad()
 def eval(test_loader, model, device):
