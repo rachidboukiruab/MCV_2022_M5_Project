@@ -88,8 +88,6 @@ def main(exp: ExperimentSettings) -> None:
     train_loader = DataLoader(train_data, batch_size=int(exp["batch_size"]), pin_memory=True, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=int(exp["batch_size"]), pin_memory=True)
 
-    print()
-
     # load model
     if str(exp["model"]) == "smallnet":
         model = models.SmallNet(int(exp["classes"]))
@@ -98,8 +96,7 @@ def main(exp: ExperimentSettings) -> None:
         raise SystemExit('model name not found')
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(f"Using {device} for training")
-    print(f">>{len(train_loader.dataset)}")
+
     train_model(exp, train_loader, model, device)
 
 
@@ -127,6 +124,7 @@ def train_model(exp, train_loader, model, device):
 
             output = model(data)
             loss = criterion(output, labels)
+            print(loss)
 
             running_loss += loss.item()
             # stop if cracks (?)
@@ -138,7 +136,6 @@ def train_model(exp, train_loader, model, device):
             optimizer.step()
             lr_scheduler.step()
         # w&b logger
-        print(f">>{i}")
         wandb.log({"loss": running_loss / i})
 
 
