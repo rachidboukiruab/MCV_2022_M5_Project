@@ -101,7 +101,21 @@ def main(exp: ExperimentSettings) -> None:
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    train_model(exp, train_loader, model, device)
+    #for epoch in range(exp["epochs"]):
+    for epoch in range(1):
+        # print(f"DB: epoch {epoch}")
+        train_loss, train_accuracy, lr_scheduler =train_model(exp, train_loader, model, device)
+        test_loss, test_accuracy = eval(test_loader, model, device)
+
+        # w&b logger
+        wandb.log({
+            "epoch": epoch,
+            "train_loss": train_loss / len(train_loader.dataset),
+            "learning_rate": lr_scheduler.get_last_lr()[0],
+            "validation_loss": test_loss,
+            "train_accuracy": train_accuracy,
+            "validation_accuracy": test_accuracy,
+        }) 
 
 
 def train_model(exp, train_loader, model, device):
@@ -117,42 +131,44 @@ def train_model(exp, train_loader, model, device):
                                                    gamma=0.95)
     criterion = torch.nn.CrossEntropyLoss()
 
-    for epoch in range(exp["epochs"]):
-        # print(f"DB: epoch {epoch}")
-        running_loss = 0.0
-        for i, tdata in enumerate(train_loader):
+    
+    running_loss = 0.0
+    correct, total = 0, 0
+    for i, tdata in enumerate(train_loader):
 
-            # get imgs & labels -> to GPU/CPU
-            data, labels = tdata
-            data, labels = data.to(device), labels.to(device)
+        # get imgs & labels -> to GPU/CPU
+        data, labels = tdata
+        data, labels = data.to(device), labels.to(device)
 
-            optimizer.zero_grad()
+        optimizer.zero_grad()
 
-            output = model(data)
-            loss = criterion(output, labels)
-            # print(loss)
-            # print(f"Labels{labels}")
+        output = model(data)
+        loss = criterion(output, labels)
+        # print(loss)
+        # print(f"Labels{labels}")
+        _, predicted = torch.max(output.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
 
-            running_loss += loss.item()
+        running_loss += loss.item()
 
-            # stop if cracks (?)
-            if not math.isfinite(loss):
-                print("Loss is {}, stopping training".format(loss))
-                sys.exit(1)
+        # stop if cracks (?)
+        if not math.isfinite(loss):
+            print("Loss is {}, stopping training".format(loss))
+            sys.exit(1)
 
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
-            lr_scheduler.step()
-        # w&b logger
-        wandb.log({
-            "epoch": epoch,
-            "train_loss": running_loss / len(train_loader.dataset),
-            "learning_rate": lr_scheduler.get_last_lr()[0],
-        })
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        optimizer.step()
+        lr_scheduler.step()
+
+    return running_loss, correct, lr_scheduler
+
 
 @torch.no_grad()
 def eval(test_loader, model, device):
+    criterion = torch.nn.CrossEntropyLoss()
+    running_loss = 0.0
     model = model.to(device)
     model.eval()
     correct, total = 0, 0
@@ -162,11 +178,16 @@ def eval(test_loader, model, device):
         tsdata, tslabels = tsdata.to(device), tslabels.to(device)
 
         outs = model(tsdata)
+        test_loss = criterion(outs, tslabels)
+
         _, predicted = torch.max(outs.data, 1)
         total += tslabels.size(0)
         correct += (predicted == tslabels).sum().item()
 
-    return correct / total
+        running_loss += test_loss.item()
+
+
+    return running_loss, correct
 
 
 if __name__ == "__main__":
