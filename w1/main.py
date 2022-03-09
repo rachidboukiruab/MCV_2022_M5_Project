@@ -85,7 +85,7 @@ def main(exp: ExperimentSettings) -> None:
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
     test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
 
-    train_loader = DataLoader(train_data, batch_size=int(exp["batch_size"], pin_memory=True))
+    train_loader = DataLoader(train_data, batch_size=int(exp["batch_size"]), pin_memory=True, shuffle=True)
 
     # load model
     if str(exp["model"]) == "smallnet":
