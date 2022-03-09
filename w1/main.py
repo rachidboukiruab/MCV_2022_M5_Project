@@ -9,6 +9,8 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from torch import nn, optim
 from torch import Tensor
 from pathlib import Path
+
+from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from datasets import *
@@ -16,6 +18,9 @@ from typing import TypedDict, Dict, Optional, Any, List
 
 import models
 
+transfs = transforms.Compose([
+    transforms.ToTensor()
+])
 
 class ExperimentSettings(TypedDict):
     """
@@ -72,11 +77,17 @@ def setup() -> ExperimentSettings:
 
 def main(exp: ExperimentSettings) -> None:
 
+    # w&b logger
     wandb.init(project=exp["wandb_project"], entity=exp["wandb_entity"])
     wandb.config = exp
-    train_data = ImageFolder(str(exp["data_path"] / "train"))
-    test_data = ImageFolder(str(exp["data_path"] / "test"))
 
+    # load train & test data
+    train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
+    test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
+
+    train_loader = DataLoader(train_data, batch_size=int(exp["batch_size"], pin_memory=True))
+
+    # load model
     if str(exp["model"]) == "smallnet":
         model = models.SmallNet(int(exp["classes"]))
         print("Using smallnet...")
@@ -85,10 +96,10 @@ def main(exp: ExperimentSettings) -> None:
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Using {device} for training")
-    train_model(exp, train_data, model, device)
+    train_model(exp, train_loader, model, device)
 
 
-def train_model(exp, train_data, model, device):
+def train_model(exp, train_loader, model, device):
     model = model.to(device)
 
     # TODO choose between SGD & Adam
@@ -103,10 +114,11 @@ def train_model(exp, train_data, model, device):
         print(f"DB: epoch {epoch}")
 
         # wandb.log({"loss": loss})
-        for i, tdata in enumerate(train_data):
+        for i, tdata in enumerate(train_loader):
 
             # get imgs & labels -> to GPU/CPU
             data, labels = tdata
+            print(data.shape, data)
             data, labels = data.to(device), labels.to(device)
             print(data.shape)
 
