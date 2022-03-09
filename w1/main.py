@@ -22,11 +22,12 @@ transfs = transforms.Compose([
     transforms.ToTensor()
 ])
 
+
 class ExperimentSettings(TypedDict):
     """
-	A typed dict to represent experiment settings. Types should match those in
-	the configuration JSON file used as input parameter.
-	"""
+    A typed dict to represent experiment settings. Types should match those in
+    the configuration JSON file used as input parameter.
+    """
     exp_name: str
     data_path: Path
     out_path: Path
@@ -44,14 +45,14 @@ class ExperimentSettings(TypedDict):
 
 def setup() -> ExperimentSettings:
     """
-	Creates a parser to load a configuration file and returns it as an
-	ExperimentSettings dictionary.
+    Creates a parser to load a configuration file and returns it as an
+    ExperimentSettings dictionary.
 
-	Returns
-	-------
-	ExperimentSettings
-		Dictionary with all experiment-related variables
-	"""
+    Returns
+    -------
+    ExperimentSettings
+        Dictionary with all experiment-related variables
+    """
     parser = ArgumentParser(
         description='Torch-based image classification system',
         formatter_class=ArgumentDefaultsHelpFormatter
@@ -85,12 +86,12 @@ def main(exp: ExperimentSettings) -> None:
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
     test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
 
-    train_loader = DataLoader(train_data, batch_size=int(exp["batch_size"]), pin_memory=True, shuffle=True)
-    test_loader = DataLoader(test_data, batch_size=int(exp["batch_size"]), pin_memory=True)
+    train_loader = DataLoader(train_data, batch_size=exp["batch_size"], pin_memory=True, shuffle=True)
+    test_loader = DataLoader(test_data, batch_size=exp["batch_size"], pin_memory=True)
 
     # load model
     if str(exp["model"]) == "smallnet":
-        model = models.SmallNet(int(exp["classes"]))
+        model = models.SmallNet(exp["classes"])
         print("Using smallnet...")
     else:
         raise SystemExit('model name not found')
@@ -102,17 +103,19 @@ def main(exp: ExperimentSettings) -> None:
 
 def train_model(exp, train_loader, model, device):
     model = model.to(device)
+    model.train()
 
     # TODO choose between SGD & Adam
-    optimizer = optim.SGD(model.parameters(), lr=int(exp["lr"]), momentum=int(exp["momentum"]))
+    optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
+    # optimizer = optim.Adam(model.parameters(), lr=exp["lr"])
 
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                   step_size=3,
-                                                   gamma=0.1)
+                                                   step_size=10000,
+                                                   gamma=0.95)
     criterion = torch.nn.CrossEntropyLoss()
 
-    for epoch in range(int(exp["epochs"])):
-        print(f"DB: epoch {epoch}")
+    for epoch in range(exp["epochs"]):
+        # print(f"DB: epoch {epoch}")
         running_loss = 0.0
         for i, tdata in enumerate(train_loader):
 
@@ -124,16 +127,18 @@ def train_model(exp, train_loader, model, device):
 
             output = model(data)
             loss = criterion(output, labels)
-            print(loss)
-            print(f"Labels{labels}")
+            # print(loss)
+            # print(f"Labels{labels}")
 
             running_loss += loss.item()
+
             # stop if cracks (?)
             if not math.isfinite(loss):
                 print("Loss is {}, stopping training".format(loss))
                 sys.exit(1)
 
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             lr_scheduler.step()
         # w&b logger
@@ -157,9 +162,6 @@ def eval(test_loader, model, device):
         correct += (predicted == tslabels).sum().item()
 
     return correct / total
-
-
-
 
 
 if __name__ == "__main__":

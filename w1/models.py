@@ -10,7 +10,7 @@ class SmallNet(nn.Module):
 
         self.relu = nn.ReLU()
         self.maxp = nn.MaxPool2d(kernel_size=2)
-        self.gmap = nn.MaxPool2d(kernel_size=4)
+        self.gmap = nn.MaxPool2d(kernel_size=8)
 
         self.conv1 = nn.Conv2d(3, 64, (3, 3), stride=(1, 1), padding="same")
         self.conv2 = nn.Conv2d(64, 24, (3, 3), stride=(1, 1), padding="same")
@@ -46,9 +46,8 @@ class SmallNet(nn.Module):
 
         x = self.conv7(x)       # Batch x 192 x 8 x 8
         x = self.relu(x)
-        x = self.maxp(x)
 
-        x = self.gmap(x)        # Batch x 384 x 4 x 4
+        x = self.gmap(x)        # Batch x 384 x 8 x 8
         x = torch.squeeze(x)    # Batch x 384 x 1 x 1
         x = self.linear(x)      # Batch x 384 -> Batch x Classes
 
