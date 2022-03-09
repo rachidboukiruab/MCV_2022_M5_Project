@@ -14,7 +14,7 @@ from torchvision.datasets import ImageFolder
 from datasets import *
 from typing import TypedDict, Dict, Optional, Any, List
 
-from w1 import models
+import models
 
 
 class ExperimentSettings(TypedDict):
