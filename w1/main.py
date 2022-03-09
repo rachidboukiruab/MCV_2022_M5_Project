@@ -118,18 +118,12 @@ def train_model(exp, train_loader, model, device):
 
             # get imgs & labels -> to GPU/CPU
             data, labels = tdata
-            print(data.shape, data)
             data, labels = data.to(device), labels.to(device)
-            print(data.shape)
 
             optimizer.zero_grad()
 
             output = model(data)
             loss = criterion(output, labels)
-
-            # w&b logger
-            if i % wandb.config.log_interval == 0:
-                wandb.log({"loss": loss})
 
             # stop if cracks (?)
             if not math.isfinite(loss):
@@ -138,6 +132,8 @@ def train_model(exp, train_loader, model, device):
 
             loss.backward()
             lr_scheduler.step()
+        # w&b logger
+        wandb.log({"loss": loss})
 
 
 @torch.no_grad()
