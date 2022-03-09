@@ -125,6 +125,7 @@ def train_model(exp, train_loader, model, device):
             output = model(data)
             loss = criterion(output, labels)
             print(loss)
+            print(f"Labels{labels}")
 
             running_loss += loss.item()
             # stop if cracks (?)
@@ -137,11 +138,26 @@ def train_model(exp, train_loader, model, device):
             lr_scheduler.step()
         # w&b logger
         wandb.log({"loss": running_loss / i})
+        wandb.log({"lr": lr_scheduler.get_last_lr()})
 
 
 @torch.no_grad()
-def test_model(exp, test_loader, model, device):
+def eval(test_loader, model, device):
     model = model.to(device)
+    model.eval()
+    correct, total = 0, 0
+    for tsdata in test_loader:
+
+        tsdata, tslabels = tsdata
+        tsdata, tslabels = tsdata.to(device), tslabels.to(device)
+
+        outs = model(tsdata)
+        _, predicted = torch.max(outs.data, 1)
+        total += tslabels.size(0)
+        correct += (predicted == tslabels).sum().item()
+
+    return correct / total
+
 
 
 
