@@ -78,7 +78,7 @@ def main(exp: ExperimentSettings) -> None:
     test_data = ImageFolder(str(exp["data_path"] / "test"))
 
     if str(exp["model"]) == "smallnet":
-        model = models.SimpleNet(int(exp["classes"]))
+        model = models.SmallNet(int(exp["classes"]))
         print("Using smallnet...")
     else:
         raise SystemExit('model name not found')
