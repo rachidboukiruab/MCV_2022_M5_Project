@@ -6,6 +6,7 @@
 	"freeze": true,
 	"batch_size": 12,
 	"lr": 0.0003,
+	"momentum": 0.9,
 	"epochs": 20,
 	"model": "smallnet",
 	"model_params": {},
