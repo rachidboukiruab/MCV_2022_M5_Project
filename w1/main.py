@@ -71,6 +71,7 @@ def setup() -> ExperimentSettings:
 
 
 def main(exp: ExperimentSettings) -> None:
+
     wandb.init(project=exp["wandb_project"], entity=exp["wandb_entity"])
     wandb.config = exp
     train_data = ImageFolder(str(exp["data_path"] / "train"))
@@ -78,11 +79,12 @@ def main(exp: ExperimentSettings) -> None:
 
     if str(exp["model"]) == "simplenet":
         model = models.SimpleNet(int(exp["classes"]))
+        print("Using simplenet...")
     else:
         raise SystemExit('model name not found')
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
+    print(f"Using {device} for training")
     train_model(exp, train_data, model, device)
 
 
@@ -98,6 +100,7 @@ def train_model(exp, train_data, model, device):
     criterion = torch.nn.CrossEntropyLoss()
 
     for epoch in range(int(exp["epochs"])):
+        print(f"DB: epoch {epoch}")
 
         # wandb.log({"loss": loss})
         for i, tdata in enumerate(train_data):
@@ -105,6 +108,7 @@ def train_model(exp, train_data, model, device):
             # get imgs & labels -> to GPU/CPU
             data, labels = tdata
             data, labels = data.to(device), labels.to(device)
+            print(data.shape)
 
             optimizer.zero_grad()
 
