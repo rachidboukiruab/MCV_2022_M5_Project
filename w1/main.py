@@ -79,8 +79,11 @@ def setup() -> ExperimentSettings:
 def main(exp: ExperimentSettings) -> None:
 
     # w&b logger
-    wandb.init(project=exp["wandb_project"], entity=exp["wandb_entity"])
-    wandb.config = exp
+    wandb.init(
+        project=exp["wandb_project"],
+        entity=exp["wandb_entity"],
+        config=exp
+    )
 
     # load train & test data
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
