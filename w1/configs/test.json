@@ -1,7 +1,7 @@
 {
   	"exp_name": "test",
-	"data_path": "/home/pau/Documents/master/M3/project/MIT_split",
-	"out_path": "/home/pau/Documents/master/M5/project/w1",
+	"data_path": "/home/group01/mcv/datasets/MIT_split",
+	"out_path": "/home/group01/MCV_2022_M5_Project/w1/wandb_out",
 	"load_weights": null,
 	"freeze": true,
 	"batch_size": 12,
