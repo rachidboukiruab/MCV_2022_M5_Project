@@ -112,7 +112,7 @@ def main(exp: ExperimentSettings) -> None:
             "epoch": epoch,
             "train_loss": train_loss / len(train_loader.dataset),
             "learning_rate": lr_scheduler.get_last_lr()[0],
-            "validation_loss": test_loss,
+            "validation_loss": test_loss/len(test_loader.dataset),
             "train_accuracy": train_accuracy,
             "validation_accuracy": test_accuracy,
         }) 
@@ -162,7 +162,7 @@ def train_model(exp, train_loader, model, device):
         optimizer.step()
         lr_scheduler.step()
 
-    return running_loss, correct, lr_scheduler
+    return running_loss, correct/total, lr_scheduler
 
 
 @torch.no_grad()
@@ -187,7 +187,7 @@ def eval(test_loader, model, device):
         running_loss += test_loss.item()
 
 
-    return running_loss, correct
+    return running_loss, correct/total
 
 
 if __name__ == "__main__":
