@@ -101,8 +101,7 @@ def main(exp: ExperimentSettings) -> None:
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    #for epoch in range(exp["epochs"]):
-    for epoch in range(1):
+    for epoch in range(exp["epochs"]):
         # print(f"DB: epoch {epoch}")
         train_loss, train_accuracy, lr_scheduler =train_model(exp, train_loader, model, device)
         test_loss, test_accuracy = eval(test_loader, model, device)
@@ -119,6 +118,10 @@ def main(exp: ExperimentSettings) -> None:
 
 
 def train_model(exp, train_loader, model, device):
+    """
+    Trains 1 epoch
+    """
+
     model = model.to(device)
     model.train()
 
