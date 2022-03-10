@@ -92,9 +92,6 @@ def main(exp: ExperimentSettings) -> None:
         config=exp
     )
 
-    print(f">>>DEBUG {wandb.run.dir}")
-    print(f">>>DEBUG {wandb.run.id}")
-    print(f">>>DEBUG {wandb.run.name}")
     # load train & test data
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
     test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
@@ -125,8 +122,8 @@ def main(exp: ExperimentSettings) -> None:
             "train_accuracy": train_accuracy,
             "validation_accuracy": test_accuracy,
         })
-    # TODO save model weights
-    PATH = join(str(exp['save_path']),'model_weights.pth')
+
+    PATH = join(str(exp['save_path']),wandb.run.name,'model_weights.pth')
     torch.save(model.state_dict(), PATH) # saves weights
 
     # sync file with w&b
