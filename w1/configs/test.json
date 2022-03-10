@@ -7,10 +7,11 @@
 	"batch_size": 24,
 	"lr": 0.0003,
 	"momentum": 0.9,
-	"epochs": 100,
+	"epochs": 1,
 	"model": "smallnet",
 	"model_params": {},
 	"classes": 8,
 	"wandb_project": "m5project",
-	"wandb_entity": "m5project"
+	"wandb_entity": "m5project",
+	"save_path": "./models_weights"
 }

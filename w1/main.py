@@ -1,5 +1,7 @@
 import math
 import sys
+from os.path import join
+import os
 
 import wandb
 import torch
@@ -73,6 +75,11 @@ def setup() -> ExperimentSettings:
     exp["load_weights"] = Path(exp["load_weights"]) \
         if exp["load_weights"] is not None else None
 
+    # create path
+    if not os.path.exists(str(exp["save_path"])):
+        os.makedirs(str(exp["save_path"]))
+        print(f"Creating path {str(exp['save_path'])}")
+
     return exp
 
 
@@ -85,6 +92,8 @@ def main(exp: ExperimentSettings) -> None:
         config=exp
     )
 
+    print(f">>>DEBUG {wandb.dir}")
+    print(f">>>DEBUG {wandb.id}")
     # load train & test data
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
     test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
@@ -114,7 +123,19 @@ def main(exp: ExperimentSettings) -> None:
             "validation_loss": test_loss/len(test_loader.dataset),
             "train_accuracy": train_accuracy,
             "validation_accuracy": test_accuracy,
-        }) 
+        })
+    # TODO save model weights
+    PATH = join(str(exp['save_path']),'model_weights.pth')
+    torch.save(model.state_dict(), PATH) # saves weights
+
+    # sync file with w&b
+    wandb.save(PATH)
+    # 4 loading:
+    # wandb.restore('model_weights.pth', run_path="lavanyashukla/save_and_restore/10pr4joa")
+    # model = ()
+    # model.load_state_dict(torch.load('model_weights.pth'))
+
+
 
 
 def train_model(exp, train_loader, model, device):
