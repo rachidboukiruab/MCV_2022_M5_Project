@@ -92,8 +92,8 @@ def main(exp: ExperimentSettings) -> None:
         config=exp
     )
 
-    print(f">>>DEBUG {wandb.dir}")
-    print(f">>>DEBUG {wandb.id}")
+    print(f">>>DEBUG {wandb.run.dir}")
+    print(f">>>DEBUG {wandb.run.id}")
     # load train & test data
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
     test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
