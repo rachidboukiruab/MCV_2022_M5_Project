@@ -1,6 +1,6 @@
 {
   	"exp_name": "test",
-	"data_path": "/home/group01/mcv/datasets/MIT_split",
+	"data_path": "/home/group01/scene_class",
 	"out_path": "/home/group01/MCV_2022_M5_Project/w1/wandb_out",
 	"load_weights": null,
 	"freeze": true,
@@ -11,7 +11,7 @@
 	"epochs": 100,
 	"model": "smallnet",
 	"model_params": {},
-	"classes": 8,
+	"classes": 6,
 	"wandb_project": "m5project",
 	"wandb_entity": "m5project",
 	"save_path": "./models_weights"
