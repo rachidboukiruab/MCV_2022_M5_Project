@@ -111,9 +111,18 @@ def main(exp: ExperimentSettings) -> None:
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+
+    # optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
+    optimizer = optim.Adam(model.parameters(), lr=exp["lr"], weight_decay=exp["weight_decay"])
+
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
+                                                   step_size=10,
+                                                   gamma=0.1)
+    criterion = torch.nn.CrossEntropyLoss()
+
     for epoch in range(exp["epochs"]):
         # print(f"DB: epoch {epoch}")
-        train_loss, train_accuracy, lr_scheduler = train_model(exp, train_loader, model, device)
+        train_loss, train_accuracy, lr_scheduler = train_model(exp, train_loader, model, device, optimizer, criterion, lr_scheduler)
         test_loss, test_accuracy = eval(test_loader, model, device)
         print(lr_scheduler.get_last_lr()[-1])
         # w&b logger
@@ -142,22 +151,13 @@ def main(exp: ExperimentSettings) -> None:
     # model.load_state_dict(torch.load('model_weights.pth'))
 
 
-def train_model(exp, train_loader, model, device):
+def train_model(exp, train_loader, model, device, optimizer, criterion, lr_scheduler):
     """
     Trains 1 epoch
     """
 
     model = model.to(device)
     model.train()
-
-    # TODO choose between SGD & Adam
-    # optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
-    optimizer = optim.Adam(model.parameters(), lr=exp["lr"], weight_decay=exp["weight_decay"])
-
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                   step_size=10,
-                                                   gamma=0.1)
-    criterion = torch.nn.CrossEntropyLoss()
 
     running_loss = 0.0
     correct, total = 0, 0
@@ -187,7 +187,7 @@ def train_model(exp, train_loader, model, device):
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
-        lr_scheduler.step()
+    lr_scheduler.step()
 
     return running_loss, correct / total, lr_scheduler
 
