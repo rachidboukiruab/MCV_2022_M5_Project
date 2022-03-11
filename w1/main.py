@@ -97,10 +97,8 @@ def main(exp: ExperimentSettings) -> None:
     train_loader = DataLoader(train_data, batch_size=exp["batch_size"], pin_memory=True, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=exp["batch_size"], pin_memory=True)
 
-    # print(f"(dataset info) train: {len(train_loader)} images")
-    # print(f"(dataset info) test: {len(test_loader)} images")
-    print_colored(f"(dataset info) train: {len(train_loader)*exp['epochs']} images", "0;30;43")
-    print_colored(f"(dataset info) test: {len(test_loader)*exp['epochs']} images", "0;30;43")
+    print_colored(f"(dataset info) train: {len(train_loader)*exp['epochs']} images", "\x1b[0;30;43m")
+    print_colored(f"(dataset info) test: {len(test_loader)*exp['epochs']} images", "\x1b[0;30;43")
 
     # load model
     if str(exp["model"]) == "smallnet":
@@ -113,7 +111,7 @@ def main(exp: ExperimentSettings) -> None:
 
 
     # optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
-    optimizer = optim.Adam(model.parameters(), lr=exp["lr"], weight_decay=exp["weight_decay"])
+    optimizer = optim.Adam(model.parameters(), lr=exp["lr"])
 
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                    step_size=10,
