@@ -115,12 +115,12 @@ def main(exp: ExperimentSettings) -> None:
         # print(f"DB: epoch {epoch}")
         train_loss, train_accuracy, lr_scheduler = train_model(exp, train_loader, model, device)
         test_loss, test_accuracy = eval(test_loader, model, device)
-
+        print(lr_scheduler.get_last_lr())
         # w&b logger
         wandb.log({
             "epoch": epoch,
             "train_loss": train_loss / len(train_loader.dataset),
-            "learning_rate": lr_scheduler.get_last_lr()[0],
+            "learning_rate": lr_scheduler.get_last_lr(),
             "validation_loss": test_loss / len(test_loader.dataset),
             "train_accuracy": train_accuracy,
             "validation_accuracy": test_accuracy,
@@ -187,7 +187,7 @@ def train_model(exp, train_loader, model, device):
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
-    lr_scheduler.step()
+        lr_scheduler.step()
 
     return running_loss, correct / total, lr_scheduler
 
