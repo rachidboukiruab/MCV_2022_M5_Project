@@ -5,7 +5,7 @@
 	"load_weights": null,
 	"freeze": true,
 	"batch_size": 64,
-	"lr": 0.0003,
+	"lr": 0.3,
 	"momentum": 0.9,
 	"weight_decay": 1e-4,
 	"epochs": 100,
