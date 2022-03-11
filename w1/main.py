@@ -124,7 +124,7 @@ def main(exp: ExperimentSettings) -> None:
         # print(f"DB: epoch {epoch}")
         train_loss, train_accuracy, lr_scheduler = train_model(exp, train_loader, model, device, optimizer, criterion, lr_scheduler)
         test_loss, test_accuracy = eval(test_loader, model, device)
-        print(lr_scheduler.get_last_lr()[-1])
+        print(lr_scheduler.get_last_lr()[0])
         # w&b logger
         wandb.log({
             "epoch": epoch,
