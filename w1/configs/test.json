@@ -4,7 +4,7 @@
 	"out_path": "/home/group01/MCV_2022_M5_Project/w1/wandb_out",
 	"load_weights": null,
 	"freeze": true,
-	"batch_size": 24,
+	"batch_size": 64,
 	"lr": 0.0003,
 	"momentum": 0.9,
 	"weight_decay": 1e-4,
