@@ -129,7 +129,7 @@ def main(exp: ExperimentSettings) -> None:
         wandb.log({
             "epoch": epoch,
             "train_loss": train_loss / len(train_loader.dataset),
-            "learning_rate": lr_scheduler.get_last_lr()[-1],
+            "learning_rate": lr_scheduler.get_last_lr()[0],
             "validation_loss": test_loss / len(test_loader.dataset),
             "train_accuracy": train_accuracy,
             "validation_accuracy": test_accuracy,
