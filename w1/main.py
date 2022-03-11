@@ -1,6 +1,5 @@
 import json
 import math
-import os
 import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from os.path import join
@@ -15,6 +14,7 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
 import models
+from utils import make_dirs
 
 transfs = transforms.Compose([
     transforms.ColorJitter(brightness=.5, hue=.3),
@@ -77,9 +77,7 @@ def setup() -> ExperimentSettings:
         if exp["load_weights"] is not None else None
 
     # create path
-    if not os.path.exists(str(exp["save_path"])):
-        os.makedirs(str(exp["save_path"]))
-        print(f"Creating path {str(exp['save_path'])}")
+    make_dirs(str(exp["save_path"]))
 
     return exp
 
@@ -125,8 +123,13 @@ def main(exp: ExperimentSettings) -> None:
             "validation_accuracy": test_accuracy,
         })
 
-    PATH = join(str(exp['save_path']), wandb.run.name, 'model_weights.pth')
-    torch.save(model.state_dict(), PATH)  # saves weights
+    # creates path to store weights
+    PATH = join(str(exp['save_path']), wandb.run.name)
+    make_dirs(PATH)
+    PATH = join(PATH, 'model_weights.pth')
+
+    # saves weights
+    torch.save(model.state_dict(), PATH)
 
     # sync file with w&b
     wandb.save(PATH)
