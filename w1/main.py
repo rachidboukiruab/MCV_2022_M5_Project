@@ -17,6 +17,11 @@ from torchvision.datasets import ImageFolder
 import models
 
 transfs = transforms.Compose([
+    transforms.ColorJitter(brightness=.5, hue=.3),
+    transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
+    transforms.RandomRotation(degrees=(0, 45)),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomVerticalFlip(p=0.5),
     transforms.ToTensor()
 ])
 
@@ -94,6 +99,8 @@ def main(exp: ExperimentSettings) -> None:
     train_loader = DataLoader(train_data, batch_size=exp["batch_size"], pin_memory=True, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=exp["batch_size"], pin_memory=True)
 
+    print(f"(dataset info) train: {len(train_loader)} images")
+    print(f"(dataset info) test: {len(test_loader)} images")
     # load model
     if str(exp["model"]) == "smallnet":
         model = models.SmallNet(exp["classes"])
@@ -139,7 +146,7 @@ def train_model(exp, train_loader, model, device):
 
     # TODO choose between SGD & Adam
     # optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
-    optimizer = optim.Adam(model.parameters(), lr=exp["lr"])
+    optimizer = optim.Adam(model.parameters(), lr=exp["lr"], weight_decay=exp["weight_decay"])
 
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                    step_size=10000,
