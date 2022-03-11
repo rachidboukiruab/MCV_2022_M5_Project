@@ -1,22 +1,18 @@
-import math
-import sys
-from os.path import join
-import os
-
-import wandb
-import torch
 import json
-
+import math
+import os
+import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from torch import nn, optim
-from torch import Tensor
+from os.path import join
 from pathlib import Path
+from typing import TypedDict, Dict, Optional, Any
 
+import torch
+import wandb
+from torch import optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-from datasets import *
-from typing import TypedDict, Dict, Optional, Any, List
 
 import models
 
@@ -84,7 +80,6 @@ def setup() -> ExperimentSettings:
 
 
 def main(exp: ExperimentSettings) -> None:
-
     # w&b logger
     wandb.init(
         project=exp["wandb_project"],
@@ -110,7 +105,7 @@ def main(exp: ExperimentSettings) -> None:
 
     for epoch in range(exp["epochs"]):
         # print(f"DB: epoch {epoch}")
-        train_loss, train_accuracy, lr_scheduler =train_model(exp, train_loader, model, device)
+        train_loss, train_accuracy, lr_scheduler = train_model(exp, train_loader, model, device)
         test_loss, test_accuracy = eval(test_loader, model, device)
 
         # w&b logger
@@ -118,13 +113,13 @@ def main(exp: ExperimentSettings) -> None:
             "epoch": epoch,
             "train_loss": train_loss / len(train_loader.dataset),
             "learning_rate": lr_scheduler.get_last_lr()[0],
-            "validation_loss": test_loss/len(test_loader.dataset),
+            "validation_loss": test_loss / len(test_loader.dataset),
             "train_accuracy": train_accuracy,
             "validation_accuracy": test_accuracy,
         })
 
-    PATH = join(str(exp['save_path']),wandb.run.name,'model_weights.pth')
-    torch.save(model.state_dict(), PATH) # saves weights
+    PATH = join(str(exp['save_path']), wandb.run.name, 'model_weights.pth')
+    torch.save(model.state_dict(), PATH)  # saves weights
 
     # sync file with w&b
     wandb.save(PATH)
@@ -132,8 +127,6 @@ def main(exp: ExperimentSettings) -> None:
     # wandb.restore('model_weights.pth', run_path="lavanyashukla/save_and_restore/10pr4joa")
     # model = ()
     # model.load_state_dict(torch.load('model_weights.pth'))
-
-
 
 
 def train_model(exp, train_loader, model, device):
@@ -153,7 +146,6 @@ def train_model(exp, train_loader, model, device):
                                                    gamma=0.95)
     criterion = torch.nn.CrossEntropyLoss()
 
-    
     running_loss = 0.0
     correct, total = 0, 0
     for i, tdata in enumerate(train_loader):
@@ -184,7 +176,7 @@ def train_model(exp, train_loader, model, device):
         optimizer.step()
         lr_scheduler.step()
 
-    return running_loss, correct/total, lr_scheduler
+    return running_loss, correct / total, lr_scheduler
 
 
 @torch.no_grad()
@@ -195,7 +187,6 @@ def eval(test_loader, model, device):
     model.eval()
     correct, total = 0, 0
     for tsdata in test_loader:
-
         tsdata, tslabels = tsdata
         tsdata, tslabels = tsdata.to(device), tslabels.to(device)
 
@@ -208,8 +199,7 @@ def eval(test_loader, model, device):
 
         running_loss += test_loss.item()
 
-
-    return running_loss, correct/total
+    return running_loss, correct / total
 
 
 if __name__ == "__main__":
