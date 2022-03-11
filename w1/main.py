@@ -115,12 +115,12 @@ def main(exp: ExperimentSettings) -> None:
         # print(f"DB: epoch {epoch}")
         train_loss, train_accuracy, lr_scheduler = train_model(exp, train_loader, model, device)
         test_loss, test_accuracy = eval(test_loader, model, device)
-        print(lr_scheduler.get_last_lr())
+        print(lr_scheduler.get_last_lr()[-1])
         # w&b logger
         wandb.log({
             "epoch": epoch,
             "train_loss": train_loss / len(train_loader.dataset),
-            "learning_rate": lr_scheduler.get_last_lr(),
+            "learning_rate": lr_scheduler.get_last_lr()[-1],
             "validation_loss": test_loss / len(test_loader.dataset),
             "train_accuracy": train_accuracy,
             "validation_accuracy": test_accuracy,
