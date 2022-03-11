@@ -1,6 +1,8 @@
 # TODO colourful prints
 import os
 
+COLOR_WARNING = "\x1b[0;30;43m"
+
 
 def make_dirs(path):
     """

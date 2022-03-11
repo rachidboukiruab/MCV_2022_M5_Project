@@ -14,7 +14,7 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
 import models
-from utils import make_dirs, colorize_string, print_colored
+from utils import make_dirs, print_colored, COLOR_WARNING
 
 transfs = transforms.Compose([
     transforms.ColorJitter(brightness=.5, hue=.3),
@@ -97,8 +97,8 @@ def main(exp: ExperimentSettings) -> None:
     train_loader = DataLoader(train_data, batch_size=exp["batch_size"], pin_memory=True, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=exp["batch_size"], pin_memory=True)
 
-    print_colored(f"(dataset info) train: {len(train_loader)*exp['epochs']} images", "\x1b[0;30;43m")
-    print_colored(f"(dataset info) test: {len(test_loader)*exp['epochs']} images", "\x1b[0;30;43")
+    print_colored(f"(dataset info) train: {len(train_loader)*exp['epochs']} images", COLOR_WARNING)
+    print_colored(f"(dataset info) test: {len(test_loader)*exp['epochs']} images", COLOR_WARNING)
 
     # load model
     if str(exp["model"]) == "smallnet":
