@@ -155,7 +155,7 @@ def train_model(exp, train_loader, model, device):
     optimizer = optim.Adam(model.parameters(), lr=exp["lr"], weight_decay=exp["weight_decay"])
 
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                   step_size=100,
+                                                   step_size=30,
                                                    gamma=0.95)
     criterion = torch.nn.CrossEntropyLoss()
 
@@ -187,7 +187,7 @@ def train_model(exp, train_loader, model, device):
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
-        lr_scheduler.step()
+    lr_scheduler.step()
 
     return running_loss, correct / total, lr_scheduler
 
