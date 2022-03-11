@@ -14,7 +14,7 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
 import models
-from utils import make_dirs
+from utils import make_dirs, colorize_string, print_colored
 
 transfs = transforms.Compose([
     transforms.ColorJitter(brightness=.5, hue=.3),
@@ -97,8 +97,11 @@ def main(exp: ExperimentSettings) -> None:
     train_loader = DataLoader(train_data, batch_size=exp["batch_size"], pin_memory=True, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=exp["batch_size"], pin_memory=True)
 
-    print(f"(dataset info) train: {len(train_loader)} images")
-    print(f"(dataset info) test: {len(test_loader)} images")
+    # print(f"(dataset info) train: {len(train_loader)} images")
+    # print(f"(dataset info) test: {len(test_loader)} images")
+    print_colored(f"(dataset info) train: {len(train_loader)} images", "0;30;43")
+    print_colored(f"(dataset info) test: {len(test_loader)} images", "0;30;43")
+
     # load model
     if str(exp["model"]) == "smallnet":
         model = models.SmallNet(exp["classes"])
@@ -178,7 +181,7 @@ def train_model(exp, train_loader, model, device):
 
         # stop if cracks (?)
         if not math.isfinite(loss):
-            print("Loss is {}, stopping training".format(loss))
+            print_colored("Loss is {}, stopping training".format(loss), "0;30;43")
             sys.exit(1)
 
         loss.backward()
