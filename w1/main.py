@@ -155,7 +155,7 @@ def train_model(exp, train_loader, model, device):
     optimizer = optim.Adam(model.parameters(), lr=exp["lr"], weight_decay=exp["weight_decay"])
 
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                   step_size=30,
+                                                   step_size=1,
                                                    gamma=0.95)
     criterion = torch.nn.CrossEntropyLoss()
 
