@@ -99,9 +99,9 @@ def main(exp: ExperimentSettings) -> None:
 
     # print(f"(dataset info) train: {len(train_loader)} images")
     # print(f"(dataset info) test: {len(test_loader)} images")
-    print_colored(f"(dataset info) train: {len(train_loader)} images", "0;30;43")
-    print_colored(f"(dataset info) test: {len(test_loader)} images", "0;30;43")
-
+    print_colored(f"(dataset info) train: {len(train_loader)*exp['epochs']} images", "0;30;43")
+    print_colored(f"(dataset info) test: {len(test_loader)*exp['epochs']} images", "0;30;43")
+1
     # load model
     if str(exp["model"]) == "smallnet":
         model = models.SmallNet(exp["classes"])
