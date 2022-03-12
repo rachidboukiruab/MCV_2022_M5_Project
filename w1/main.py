@@ -12,6 +12,7 @@ from torch import optim, nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
+from torchinfo import summary
 
 import models
 from utils import make_dirs, print_colored, COLOR_WARNING
@@ -93,8 +94,7 @@ def main(exp: ExperimentSettings) -> None:
     transfs = transforms.Compose([
     transforms.ToTensor(),
     transforms.Resize((256, 256)),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
+    ])
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
     test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
 
@@ -126,7 +126,6 @@ def main(exp: ExperimentSettings) -> None:
 
     model.apply(weights_init)
 
-    print(model)
     total_params = sum(p.numel() for p in model.parameters())
     print('Number of parameters for this model: {}'.format(total_params))
 
@@ -138,7 +137,9 @@ def main(exp: ExperimentSettings) -> None:
                                                    gamma=0.8)
     criterion = torch.nn.CrossEntropyLoss()
 
-
+    model = model.to(device)
+    summary(model, input_size = (exp["batch_size"], 3, 256, 256))
+    
     for epoch in range(exp["epochs"]):
         # print(f"DB: epoch {epoch}")
         train_loss, train_accuracy, lr_scheduler = train_model(exp, train_loader, model, device, optimizer, criterion, lr_scheduler)
@@ -174,7 +175,6 @@ def train_model(exp, train_loader, model, device, optimizer, criterion, lr_sched
     Trains 1 epoch
     """
 
-    model = model.to(device)
     model.train()
 
     running_loss = 0.0
@@ -205,7 +205,7 @@ def train_model(exp, train_loader, model, device, optimizer, criterion, lr_sched
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
-    lr_scheduler.step()
+    #lr_scheduler.step()
 
     return running_loss, correct / total, lr_scheduler
 

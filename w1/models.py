@@ -59,11 +59,11 @@ class Team3Model(nn.Module):
 
         self.nclasses = nclasses
 
-        self.conv1 = nn.Conv2d(3, 16, 3)
-        self.conv2 = nn. Conv2d(16, 32, 3)
-        self.conv3 = nn. Conv2d(32, 64, 3)
+        self.conv1 = nn.Conv2d(3, 16, (3, 3), stride=(1, 1), padding="same")
+        self.conv2 = nn. Conv2d(16, 32, (3, 3), stride=(1, 1), padding="same")
+        self.conv3 = nn. Conv2d(32, 64, (3, 3), stride=(1, 1), padding="same")
         self.maxp = nn.MaxPool2d(kernel_size=2)
-        self.gmap = nn.MaxPool2d(kernel_size=32)
+        self.gmap = nn.MaxPool2d(kernel_size=64)
         self.linear = nn.Linear(64, self.nclasses)       
     
     def forward(self, x):
