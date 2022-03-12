@@ -52,3 +52,25 @@ class SmallNet(nn.Module):
         x = self.linear(x)      # Batch x 384 -> Batch x Classes
 
         return x  # UNNORMALISED LOGITS! CAREFUL! (to use w/ cross entropy loss)
+
+class Team3Model(nn.Module):
+    def __init__(self, nclasses):
+        super(Team3Model, self).__init__()
+
+        self.nclasses = nclasses
+
+        self.conv1 = nn.Conv2d(3, 16, 3)
+        self.conv2 = nn. Conv2d(16, 32, 3)
+        self.conv3 = nn. Conv2d(32, 64, 3)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.Avgpool = nn.AvgPool2d(8)
+        self.linear = nn.Linear(384, self.nclasses)       
+    
+    def forward(self, x):
+        x = self.pool(nn.functional.relu(self.conv1(x)))  
+        x = self.pool(nn.functional.relu(self.conv2(x)))
+        x = self.Avgpool(nn.functional.relu(self.conv3(x)))
+        x = nn.functional.softmax(self.linear(x))
+        x = torch.squeeze(x)
+
+        return x  # UNNORMALISED LOGITS! CAREFUL! (to use w/ cross entropy loss)

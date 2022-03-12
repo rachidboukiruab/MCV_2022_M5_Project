@@ -8,23 +8,13 @@ from typing import TypedDict, Dict, Optional, Any
 
 import torch
 import wandb
-from torch import optim
+from torch import optim, nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
 import models
 from utils import make_dirs, print_colored, COLOR_WARNING
-
-transfs = transforms.Compose([
-    transforms.ColorJitter(brightness=.5, hue=.3),
-    transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
-    transforms.RandomRotation(degrees=(0, 45)),
-    transforms.RandomHorizontalFlip(p=0.5),
-    transforms.RandomVerticalFlip(p=0.5),
-    transforms.ToTensor()
-])
-
 
 class ExperimentSettings(TypedDict):
     """
@@ -91,6 +81,20 @@ def main(exp: ExperimentSettings) -> None:
     )
 
     # load train & test data
+    '''transfs = transforms.Compose([
+    transforms.ColorJitter(brightness=.5, hue=.3),
+    transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
+    transforms.RandomRotation(degrees=(0, 45)),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomVerticalFlip(p=0.5),
+    transforms.ToTensor()
+    ])'''
+
+    transfs = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Resize((256, 256)),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
     test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
 
@@ -104,11 +108,25 @@ def main(exp: ExperimentSettings) -> None:
     if str(exp["model"]) == "smallnet":
         model = models.SmallNet(exp["classes"])
         print("Using smallnet...")
+    elif str(exp["model"]) == "Team3Model":
+        model = models.Team3Model(exp["classes"])
+        print("Using Team3Model...")
     else:
         raise SystemExit('model name not found')
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
 
+    # Initialize the weights using Kaiming He
+    def weights_init(m):
+        if isinstance(m, nn.Conv2d):
+            nn.init.kaiming_uniform_(m.weight)
+
+    model.apply(weights_init)
+
+    print(model)
+    total_params = sum(p.numel() for p in model.parameters())
+    print('Number of parameters for this model: {}'.format(total_params))
 
     # optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
     optimizer = optim.Adam(model.parameters(), lr=exp["lr"])
@@ -117,6 +135,7 @@ def main(exp: ExperimentSettings) -> None:
                                                    step_size=10,
                                                    gamma=0.8)
     criterion = torch.nn.CrossEntropyLoss()
+
 
     for epoch in range(exp["epochs"]):
         # print(f"DB: epoch {epoch}")
