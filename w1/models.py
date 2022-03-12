@@ -63,13 +63,13 @@ class Team3Model(nn.Module):
         self.conv2 = nn. Conv2d(16, 32, 3)
         self.conv3 = nn. Conv2d(32, 64, 3)
         self.maxp = nn.MaxPool2d(kernel_size=2)
-        self.gmap = nn.MaxPool2d(kernel_size=8)
+        self.gmap = nn.MaxPool2d(kernel_size=64)
         self.linear = nn.Linear(64, self.nclasses)       
     
     def forward(self, x):
-        x = self.maxp(nn.functional.relu(self.conv1(x)))  
-        x = self.maxp(nn.functional.relu(self.conv2(x)))
-        x = self.gmap(nn.functional.relu(self.conv3(x)))
+        x = self.maxp(nn.functional.relu(self.conv1(x)))  # Batch x 3 x 256 x 256
+        x = self.maxp(nn.functional.relu(self.conv2(x)))  # Batch x 3 x 128 x 128
+        x = self.gmap(nn.functional.relu(self.conv3(x)))  # Batch x 192 x 64 x 64
         x = torch.squeeze(x)
         x = nn.functional.softmax(self.linear(x))
         
