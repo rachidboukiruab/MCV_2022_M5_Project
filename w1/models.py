@@ -63,15 +63,16 @@ class Team3Model(nn.Module):
         self.conv2 = nn. Conv2d(16, 32, 3)
         self.conv3 = nn. Conv2d(32, 64, 3)
         self.pool = nn.MaxPool2d(2, 2)
-        self.Avgpool = nn.AvgPool2d(64)
+        #self.Avgpool = nn.AvgPool2d(64)
         self.linear = nn.Linear(64, self.nclasses)       
     
     def forward(self, x):
         x = self.pool(nn.functional.relu(self.conv1(x)))  
         x = self.pool(nn.functional.relu(self.conv2(x)))
-        x = self.Avgpool(nn.functional.relu(self.conv3(x)))
-        x = torch.squeeze(x)
+        x = self.pool(nn.functional.relu(self.conv3(x)))
+        x = x.view(-1, self.num_flat_features(x))
         x = nn.functional.softmax(self.linear(x))
+        x = torch.squeeze(x)
         
 
         return x  # UNNORMALISED LOGITS! CAREFUL! (to use w/ cross entropy loss)
