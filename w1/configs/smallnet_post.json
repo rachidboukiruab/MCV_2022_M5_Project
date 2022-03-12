@@ -4,7 +4,7 @@
   "out_path": "/home/pau/Documents/master/M5/project/w1",
   "load_weights": "/home/pau/Documents/master/M5/project/w1/smallnet_ft/weights_final.pth",
   "freeze": false,
-  "batch_size": 24,
+  "batch_size": 8,
   "lr": 0.000075,
   "momentum": 1,
   "epochs": 500,

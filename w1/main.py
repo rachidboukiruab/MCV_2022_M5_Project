@@ -82,24 +82,17 @@ def main(exp: ExperimentSettings) -> None:
     )
 
     # load train & test data
-    '''transfs = transforms.Compose([
-    transforms.ColorJitter(brightness=.5, hue=.3),
-    transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
-    transforms.RandomRotation(degrees=(0, 45)),
-    transforms.RandomHorizontalFlip(p=0.5),
-    transforms.RandomVerticalFlip(p=0.5),
-    transforms.ToTensor()
-    ])'''
-
-    transfs_t = transforms.Compose([
-        transforms.ColorJitter(brightness=.5, hue=.3),
-        transforms.ToTensor(),
-        transforms.Resize((256, 256)),
-        transforms.RandomRotation(degrees=(0, 45)),
-        transforms.RandomHorizontalFlip(p=0.5),
-    ])
 
     transfs = transforms.Compose([
+        transforms.ColorJitter(brightness=.3, hue=.3),
+        transforms.RandomResizedCrop(256, (0.15, 1.0)),
+        transforms.RandomRotation(degrees=30),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.ToTensor(),
+        transforms.Resize((256, 256)),
+    ])
+
+    transfs_t = transforms.Compose([
         transforms.ToTensor(),
         transforms.Resize((256, 256)),
     ])
