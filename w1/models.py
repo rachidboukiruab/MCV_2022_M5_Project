@@ -62,24 +62,16 @@ class Team3Model(nn.Module):
         self.conv1 = nn.Conv2d(3, 16, 3)
         self.conv2 = nn. Conv2d(16, 32, 3)
         self.conv3 = nn. Conv2d(32, 64, 3)
-        self.pool = nn.MaxPool2d(2, 2)
-        #self.Avgpool = nn.AvgPool2d(64)
+        self.maxp = nn.MaxPool2d(kernel_size=2)
+        self.gmap = nn.MaxPool2d(kernel_size=8)
         self.linear = nn.Linear(64, self.nclasses)       
     
     def forward(self, x):
-        x = self.pool(nn.functional.relu(self.conv1(x)))  
-        x = self.pool(nn.functional.relu(self.conv2(x)))
-        x = self.pool(nn.functional.relu(self.conv3(x)))
-        x = x.view(-1, self.num_flat_features(x))
-        x = nn.functional.softmax(self.linear(x))
+        x = self.maxp(nn.functional.relu(self.conv1(x)))  
+        x = self.maxp(nn.functional.relu(self.conv2(x)))
+        x = self.gmap(nn.functional.relu(self.conv3(x)))
         x = torch.squeeze(x)
+        x = nn.functional.softmax(self.linear(x))
+        
         
         return x  # UNNORMALISED LOGITS! CAREFUL! (to use w/ cross entropy loss)
-
-    def num_flat_features(self, x):
-        size = x.size()[1:]  # all dimensions except the batch dimension
-        num_features = 1
-        for s in size:
-            num_features *= s
-        
-        return num_features
