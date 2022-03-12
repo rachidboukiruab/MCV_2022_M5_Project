@@ -74,5 +74,12 @@ class Team3Model(nn.Module):
         x = nn.functional.softmax(self.linear(x))
         x = torch.squeeze(x)
         
-
         return x  # UNNORMALISED LOGITS! CAREFUL! (to use w/ cross entropy loss)
+
+    def num_flat_features(self, x):
+        size = x.size()[1:]  # all dimensions except the batch dimension
+        num_features = 1
+        for s in size:
+            num_features *= s
+        
+        return num_features
