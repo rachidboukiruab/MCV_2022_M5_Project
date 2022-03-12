@@ -63,7 +63,7 @@ class Team3Model(nn.Module):
         self.conv2 = nn. Conv2d(16, 32, 3)
         self.conv3 = nn. Conv2d(32, 64, 3)
         self.pool = nn.MaxPool2d(2, 2)
-        self.Avgpool = nn.AvgPool2d()
+        self.Avgpool = nn.AvgPool2d(64)
         self.linear = nn.Linear(64, self.nclasses)       
     
     def forward(self, x):
