@@ -14,8 +14,9 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from torchinfo import summary
 
-import models
+from models import create_arch
 from utils import make_dirs, print_colored, COLOR_WARNING
+
 
 class ExperimentSettings(TypedDict):
     """
@@ -30,11 +31,13 @@ class ExperimentSettings(TypedDict):
     batch_size: int
     lr: float
     epochs: int
+    early_stopping: int
     model: str
     model_params: Dict[str, Any]
     classes: int
     wandb_project: str
     wandb_entity: str
+    save_every: int
 
 
 def setup() -> ExperimentSettings:
@@ -67,9 +70,6 @@ def setup() -> ExperimentSettings:
     exp["load_weights"] = Path(exp["load_weights"]) \
         if exp["load_weights"] is not None else None
 
-    # create path
-    make_dirs(str(exp["save_path"]))
-
     return exp
 
 
@@ -91,12 +91,21 @@ def main(exp: ExperimentSettings) -> None:
     transforms.ToTensor()
     ])'''
 
-    transfs = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Resize((256, 256)),
+    transfs_t = transforms.Compose([
+        transforms.ColorJitter(brightness=.5, hue=.3),
+        transforms.ToTensor(),
+        transforms.Resize((256, 256)),
+        transforms.RandomRotation(degrees=(0, 45)),
+        transforms.RandomHorizontalFlip(p=0.5),
     ])
+
+    transfs = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize((256, 256)),
+    ])
+
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
-    test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs)
+    test_data = ImageFolder(str(exp["data_path"] / "test"), transform=transfs_t)
 
     train_loader = DataLoader(train_data, batch_size=exp["batch_size"], pin_memory=True, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=exp["batch_size"], pin_memory=True)
@@ -106,17 +115,17 @@ def main(exp: ExperimentSettings) -> None:
 
     print_colored(f"(dataset info) train: {len(train_loader)} images in the folder", COLOR_WARNING)
     print_colored(f"(dataset info) test: {len(test_loader)} images in the folder", COLOR_WARNING)
-    # load model
-    if str(exp["model"]) == "smallnet":
-        model = models.SmallNet(exp["classes"])
-        print("Using smallnet...")
-    elif str(exp["model"]) == "Team3Model":
-        model = models.Team3Model(exp["classes"])
-        print("Using Team3Model...")
-    else:
-        raise SystemExit('model name not found')
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # load model
+    model = create_arch(
+        exp["model"],
+        exp["classes"],
+        exp["model_params"],
+        exp["load_weights"],
+        exp["freeze"]
+    )
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
     '''# Initialize the weights using Kaiming He
@@ -126,24 +135,28 @@ def main(exp: ExperimentSettings) -> None:
 
     model.apply(weights_init)'''
 
-    #total_params = sum(p.numel() for p in model.parameters())
-    #print('Number of parameters for this model: {}'.format(total_params))
-
-    # optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
     optimizer = optim.Adam(model.parameters(), lr=exp["lr"])
 
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                   step_size=10,
-                                                   gamma=0.8)
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(
+        optimizer,
+        step_size=10,
+        gamma=0.95
+    )
     criterion = torch.nn.CrossEntropyLoss()
 
     model = model.to(device)
-    summary(model, input_size = (exp["batch_size"], 3, 256, 256))
-    
+    summary(model, input_size=(exp["batch_size"], 3, 256, 256))
+
+    # Setup output path stuff
+    weight_path = exp["out_path"] / exp["exp_name"]
+    make_dirs(weight_path)
+
+    best_model = -1
+    best_acc = 0.0
     for epoch in range(exp["epochs"]):
-        # print(f"DB: epoch {epoch}")
         train_loss, train_accuracy, lr_scheduler = train_model(exp, train_loader, model, device, optimizer, criterion, lr_scheduler)
         test_loss, test_accuracy = eval(test_loader, model, device)
+
         # w&b logger
         wandb.log({
             "epoch": epoch,
@@ -154,20 +167,29 @@ def main(exp: ExperimentSettings) -> None:
             "validation_accuracy": test_accuracy,
         })
 
-    # creates path to store weights
-    PATH = join(str(exp['save_path']), wandb.run.name)
-    make_dirs(PATH)
-    PATH = join(PATH, 'model_weights.pth')
+        # Model saving
+        if test_accuracy > best_acc:
+            best_model = epoch
+            best_acc = test_accuracy
+            torch.save(
+                model.state_dict(),
+                str(weight_path / "weights_final.pth")
+            )
 
-    # saves weights
-    torch.save(model.state_dict(), PATH)
+        if epoch % exp["save_every"] == 0:
+            torch.save(
+                model.state_dict(),
+                str(weight_path / f"weights_{epoch}.pth")
+            )
+
+        # Early Stopping
+        if (epoch - best_model) > exp["early_stopping"]:
+            print_colored(f"Early stopping at epoch {epoch}", COLOR_WARNING)
+            break
 
     # sync file with w&b
-    wandb.save(PATH)
-    # 4 loading:
-    # wandb.restore('model_weights.pth', run_path="lavanyashukla/save_and_restore/10pr4joa")
-    # model = ()
-    # model.load_state_dict(torch.load('model_weights.pth'))
+    if (weight_path / "weights_final.pth").exists():
+        wandb.save(str(weight_path / f"weights_final.pth"))
 
 
 def train_model(exp, train_loader, model, device, optimizer, criterion, lr_scheduler):

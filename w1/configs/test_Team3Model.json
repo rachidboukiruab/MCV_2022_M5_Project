@@ -8,11 +8,12 @@
 	"lr": 0.01,
 	"momentum": 0.9,
 	"weight_decay": 1e-4,
-	"epochs": 100,
+	"epochs": 500,
+	"early_stopping": 20,
 	"model": "Team3Model",
 	"model_params": {},
 	"classes": 8,
 	"wandb_project": "m5project",
 	"wandb_entity": "m5project",
-	"save_path": "./models_weights"
+	"save_every": 10,
 }

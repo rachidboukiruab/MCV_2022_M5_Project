@@ -1,0 +1,18 @@
+{
+  "exp_name": "smallnet_pre",
+  "data_path": "/home/pau/Documents/master/M3/project/scene_class",
+  "out_path": "/home/pau/Documents/master/M5/project/w1",
+  "load_weights": null,
+  "freeze": false,
+  "batch_size": 24,
+  "lr": 0.0003,
+  "momentum": 1,
+  "epochs": 500,
+  "early_stopping": 20,
+  "model": "smallnet",
+  "model_params": {},
+  "classes": 6,
+  "wandb_project": "m5project",
+  "wandb_entity": "m5project",
+  "save_every": 10
+}
