@@ -119,15 +119,15 @@ def main(exp: ExperimentSettings) -> None:
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    # Initialize the weights using Kaiming He
+    '''# Initialize the weights using Kaiming He
     def weights_init(m):
         if isinstance(m, nn.Conv2d):
             nn.init.kaiming_uniform_(m.weight)
 
-    model.apply(weights_init)
+    model.apply(weights_init)'''
 
-    total_params = sum(p.numel() for p in model.parameters())
-    print('Number of parameters for this model: {}'.format(total_params))
+    #total_params = sum(p.numel() for p in model.parameters())
+    #print('Number of parameters for this model: {}'.format(total_params))
 
     # optimizer = optim.SGD(model.parameters(), lr=exp["lr"], momentum=exp["momentum"])
     optimizer = optim.Adam(model.parameters(), lr=exp["lr"])
