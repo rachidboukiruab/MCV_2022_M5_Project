@@ -51,9 +51,10 @@ class SmallNet(nn.Module):
         x = self.conv7(x)  # Batch x 192 x 8 x 8
         x = self.relu(x)
 
-        x = self.gmap(x)  # Batch x 384 x 8 x 8
-        x = torch.squeeze(x)  # Batch x 384 x 1 x 1
-        x = self.linear(x)  # Batch x 384 -> Batch x Classes
+        x = self.gmap(x)                    # Batch x 384 x 8 x 8
+        x = torch.squeeze(x, dim=3)         # Batch x 384 x 1 x 1
+        x = torch.squeeze(x, dim=2)         # Batch x 384 x 1
+        x = self.linear(x)                  # Batch x 384 -> Batch x Classes
 
         return x  # UNNORMALISED LOGITS! CAREFUL! (to use w/ cross entropy loss)
 
@@ -97,13 +98,20 @@ def create_arch(
     model = ARCHITECTURES[arch](classes, **arch_param)
 
     if load_weights is not None:
+        model_dict = model.state_dict()
+
         weights = torch.load(load_weights)
-        missing, unexpected = model.load_state_dict(weights, strict=False)
+        filt_weights = {
+            k: v for k, v in weights.items()
+            if k in model_dict and v.shape == model_dict[k].shape
+        }
+
+        missing, unexpected = model.load_state_dict(filt_weights, strict=False)
 
         if missing or unexpected:
             warn(f"Careful: Layers {missing} are missing and layers "
-                 f"{unexpected} are not needed. If this is not intended recheck"
-                 f"the weights file!")
+                 f"{unexpected} are not needed. If this is not intended "
+                 f"recheck the weights file!")
 
     if freeze:
         for name, param in model.named_parameters():

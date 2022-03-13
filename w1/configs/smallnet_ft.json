@@ -3,7 +3,7 @@
   "data_path": "/home/pau/Documents/master/M3/project/MIT_split",
   "out_path": "/home/pau/Documents/master/M5/project/w1",
   "load_weights": "/home/pau/Documents/master/M5/project/w1/smallnet_pre/weights_final.pth",
-  "freeze": false,
+  "freeze": true,
   "batch_size": 8,
   "lr": 0.0003,
   "momentum": 1,

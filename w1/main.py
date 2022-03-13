@@ -132,8 +132,8 @@ def main(exp: ExperimentSettings) -> None:
 
     lr_scheduler = torch.optim.lr_scheduler.StepLR(
         optimizer,
-        step_size=10,
-        gamma=0.95
+        step_size=2,
+        gamma=0.96
     )
     criterion = torch.nn.CrossEntropyLoss()
 
@@ -161,7 +161,7 @@ def main(exp: ExperimentSettings) -> None:
         })
 
         # Model saving
-        if test_accuracy > best_acc:
+        if test_accuracy > best_acc + 0.005:
             best_model = epoch
             best_acc = test_accuracy
             torch.save(
@@ -220,7 +220,7 @@ def train_model(exp, train_loader, model, device, optimizer, criterion, lr_sched
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
-    #lr_scheduler.step()
+    lr_scheduler.step()
 
     return running_loss, correct / total, lr_scheduler
 
