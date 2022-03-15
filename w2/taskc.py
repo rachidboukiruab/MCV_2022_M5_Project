@@ -1,4 +1,5 @@
 # Setup detectron2 logger
+import torch
 import detectron2
 from detectron2.utils.logger import setup_logger
 setup_logger()
