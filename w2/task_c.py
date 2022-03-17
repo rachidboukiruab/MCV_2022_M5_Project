@@ -67,6 +67,7 @@ if __name__ == '__main__':
                 img_path = os.path.join(root, file)
                 out_path2 = os.path.join(out_path, file)
 
+                print(f"root {}, file {file}, out_path {out_path}")
                 print(f"reading from {img_path} saved into {out_path2}")
 
                 # img = inference(img_path)
