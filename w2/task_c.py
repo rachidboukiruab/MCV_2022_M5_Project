@@ -69,6 +69,7 @@ if __name__ == '__main__':
         model_type = model_yalm.split('/')[0].split('-')[-1]
         # Run inference with pre-trained Faster R-CNN (detection) and Mask R-CNN(detection and segmentation) on all KITTI-MOTS dataset
         for root, dirs, files in os.walk(dataset_dir, topdown=True):
+
             out_path = os.path.join(results_dir, root.split('datasets/')[1])
             aux = out_path.split('/')
             aux.insert(-1, model_type)
@@ -80,8 +81,6 @@ if __name__ == '__main__':
 
                 print(f"root {root}, file {file}, out_path {out_path}")
                 print(f"reading from {img_path} saved into {out_path2}")
-
-
 
                 # img = inference(img_path)
 
