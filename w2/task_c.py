@@ -81,9 +81,6 @@ if __name__ == '__main__':
                 img_path = os.path.join(root, file)
                 out_path2 = os.path.join(out_path, file)
 
-                print(f"root {root}, file {file}, out_path {out_path}")
-                print(f"reading from {img_path} saved into {out_path2}")
+                img = inference(img_path)
 
-                # img = inference(img_path)
-
-                # cv2.imwrite(out_path2, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
+                cv2.imwrite(out_path2, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
