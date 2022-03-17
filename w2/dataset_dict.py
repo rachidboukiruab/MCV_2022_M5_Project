@@ -1,69 +1,61 @@
+import pandas as pd
+from pathlib import Path
+from typing import List, Dict
+from pycocotools.mask import decode, toBbox, frPyObjects
 from detectron2.structures import BoxMode
-import os
-import cv2
-import numpy as np
+from detectron2.data import MetadataCatalog, DatasetCatalog
 
-def get_class_name(class_id):
-    classes = {
-      0:'Car',
-      1:'Van',
-      2:'Truck',
-      3:'Pedestrian',
-      4:'Person_sitting',
-      5:'Cyclist',
-      6:'Tram',
-      7:'Misc',
-      8:'DontCare'  
-    }
 
-    return classes.get(class_id)
+def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
+    root_img_dir = path / "data_tracking_image_2" / part / "image_02"
+    anns = []
 
-def get_KITTI_MOTS_dicts(dataset_dir):
+    for seq in root_img_dir.glob("*"):
+        sequence = seq.parts[-1]
+        with open(path / "instances_txt" / (sequence + ".txt")) as f_ann:
+            gt = pd.read_table(
+                f_ann,
+                sep=" ",
+                header=0,
+                names=["frame", "obj_id", "class_id", "height", "width", "rle"],
+                dtype={"frame": int, "obj_id": int, "class_id": int,
+                       "height": int, "width": int, "rle": str}
+            )
+        for img_path in seq.glob("*.png"):
+            img_name = img_path.parts[-1]
+            frame = int(img_path.parts[-1].split('.')[0])
+            frame_gt = (gt[gt["frame"] == frame])
 
-    instances = dataset_dir+'/instances'
+            if not len(frame_gt):
+                continue
 
-    dataset_dicts = []
-    for (root,dirs,files) in os.walk(instances, topdown=True):
-        record = {}
-        
-        filename = files
-        img = cv2.imread(filename)
-        height, width = img.shape[:2]
+            ann = []
+            for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
+                rle = bytearray(rle, "utf8")
+                rleobj = frPyObjects([rle], height, width)
+                bbox = toBbox(rleobj)
+                ann.append({
+                    "bbox": bbox,
+                    "bbox_mode": BoxMode.XYWH_ABS,
+                    "category_id": class_id,
+                    "segmentation": rleobj,
+                    "keypoints": [],
+                    "iscrowd": 0
+                })
 
-        obj_ids = np.unique(img)
-        # to correctly interpret the id of a single object
-        obj_id = obj_ids[0]
-        class_id = obj_id // 1000
-        obj_instance_id = obj_id % 1000
-        
-        record["file_name"] = filename
-        record["image_id"] = class_id
-        record["height"] = height
-        record["width"] = width
-        
-      
-"""         annos = v["regions"]
-        objs = []
-        for _, anno in annos.items():
-            assert not anno["region_attributes"]
-            anno = anno["shape_attributes"]
-            px = anno["all_points_x"]
-            py = anno["all_points_y"]
-            poly = [(x + 0.5, y + 0.5) for x, y in zip(px, py)]
-            poly = [p for x in poly for p in x]
+            anns.append({
+                "file_name": str(img_path),
+                "height": frame_gt["height"].iloc[0],
+                "width": frame_gt["width"].iloc[0],
+                "image_id": int(f"{sequence}{frame:05}"),
+                "sem_seg": str(path / "instances" / sequence / img_name),
+                "annotations": ann
+            })
 
-            obj = {
-                "bbox": [np.min(px), np.min(py), np.max(px), np.max(py)],
-                "bbox_mode": BoxMode.XYXY_ABS,
-                "segmentation": [poly],
-                "category_id": 0,
-            }
-            objs.append(obj)
-        record["annotations"] = objs
-        dataset_dicts.append(record)
-    return dataset_dicts
+    return anns
 
-for d in ["train", "val"]:
-    DatasetCatalog.register("balloon_" + d, lambda d=d: get_balloon_dicts("balloon/" + d))
-    MetadataCatalog.get("balloon_" + d).set(thing_classes=["balloon"])
-balloon_metadata = MetadataCatalog.get("balloon_train") """
+
+
+
+
+
