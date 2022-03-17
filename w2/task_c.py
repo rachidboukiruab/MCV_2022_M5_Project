@@ -84,3 +84,4 @@ if __name__ == '__main__':
                 img = inference(img_path)
 
                 cv2.imwrite(out_path2, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
+                print(f"Processed img {img_path} for {model_type}")
