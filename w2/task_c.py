@@ -71,8 +71,10 @@ if __name__ == '__main__':
         for root, dirs, files in os.walk(dataset_dir, topdown=True):
 
             out_path = os.path.join(results_dir, root.split('datasets/')[1])
+
             aux = out_path.split('/')
             aux.insert(-1, model_type)
+            out_path = '/'.join(aux)
             os.makedirs(out_path, exist_ok=True)
 
             for file in files:
