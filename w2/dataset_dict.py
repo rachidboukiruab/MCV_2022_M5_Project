@@ -7,7 +7,7 @@ from detectron2.data import MetadataCatalog, DatasetCatalog
 
 
 def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
-    root_img_dir = path / "data_tracking_image_2" / part / "image_02"
+    root_img_dir = path / part / "image_02"
     anns = []
 
     for seq in root_img_dir.glob("*"):
