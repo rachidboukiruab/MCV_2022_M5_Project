@@ -38,7 +38,8 @@ def inference(img_path):
 
 if __name__ == '__main__':
 
-    model_list = ['COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml', 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
+    # model_list = ['COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml', 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
+    model_list = ['COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
 
     for model_yalm in model_list:
 
