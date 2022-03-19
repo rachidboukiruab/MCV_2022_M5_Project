@@ -54,6 +54,8 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
 
             ann = []
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
+
+                # reads encoded
                 rle = bytearray(rle, "utf8")
                 rleobj = frPyObjects([rle], height, width)
                 maskedArr = decode(rleobj)
@@ -62,7 +64,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                     "bbox": bbox,
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": class_id,
-                    "segmentation": rleobj,
+                    "segmentation": maskedArr,
                     "keypoints": [],
                     "iscrowd": 0
                 })
@@ -75,6 +77,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 "sem_seg": str(path / "instances" / sequence / img_name),
                 "annotations": ann
             })
+        print(anns)
     return anns
 
 
