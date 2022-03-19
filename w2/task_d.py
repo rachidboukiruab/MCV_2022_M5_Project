@@ -7,7 +7,7 @@ from dataset_dict import *
 from detectron2.engine import DefaultTrainer, DefaultPredictor
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 import os, cv2, random
-from task_c import inference
+from dataset_dict import get_KITTI_dataset
 
 setup_logger()
 
@@ -21,13 +21,18 @@ os.makedirs(results_dir, exist_ok=True)
 if __name__ == '__main__':
 
     model_list = ['COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml', 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
+    
 
-    for d in ["training", "val"]:
-        DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
-        MetadataCatalog.get("KITTI-MOT_" + d).set(thing_classes=['Car','Pedestrian'])
-    kitti_mots_metadata = MetadataCatalog.get('KITTI-MOTS_val')
+    for d in ['val']:
+      DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
+      MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["Car", "Pedestrian"])
+    
     
     for model_yalm in model_list:
+    
+        model_type = model_yalm.split('/')[0].split('/')[0]
+    
+        print('Evaluating', model_type)
 
         dataset_dicts = get_KITTI_dataset(dataset_dir, 'val')
 
