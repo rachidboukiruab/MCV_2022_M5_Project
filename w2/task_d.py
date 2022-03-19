@@ -25,7 +25,7 @@ if __name__ == '__main__':
     for d in ["training", "val"]:
         DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
         MetadataCatalog.get("KITTI-MOT_" + d).set(thing_classes=['Car','Pedestrian'])
-    kitti_mots_metadata = MetadataCatalog.get('KITTI-MOTS_train')
+    kitti_mots_metadata = MetadataCatalog.get('KITTI-MOTS_val')
     
     for model_yalm in model_list:
 
@@ -38,20 +38,7 @@ if __name__ == '__main__':
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_yalm)
         predictor = DefaultPredictor(cfg)
 
-        confidence_threshold = 0.5
-
-        """ INFERENCE """
-
-        for d in random.sample(dataset_dicts, 3):    
-            im = d["file_name"]
-            img = inference(im)
-
-            out_path = results_dir+'/'+model_yalm
-            os.makedirs(out_path+'/'+im, exist_ok=True)
         
-            cv2.imwrite(out_path, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
-            print(f"Processed img {im} for {model_yalm}")
-
         """ EVALUATION """
         evaluator = COCOEvaluator("KITTI-MOTS_val", output_dir=results_dir)
         val_loader = build_detection_test_loader(cfg, "KITTI-MOTS_val")
