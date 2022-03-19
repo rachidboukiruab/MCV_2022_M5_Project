@@ -36,7 +36,6 @@ class DatasetSplit(TypedDict):
 
 
 def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
-    dataset_dicts = []
     with open('./configs/dataset_split.json') as f_splits:
         sequences = json.load(f_splits)[part]
 
@@ -63,7 +62,6 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                        "height": int, "width": int, "rle": str}
             )
         for img_path in seq.glob("*.png"):
-
             img_name = img_path.parts[-1]
             frame = int(img_path.parts[-1].split('.')[0])
             frame_gt = (gt[gt["frame"] == frame])
@@ -71,30 +69,31 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             if len(frame_gt) == 0:
                 continue
 
-            objs = []
+            ann = []
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
-                record = {}
-                record["file_name"] = str(img_path)
-                record["height"] = frame_gt.iloc[0]["height"]
-                record["width"] = frame_gt.iloc[0]["width"]
-                record["image_id"] = int(f"{sequence}{frame:05}")
 
                 # reads rle and decodes it with cocotools
                 rle = bytearray(rle, "utf8")
 
                 rleobj = frPyObjects([rle], height, width)[0]
                 bbox = toBbox(rleobj)
-                aux = decode(rleobj)
 
-                obj = {
+                ann.append({
                     "bbox": bbox.flatten(),
-                    "bbox_mode": BoxMode.XYXY_ABS,
-                    "segmentation": polygonFromMask(aux),
+                    "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": class_id,
+                    "segmentation": rleobj,
+                    "keypoints": [],
                     "iscrowd": 0
-                }
-                objs.append(obj)
-                record["annotations"] = objs
-                dataset_dicts.append(record)
+                })
 
-    return dataset_dicts
+            anns.append({
+                "file_name": str(img_path),
+                "height": frame_gt.iloc[0]["height"],
+                "width": frame_gt.iloc[0]["width"],
+                "image_id": int(f"{sequence}{frame:05}"),
+                "sem_seg": str(path / "instances" / sequence / img_name),
+                "annotations": ann
+            })
+
+    return anns

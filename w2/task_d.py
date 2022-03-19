@@ -42,8 +42,6 @@ if __name__ == '__main__':
 
         print('Evaluating model')
 
-
-        dataset_dicts = get_KITTI_dataset(dataset_dir, 'val')
         i = 1
         for d in random.sample(dataset_dicts, 3):
             img = cv2.imread(d["file_name"])
