@@ -38,6 +38,7 @@ if __name__ == '__main__':
         cfg = get_cfg()
 
         cfg.merge_from_file(model_zoo.get_config_file(model_yalm))
+        cfg.DATASETS.VAL = "KITTI-MOTS_val"
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_yalm)
         predictor = DefaultPredictor(cfg)
