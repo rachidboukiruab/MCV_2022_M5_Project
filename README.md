@@ -13,7 +13,7 @@
 
 ## Week 2
 - [Source Code](https://github.com/rachidboukiruab/MCV_2022_M5_Project/tree/main/w2)
-- [Presentation](link)
+- [Presentation](https://docs.google.com/presentation/d/1v5r_07RMY4hAS6mP0izvmg65WxiAMQGa/edit?usp=sharing&ouid=104480624974973402770&rtpof=true&sd=true)
 - [Overleaf Report](https://www.overleaf.com/read/yvkmxgrjkhhv)
 
 ## Week 3
