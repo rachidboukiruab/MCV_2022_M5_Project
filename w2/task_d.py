@@ -12,7 +12,7 @@ from dataset_dict import get_KITTI_dataset
 setup_logger()
 
 # FIXME: Add the correct path here
-dataset_dir = Path("/home/pau/Documents/datasets/kitti-mots")
+dataset_dir = Path("/home/mcv/datasets/KITTI-MOTS/")
 results_dir = Path('./results/task_d/')
 os.makedirs(results_dir, exist_ok=True)
 
@@ -34,6 +34,7 @@ if __name__ == '__main__':
 
         cfg.DATASETS.VAL = "KITTI-MOTS_val"
         cfg.merge_from_file(model_zoo.get_config_file(model_yaml))
+        cfg.DATASETS.VAL = "KITTI-MOTS_val"
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_yaml)
         predictor = DefaultPredictor(cfg)
