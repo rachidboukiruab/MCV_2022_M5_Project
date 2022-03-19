@@ -82,6 +82,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             #     "sem_seg": str(path / "instances" / sequence / img_name),
             #     "annotations": ann
             # })
+            print(record)
     return dataset_dicts
 
 
