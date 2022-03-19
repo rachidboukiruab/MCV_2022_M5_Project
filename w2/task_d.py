@@ -23,8 +23,7 @@ if __name__ == '__main__':
 
     for d in ['training', 'val']:
         DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
-        MetadataCatalog.get("KITTI-MOTS_" + d).set(
-            thing_classes=["Car", "Pedestrian", "", "", "", "", "", "", "", "", ""])
+        MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["Car", "Pedestrian", "", "", "", "", "", "", "", "", "Ignore"])
     metadata = MetadataCatalog.get("KITTI-MOTS_val")
 
     for model_yaml in model_list:
@@ -32,25 +31,16 @@ if __name__ == '__main__':
         dataset_dicts = get_KITTI_dataset(dataset_dir, 'val')
 
         cfg = get_cfg()
-
-        cfg.DATASETS.VAL = "KITTI-MOTS_val"
+        cfg.defrost()
         cfg.merge_from_file(model_zoo.get_config_file(model_yaml))
-        cfg.DATASETS.VAL = "KITTI-MOTS_val"
-        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_yaml)
+        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+        cfg.INPUT.MASK_FORMAT = "bitmask"
+        cfg.DATASETS.VAL = "KITTI-MOTS_val"
         predictor = DefaultPredictor(cfg)
 
         print('Evaluating model')
-
-        dataset_dicts = get_KITTI_dataset(dataset_dir, 'val')
-        i = 1
-        for d in random.sample(dataset_dicts, 3):
-            img = cv2.imread(d["file_name"])
-            print(d["file_name"])
-            visualizer = Visualizer(img[:, :, ::-1], metadata=cfg.DATASETS.TRAIN[0], scale=0.5)
-            out = visualizer.draw_dataset_dict(d)
-            cv2.imwrite(f"./gt_check{i}", out.get_image()[:, :, ::-1])
-            i += 1
 
         """ EVALUATION """
         evaluator = COCOEvaluator("KITTI-MOTS_val", output_dir=str(results_dir))

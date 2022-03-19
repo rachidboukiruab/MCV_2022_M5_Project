@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+
 from pathlib import Path
 from typing import List, Dict
 from pycocotools.mask import toBbox, frPyObjects, decode
@@ -72,15 +74,15 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
 
                 # reads rle and decodes it with cocotools
                 rle = bytearray(rle, "utf8")
-                rleobj = frPyObjects([rle], height, width)
-                maskedArr = decode(rleobj)
+
+                rleobj = frPyObjects([rle], height, width)[0]
                 bbox = toBbox(rleobj)
 
                 ann.append({
-                    "bbox": bbox[0],
+                    "bbox": bbox.flatten(),
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": class_id,
-                    "segmentation": polygonFromMask(maskedArr),
+                    "segmentation": rleobj,
                     "keypoints": [],
                     "iscrowd": 0
                 })
