@@ -42,6 +42,16 @@ if __name__ == '__main__':
 
         print('Evaluating model')
 
+        dataset_dicts = get_KITTI_dataset(dataset_dir, 'val')
+        i = 1
+        for d in random.sample(dataset_dicts, 3):
+            img = cv2.imread(d["file_name"])
+            print(d["file_name"])
+            visualizer = Visualizer(img[:, :, ::-1], metadata=cfg.DATASETS.TRAIN[0], scale=0.5)
+            out = visualizer.draw_dataset_dict(d)
+            cv2.imwrite(f"./gt_check{i}", out.get_image()[:, :, ::-1])
+            i += 1
+
         """ EVALUATION """
         evaluator = COCOEvaluator("KITTI-MOTS_val", output_dir=str(results_dir))
         val_loader = build_detection_test_loader(cfg, "KITTI-MOTS_val")
