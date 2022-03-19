@@ -51,6 +51,7 @@ if __name__ == '__main__':
             print(d)
             visualizer = Visualizer(img[:, :, ::-1], metadata=metadata, scale=0.5)
             out = visualizer.draw_dataset_dict(d)
+            print(type(out.get_image()[:, :, ::-1]))
             cv2.imwrite(f"./gt_check{i}", out.get_image()[:, :, ::-1])
             i += 1
 
