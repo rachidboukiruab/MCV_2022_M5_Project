@@ -75,10 +75,9 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 rleobj = frPyObjects([rle], height, width)
                 maskedArr = decode(rleobj)
                 bbox = toBbox(rleobj)
-                print(bbox)
 
                 ann.append({
-                    "bbox": bbox,
+                    "bbox": bbox[0],
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": class_id,
                     "segmentation": polygonFromMask(maskedArr),
