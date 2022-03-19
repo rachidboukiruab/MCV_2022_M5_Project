@@ -64,15 +64,13 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 rle = bytearray(rle, "utf8")
                 rleobj = frPyObjects([rle], height, width)
                 maskedArr = decode(rleobj)
-                print("----"*20)
-                print(maskedArr)
                 bbox = toBbox(rleobj)
 
                 ann.append({
                     "bbox": bbox,
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": class_id,
-                    "segmentation": rleobj,
+                    "segmentation": maskedArr,
                     #"keypoints": [],
                     "iscrowd": 0
                 })
@@ -86,7 +84,6 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             #     "sem_seg": str(path / "instances" / sequence / img_name),
             #     "annotations": ann
             # })
-            print(record)
     return dataset_dicts
 
 
