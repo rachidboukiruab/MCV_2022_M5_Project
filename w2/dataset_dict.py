@@ -60,9 +60,10 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
 
             ann = []
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
+                print(decode(rle))
                 rle = bytearray(rle, "utf8")
                 rleobj = frPyObjects([rle], height, width)
-                print(decode(rle))
+
                 bbox = toBbox(rleobj)
 
                 ann.append({
