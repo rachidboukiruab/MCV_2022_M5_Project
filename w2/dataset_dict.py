@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from typing import List, Dict
-from pycocotools.mask import toBbox, frPyObjects
+from pycocotools.mask import toBbox, frPyObjects, decode
 from detectron2.structures import BoxMode
 
 from typing_extensions import TypedDict
@@ -62,6 +62,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
                 rle = bytearray(rle, "utf8")
                 rleobj = frPyObjects([rle], height, width)
+                print(decode(rle))
                 bbox = toBbox(rleobj)
 
                 ann.append({
