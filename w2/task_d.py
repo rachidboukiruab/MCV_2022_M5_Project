@@ -49,7 +49,7 @@ if __name__ == '__main__':
             img = cv2.imread(d["file_name"])
             print(d["file_name"])
             print(d)
-            visualizer = Visualizer(img[:, :, ::-1], metadata=cfg.DATASETS.TRAIN[0], scale=0.5)
+            visualizer = Visualizer(img[:, :, ::-1], metadata=metadata, scale=0.5)
             out = visualizer.draw_dataset_dict(d)
             cv2.imwrite(f"./gt_check{i}", out.get_image()[:, :, ::-1])
             i += 1
