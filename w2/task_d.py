@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     for d in ['training', 'val']:
         DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
-        MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["Car", "Pedestrian", "", "", "", "", "", "", "", "", ""])
+        MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["Car", "Pedestrian", "", "", "", "", "", "", "", "", "Ignore"])
     metadata = MetadataCatalog.get("KITTI-MOTS_val")
 
     for model_yaml in model_list:
@@ -31,12 +31,13 @@ if __name__ == '__main__':
         dataset_dicts = get_KITTI_dataset(dataset_dir, 'val')
 
         cfg = get_cfg()
-
-        cfg.DATASETS.VAL = "KITTI-MOTS_val"
+        cfg.defrost()
         cfg.merge_from_file(model_zoo.get_config_file(model_yaml))
-        cfg.DATASETS.VAL = "KITTI-MOTS_val"
-        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_yaml)
+        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+        cfg.INPUT.MASK_FORMAT = "bitmask"
+        cfg.DATASETS.VAL = "KITTI-MOTS_val"
         predictor = DefaultPredictor(cfg)
 
         print('Evaluating model')
