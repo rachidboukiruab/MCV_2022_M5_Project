@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     for d in ['training', 'val']:
         DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
-        # MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["Car", "Pedestrian"])
+        MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["Car", "Pedestrian"])
     metadata = MetadataCatalog.get("KITTI-MOTS_val")
 
     for model_yaml in model_list:
