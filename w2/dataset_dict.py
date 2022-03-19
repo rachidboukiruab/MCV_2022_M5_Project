@@ -3,9 +3,24 @@ from pathlib import Path
 from typing import List, Dict
 from pycocotools.mask import toBbox, frPyObjects, decode
 from detectron2.structures import BoxMode
-
+import cv2
 from typing_extensions import TypedDict
 import json
+
+
+def polygonFromMask(maskedArr):
+    # adapted from https://github.com/hazirbas/coco-json-converter/blob/master/generate_coco_json.py
+    contours, _ = cv2.findContours(maskedArr, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    segmentation = []
+    valid_poly = 0
+    for contour in contours:
+        # Valid polygons have >= 6 coordinates (3 points)
+        if contour.size >= 6:
+            segmentation.append(contour.astype(float).flatten().tolist())
+            valid_poly += 1
+    if valid_poly == 0:
+        raise ValueError
+    return segmentation
 
 
 class DatasetSplit(TypedDict):
@@ -55,16 +70,17 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             ann = []
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
 
-                # reads encoded
+                # reads rle and decodes it with cocotools
                 rle = bytearray(rle, "utf8")
                 rleobj = frPyObjects([rle], height, width)
                 maskedArr = decode(rleobj)
                 bbox = toBbox(rleobj)
+
                 ann.append({
                     "bbox": bbox,
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": class_id,
-                    "segmentation": maskedArr,
+                    "segmentation": polygonFromMask(maskedArr),
                     "keypoints": [],
                     "iscrowd": 0
                 })
@@ -79,5 +95,3 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             })
         print(anns)
     return anns
-
-
