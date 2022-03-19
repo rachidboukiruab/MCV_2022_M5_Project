@@ -26,13 +26,12 @@ if __name__ == '__main__':
     for d in ['val']:
       DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
       MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["Car", "Pedestrian"])
+    metadata = MetadataCatalog.get("KITTI-MOTS_val")
     
     
     for model_yalm in model_list:
-    
-        model_type = model_yalm.split('/')[0].split('/')[0]
-    
-        print('Evaluating', model_type)
+        
+        print('Creating dataset')
 
         dataset_dicts = get_KITTI_dataset(dataset_dir, 'val')
 
@@ -43,6 +42,7 @@ if __name__ == '__main__':
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_yalm)
         predictor = DefaultPredictor(cfg)
 
+        print('Evaluating model')
         
         """ EVALUATION """
         evaluator = COCOEvaluator("KITTI-MOTS_val", output_dir=results_dir)

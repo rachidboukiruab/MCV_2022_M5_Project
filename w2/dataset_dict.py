@@ -85,8 +85,3 @@ def get_KITTI_dataset(path: str, part: str) -> List[Dict]:
           })
 
     return anns
-
-
-
-
-
