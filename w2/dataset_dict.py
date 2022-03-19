@@ -64,6 +64,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 rle = bytearray(rle, "utf8")
                 rleobj = frPyObjects([rle], height, width)
                 maskedArr = decode(rleobj)
+                print("----"*20)
                 print(maskedArr)
                 bbox = toBbox(rleobj)
 
