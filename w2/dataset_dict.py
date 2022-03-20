@@ -89,7 +89,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 # https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/mask.py
 
                 bbox = toBbox(rle)
-                print(bbox)
+                print(binaryMask)
 
                 ann.append({
                     "bbox": bbox.flatten(),
