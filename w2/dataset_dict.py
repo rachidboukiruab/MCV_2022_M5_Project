@@ -79,8 +79,8 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
 
                 print(frame_id, ":" ,path / "instances_txt" / (sequence + ".txt"))
                 print(rle)
-                uncodedStr = base64.b64decode(rle)
-                uncompressedStr = zlib.decompress(uncodedStr, wbits=zlib.MAX_WBITS)
+                # uncodedStr = base64.b64decode(rle)
+                uncompressedStr = zlib.decompress(rle, wbits=zlib.MAX_WBITS)
                 detection = {
                     'size': [width, height],
                     'counts': uncompressedStr
