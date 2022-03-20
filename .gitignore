@@ -130,3 +130,6 @@ dmypy.json
 
 # WandB stuff
 *wandb*/
+
+# Results
+w?/results/*
