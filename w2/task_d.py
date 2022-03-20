@@ -44,7 +44,7 @@ if __name__ == '__main__':
         im = cv2.imread("000000.png")
         outputs = predictor(im[..., ::-1])
         print(outputs["instances"].pred_classes)
-        modelclasses = MetadataCatalog.get(cfg.DATASETS.VAL[0]).thing_classes
+        modelclasses = MetadataCatalog.get(cfg.DATASETS.VAL.thing_classes)
         df = pd.DataFrame(modelclasses,columns=['Model classes'])
         print(df)
 
