@@ -6,6 +6,7 @@ from detectron2.data import MetadataCatalog, DatasetCatalog, build_detection_tes
 from dataset_dict import *
 from detectron2.engine import DefaultTrainer, DefaultPredictor
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
+from utils import show_img
 import os, cv2, random
 from dataset_dict import get_KITTI_dataset
 from detectron2.structures import Instances
@@ -38,12 +39,21 @@ if __name__ == '__main__':
     DATASET_NAME = "KITTI-MOTS-COCO_"
     for d in ['training', 'val']:
         DatasetCatalog.register(DATASET_NAME + d, lambda d=d: get_KITTI_dataset_COCO_ids(dataset_dir, d))
-        MetadataCatalog.get(DATASET_NAME + d).set(thing_classes=coco_names)
+        MetadataCatalog.get(DATASET_NAME + d).set(
+            thing_classes=coco_names, stuff_classes=coco_names
+        )
     metadata = MetadataCatalog.get(DATASET_NAME + "val")
 
     for model_yaml in model_list:
         print('Creating dataset')
         dataset_dicts = get_KITTI_dataset_COCO_ids(dataset_dir, 'val')
+
+        kitti_meta = MetadataCatalog.get(DATASET_NAME + "val")
+
+        img = cv2.imread(dataset_dicts[0]["file_name"])
+        visualizer = Visualizer(img[:, :, ::-1], metadata=kitti_meta, scale=0.5)
+        out = visualizer.draw_dataset_dict(dataset_dicts[0])
+        show_img(out.get_image()[:, :, ::-1])
 
         cfg = get_cfg()
         cfg.defrost()
@@ -57,7 +67,6 @@ if __name__ == '__main__':
 
 
         print('Evaluating model')
-
 
         """ EVALUATION """
 

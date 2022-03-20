@@ -126,18 +126,18 @@ def get_KITTI_dataset_COCO_ids(path: Path, part: str) -> List[Dict]:
 
             ann = []
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
+                mask = {
+                    "counts": rle.encode('utf8'),
+                    "size": [height, width],
+                }
 
-                # reads rle and decodes it with cocotools
-                rle = bytearray(rle, "utf8")
-
-                rleobj = frPyObjects([rle], height, width)[0]
-                bbox = toBbox(rleobj).tolist()
+                bbox = toBbox(mask).tolist()
 
                 ann.append({
                     "bbox": bbox,
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": COCO_classes[class_id],
-                    "segmentation": rleobj,
+                    "segmentation": mask,
                     "keypoints": [],
                     "iscrowd": 0
                 })
