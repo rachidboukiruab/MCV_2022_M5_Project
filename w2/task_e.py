@@ -15,16 +15,16 @@ import json
 setup_logger()
 
 # FIXME: Add the correct path here
-# dataset_dir = Path("/home/mcv/datasets/KITTI-MOTS/")
-dataset_dir = Path("/home/pau/Documents/datasets/kitti-mots")
+dataset_dir = Path("/home/mcv/datasets/KITTI-MOTS/")
+#dataset_dir = Path("/home/pau/Documents/datasets/kitti-mots")
 results_dir = Path('./results/task_e/')
 results_dir.mkdir(exist_ok=True)
 
 if __name__ == '__main__':
 
     # FIXME the detection model is NOT a resnet 50 --> Takes super long to infer
-    model_list = ['COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml', ]
-    # 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
+    model_list = ['COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']  
+    # 'COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml']
 
     kitti_names = [""] * 11
     kitti_names[0] = "background"
