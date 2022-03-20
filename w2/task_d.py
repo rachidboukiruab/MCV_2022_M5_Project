@@ -8,6 +8,7 @@ from detectron2.engine import DefaultTrainer, DefaultPredictor
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 import os, cv2, random
 from dataset_dict import get_KITTI_dataset
+from detectron2.structures import Instances
 
 setup_logger()
 
@@ -35,6 +36,7 @@ if __name__ == '__main__':
         cfg.merge_from_file(model_zoo.get_config_file(model_yaml))
 
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_yaml)
+        cfg.CLASS_INDECES 
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         cfg.INPUT.MASK_FORMAT = "bitmask"
         cfg.DATASETS.VAL = "KITTI-MOTS_val"
@@ -43,6 +45,9 @@ if __name__ == '__main__':
         print('Evaluating model')
 
         """ EVALUATION """
-        evaluator = COCOEvaluator("KITTI-MOTS_val", output_dir=str(results_dir))
+        
+        #confident_detections = instances[instances.scores > 0.9
+
+        evaluator = COCOEvaluator("KITTI-MOTS_val",cfg, output_dir=str(results_dir))
         val_loader = build_detection_test_loader(cfg, "KITTI-MOTS_val")
         print(inference_on_dataset(predictor.model, val_loader, evaluator))
