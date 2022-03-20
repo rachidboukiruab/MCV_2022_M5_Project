@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     for d in ['training', 'val']:
         DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
-        MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["person", "", "car", "", "", "", "", "", "", "", "Ignore"])
+        MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["Car", "Pedestrian", "", "", "", "", "", "", "", "", "Ignore"])
     metadata = MetadataCatalog.get("KITTI-MOTS_val")
 
     for model_yaml in model_list:
@@ -41,18 +41,13 @@ if __name__ == '__main__':
         cfg.DATASETS.VAL = "KITTI-MOTS_val"
         predictor = DefaultPredictor(cfg)
 
-        im = cv2.imread("000000.png")
-        outputs = predictor(im[..., ::-1])
-        print(outputs["instances"].pred_classes)
-        modelclasses = MetadataCatalog.get(cfg.DATASETS.VAL).thing_classes
-        df = pd.DataFrame(modelclasses,columns=['Model classes'])
-        print(df)
-
 
         print('Evaluating model')
 
         """ EVALUATION """
 
         evaluator = COCOEvaluator("KITTI-MOTS_val",cfg, output_dir=str(results_dir))
+        print(evaluator)
+
         val_loader = build_detection_test_loader(cfg, "KITTI-MOTS_val")
         print(inference_on_dataset(predictor.model, val_loader, evaluator))
