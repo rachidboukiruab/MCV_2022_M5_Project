@@ -42,6 +42,7 @@ if __name__ == '__main__':
     metadata = MetadataCatalog.get(DATASET_NAME + "training")
 
     for model_yaml in model_list:
+
         print('Creating dataset')
         kitti_meta = MetadataCatalog.get(DATASET_NAME + "val")
 
@@ -50,20 +51,20 @@ if __name__ == '__main__':
         cfg.merge_from_file(model_zoo.get_config_file(model_yaml))
 
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_yaml)
-        cfg.SOLVER.CHECKPOINT_PERIOD = 5
+        cfg.SOLVER.CHECKPOINT_PERIOD = 1000
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         cfg.DATALOADER.NUM_WORKERS = 2
         cfg.INPUT.MASK_FORMAT = "bitmask"
         cfg.DATASETS.TRAIN = (DATASET_NAME + "training",)
-        cfg.DATASETS.VAL = (DATASET_NAME + "val",)
+        cfg.DATASETS.TEST = (DATASET_NAME + "val",)
         cfg.SOLVER.BASE_LR = 0.00025
         cfg.SOLVER.MAX_ITER = 5000
         cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = len(kitti_names)
         cfg.OUTPUT_DIR = str(results_dir)
         cfg.SOLVER.IMS_PER_BATCH = 8
+        # cfg.TEST.EVAL_PERIOD = 100
 
-        predictor = DefaultPredictor(cfg)
         trainer = DefaultTrainer(cfg)
         trainer.resume_or_load(resume=False)
         trainer.train()
@@ -71,8 +72,12 @@ if __name__ == '__main__':
         print('Evaluating model')
 
         """ EVALUATION """
+        evaluator = COCOEvaluator(
+            DATASET_NAME + "val",
+            output_dir=str(results_dir),
+        )
 
-        evaluator = COCOEvaluator(DATASET_NAME + "val", output_dir=str(results_dir))
+        predictor = DefaultPredictor(cfg)
         val_loader = build_detection_test_loader(cfg, DATASET_NAME + "val")
 
         print(inference_on_dataset(predictor.model, val_loader, evaluator))
