@@ -45,12 +45,13 @@ if __name__ == '__main__':
 
         print('Evaluating model')
 
+
         """ EVALUATION """
 
         with open('test.json') as f:
             kitti_results = json.load(f)
 
-        evaluator = COCOEvaluator("KITTI-MOTS_val",cfg, output_dir=str(results_dir))
+        evaluator = COCOEvaluator(kitti_results,cfg, output_dir=str(results_dir))
 
         val_loader = build_detection_test_loader(cfg, "KITTI-MOTS_val")
-        print(inference_on_dataset(predictor.model, val_loader, kitti_results))
+        print(inference_on_dataset(predictor.model, val_loader, evaluator))
