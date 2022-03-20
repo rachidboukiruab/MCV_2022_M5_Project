@@ -61,10 +61,10 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 rle = bytearray(rle, "utf8")
 
                 rleobj = frPyObjects([rle], height, width)[0]
-                bbox = toBbox(rleobj)
+                bbox = toBbox(rleobj).tolist()
 
                 ann.append({
-                    "bbox": bbox.flatten(),
+                    "bbox": bbox,
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": class_id,
                     "segmentation": rleobj,
@@ -77,7 +77,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 "height": frame_gt.iloc[0]["height"],
                 "width": frame_gt.iloc[0]["width"],
                 "image_id": int(f"{sequence}{frame:05}"),
-                "sem_seg": str(path / "instances" / sequence / img_name),
+                "sem_seg_file_name": str(path / "instances" / sequence / img_name),
                 "annotations": ann
             })
 
@@ -131,10 +131,10 @@ def get_KITTI_dataset_COCO_ids(path: Path, part: str) -> List[Dict]:
                 rle = bytearray(rle, "utf8")
 
                 rleobj = frPyObjects([rle], height, width)[0]
-                bbox = toBbox(rleobj)
+                bbox = toBbox(rleobj).tolist()
 
                 ann.append({
-                    "bbox": bbox.flatten(),
+                    "bbox": bbox,
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": COCO_classes[class_id],
                     "segmentation": rleobj,
@@ -147,7 +147,7 @@ def get_KITTI_dataset_COCO_ids(path: Path, part: str) -> List[Dict]:
                 "height": frame_gt.iloc[0]["height"],
                 "width": frame_gt.iloc[0]["width"],
                 "image_id": int(f"{sequence}{frame:05}"),
-                "sem_seg": str(path / "instances" / sequence / img_name),
+                "sem_seg_file_name": str(path / "instances" / sequence / img_name),
                 "annotations": ann
             })
 

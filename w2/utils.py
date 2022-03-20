@@ -1,5 +1,8 @@
 # TODO colourful prints
 import os
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
 
 COLOR_WARNING = "\x1b[0;30;43m"
 
@@ -33,3 +36,10 @@ def colorize_string(string: str, color_id):
     :return: concatenated string with colorize format
     """
     return color_id + string + '\x1b[0m'
+
+
+def show_img(im):
+    plt.figure(dpi=150)
+    plt.axis("off")
+    plt.imshow(im)
+    plt.show()
