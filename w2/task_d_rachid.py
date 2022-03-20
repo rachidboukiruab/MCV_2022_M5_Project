@@ -7,7 +7,7 @@ from dataset_dict import *
 from detectron2.engine import DefaultTrainer, DefaultPredictor
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 import os, cv2, random
-from dataset_dict import get_KITTI_dataset
+from dataset_dict_rachid import get_KITTI_dataset
 from detectron2.structures import Instances
 import json
 
