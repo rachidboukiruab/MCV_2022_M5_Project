@@ -8,7 +8,7 @@ from detectron2.structures import BoxMode
 import cv2
 from typing_extensions import TypedDict
 import json
-import fiftyone
+from fiftyone.utils.kitti import load_kitti_detection_annotations
 
 def polygonFromMask(maskedArr):
     # adapted from https://github.com/hazirbas/coco-json-converter/blob/master/generate_coco_json.py
@@ -61,7 +61,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 dtype={"frame": int, "obj_id": int, "class_id": int,
                        "height": int, "width": int, "rle": str}
             )
-        detection = fiftyone.utils.kitti.load_kitti_detection_annotations(path / "instances_txt" / (sequence + ".txt"), (wi))
+        detection = load_kitti_detection_annotations(path / "instances_txt" / (sequence + ".txt"), (wi))
         print(detection)
         for img_path in seq.glob("*.png"):
             img_name = img_path.parts[-1]
