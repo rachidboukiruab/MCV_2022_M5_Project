@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
         """ EVALUATION """
 
-        with open('w2\test.json') as f:
+        with open('test.json') as f:
             kitti_results = json.load(f)
 
         evaluator = COCOEvaluator("KITTI-MOTS_val",cfg, output_dir=str(results_dir))
