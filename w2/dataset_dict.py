@@ -73,9 +73,8 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             ann = []
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
                 # reads rle and decodes it with cocotools
-                rle = bytearray(rle, "utf8")
-
-                rleobj = frPyObjects([rle], height, width)[0]
+                foo = [{'size': [height, width], 'counts':rle}]
+                print(foo)
                 mask = decode(rle)
                 print(mask)
                 # https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/mask.py
