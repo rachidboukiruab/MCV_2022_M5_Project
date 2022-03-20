@@ -11,7 +11,8 @@ import json
 from pycocotools import _mask as coco_mask
 import base64
 import zlib
-
+import PIL.Image as Image
+import tensorflow as tf
 
 def polygonFromMask(maskedArr):
     # adapted from https://github.com/hazirbas/coco-json-converter/blob/master/generate_coco_json.py
@@ -76,34 +77,33 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             ann = []
             for frame_id, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
                 # reads rle and decodes it with cocotools
+                fram_id_len = len(frame_id)
+                filled_id = (6-fram_id_len)*"0"+frame_id
 
-                print(frame_id, ":", path / "instances_txt" / (sequence + ".txt"))
-                print(rle)
-                print(str.encode(rle))
-                mask = coco_mask._frString(rle)
-                print(mask)
-                # uncodedStr = base64.b64decode(rle)
-                uncompressedStr = zlib.decompress(rle, wbits=zlib.MAX_WBITS)
-                detection = {
-                    'size': [width, height],
-                    'counts': uncompressedStr
-                }
-                detlist = []
-                detlist.append(detection)
-                mask = coco_mask.decode(detlist)
-                binaryMask = mask.astype('bool')
+                ann_data = tf.read_file(path / "instances" / sequence / filled_id +'.png')
+                ann_png = tf.image.decode_image(ann_data, dtype=tf.uint16, channels=1)
+
+                # print(frame_id, ":", path / "instances_txt" / (sequence + ".txt"))
+                # print(rle)
+                # print(str.encode(rle))
+                # mask = coco_mask._frString(rle)
+                # print(mask)
+                # # uncodedStr = base64.b64decode(rle)
+                # uncompressedStr = zlib.decompress(rle, wbits=zlib.MAX_WBITS)
+                # detection = {
+                #     'size': [width, height],
+                #     'counts': uncompressedStr
+                # }
+                # detlist = []
+                # detlist.append(detection)
+                # mask = coco_mask.decode(detlist)
+                # binaryMask = mask.astype('bool')
                 # https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/mask.py
 
-                bbox = toBbox(rle)
-                print(binaryMask)
+                # bbox = toBbox(rle)
+                # print(binaryMask)
 
-                ann.append({
-                    "bbox": bbox.flatten(),
-                    "bbox_mode": BoxMode.XYWH_ABS,
-                    "category_id": class_id,
-                    "segmentation": binaryMask,
-                    "iscrowd": 0
-                })
+                ann.append(ann_png)
 
             anns.append({
                 "file_name": str(img_path),
