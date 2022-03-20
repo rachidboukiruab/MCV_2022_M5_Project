@@ -76,9 +76,12 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 rle = bytearray(rle, "utf8")
 
                 rleobj = frPyObjects([rle], height, width)[0]
-                mask = decode(rleobj)
+                mask = decode(rle)
+                print(mask)
+                # https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/mask.py
 
-                bbox = toBbox(rleobj)
+                bbox = toBbox(rle)
+                print(bbox)
 
                 ann.append({
                     "bbox": bbox.flatten(),
