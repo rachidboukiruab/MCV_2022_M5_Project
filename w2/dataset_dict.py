@@ -102,6 +102,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
 
                 # bbox = toBbox(rle)
                 # print(binaryMask)
+                print(ann_png)
 
                 ann.append(ann_png)
 
