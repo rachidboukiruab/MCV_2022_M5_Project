@@ -77,16 +77,16 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
 
                 rleobj = frPyObjects([rle], height, width)[0]
                 bbox = toBbox(rleobj)
-
+                map_classes = {1:2,2:0}
                 ann.append({
                     "bbox": bbox.flatten(),
                     "bbox_mode": BoxMode.XYWH_ABS,
-                    "category_id": class_id,
+                    "category_id": map_classes[int(np.floor(class_id/1e3))],
                     "segmentation": rleobj,
                     "keypoints": [],
                     "iscrowd": 0
                 })
-
+                
             anns.append({
                 "file_name": str(img_path),
                 "height": frame_gt.iloc[0]["height"],

@@ -23,11 +23,6 @@ if __name__ == '__main__':
     model_list = ['COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml',
                   'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
 
-    for d in ['training', 'val']:
-        DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
-        MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=["Car", "Pedestrian", "", "", "", "", "", "", "", "", "Ignore"])
-    metadata = MetadataCatalog.get("KITTI-MOTS_val")
-
     for model_yaml in model_list:
         print('Creating dataset')
         dataset_dicts = get_KITTI_dataset(dataset_dir, 'val')
@@ -39,7 +34,19 @@ if __name__ == '__main__':
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model_yaml)
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         cfg.INPUT.MASK_FORMAT = "bitmask"
-        cfg.DATASETS.VAL = "KITTI-MOTS_val"
+        #cfg.DATASETS.VAL = "KITTI-MOTS_val"
+
+        metadata = MetadataCatalog.get(cfg.DATASETS.TRAIN[0])
+        thing_classes = metadata.thing_classes
+        map_classes = {1:2,2:0}
+
+        for d in ['training', 'val']:
+            DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
+            MetadataCatalog.get("KITTI-MOTS_" + d).set(thing_classes=thing_classes)
+        metadata = MetadataCatalog.get("KITTI-MOTS_val")
+
+        cfg.MODEL.ROI_HEADS.NUM_CLASSES = len(thing_classes)
+
         predictor = DefaultPredictor(cfg)
 
 
