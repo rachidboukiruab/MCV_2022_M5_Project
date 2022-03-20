@@ -76,6 +76,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             ann = []
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
                 # reads rle and decodes it with cocotools
+                print(path / "instances_txt" / (sequence + ".txt"))
                 print(rle)
                 uncodedStr = base64.b64decode(rle)
                 uncompressedStr = zlib.decompress(uncodedStr, wbits=zlib.MAX_WBITS)
