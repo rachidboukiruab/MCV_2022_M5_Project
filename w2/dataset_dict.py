@@ -58,16 +58,18 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
 
                 # reads rle and decodes it with cocotools
-                rle = bytearray(rle, "utf8")
+                mask = {
+                    "counts": rle.encode('utf8'),
+                    "size": [height, width],
+                }
 
-                rleobj = frPyObjects([rle], height, width)[0]
-                bbox = toBbox(rleobj).tolist()
+                bbox = toBbox(mask).tolist()
 
                 ann.append({
                     "bbox": bbox,
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": class_id,
-                    "segmentation": rleobj,
+                    "segmentation": mask,
                     "keypoints": [],
                     "iscrowd": 0
                 })
@@ -86,9 +88,9 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
 
 def get_KITTI_dataset_COCO_ids(path: Path, part: str) -> List[Dict]:
     COCO_classes = {
-        0: 0,               # Background to background
-        1: 3,               # Car to Car
-        2: 1,               # Pedestrian to Person
+        0: 50,              # Background anywhere
+        1: 2,               # Car to Car
+        2: 0,               # Pedestrian to Person
         10: 71              # Ignore to Toaster bc wtf not
     }
     with open('./configs/dataset_split.json') as f_splits:
