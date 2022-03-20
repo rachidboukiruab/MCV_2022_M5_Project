@@ -3,12 +3,15 @@ import numpy as np
 
 from pathlib import Path
 from typing import List, Dict
-from pycocotools.mask import toBbox, frPyObjects, decode
+from pycocotools.mask import toBbox, frPyObjects
 from detectron2.structures import BoxMode
 import cv2
 from typing_extensions import TypedDict
 import json
-from fiftyone.utils.kitti import load_kitti_detection_annotations
+from pycocotools import _mask as coco_mask
+import base64
+import zlib
+
 
 def polygonFromMask(maskedArr):
     # adapted from https://github.com/hazirbas/coco-json-converter/blob/master/generate_coco_json.py
@@ -73,12 +76,16 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             ann = []
             for _, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
                 # reads rle and decodes it with cocotools
-                rle = bytes(rle, "utf8")
-                print(rle)
-                foo = [{'size': [height, width], 'counts':rle}]
-                print(foo)
-                mask = decode(rle)
-                print(mask)
+                uncodedStr = base64.b64decode(rle)
+                uncompressedStr = zlib.decompress(uncodedStr, wbits=zlib.MAX_WBITS)
+                detection = {
+                    'size': [width, height],
+                    'counts': uncompressedStr
+                }
+                detlist = []
+                detlist.append(detection)
+                mask = coco_mask.decode(detlist)
+                binaryMask = mask.astype('bool')
                 # https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/pycocotools/mask.py
 
                 bbox = toBbox(rle)
@@ -88,7 +95,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                     "bbox": bbox.flatten(),
                     "bbox_mode": BoxMode.XYWH_ABS,
                     "category_id": class_id,
-                    "segmentation": mask,
+                    "segmentation": binaryMask,
                     "iscrowd": 0
                 })
 
