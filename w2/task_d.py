@@ -21,9 +21,8 @@ results_dir = Path('./results/task_d/')
 os.makedirs(results_dir, exist_ok=True)
 
 if __name__ == '__main__':
-    
-    # FIXME the detection model is NOT a resnet 50 --> Takes super long to infer
-    model_list = ['COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml',
+
+    model_list = ['COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml',
                   'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
 
     # for d in ['training', 'val']:
@@ -47,6 +46,7 @@ if __name__ == '__main__':
     for model_yaml in model_list:
         print('Creating dataset')
         dataset_dicts = get_KITTI_dataset_COCO_ids(dataset_dir, 'val')
+        image_ids = [x["image_id"] for x in dataset_dicts]
 
         kitti_meta = MetadataCatalog.get(DATASET_NAME + "val")
 
@@ -70,19 +70,26 @@ if __name__ == '__main__':
 
         """ EVALUATION """
 
-        evaluator = COCOEvaluator(DATASET_NAME + "val", output_dir=str(results_dir))
+        results_model = results_dir / model_yaml.split('.')[0].split('/')[0]
+        results_model.mkdir(exist_ok=True)
+
+        evaluator = COCOEvaluator(DATASET_NAME + "val", output_dir=str(results_model))
         val_loader = build_detection_test_loader(cfg, DATASET_NAME + "val")
 
         print(inference_on_dataset(predictor.model, val_loader, evaluator))
 
-        # im = cv2.imread(dataset_dicts[0]["file_name"])
-        # outputs = predictor(im)
-        # v = Visualizer(im[:, :, ::-1],
-        #                metadata=kitti_meta,
-        #                scale=0.5,
-        #                instance_mode=ColorMode.IMAGE_BW
-        # )
-        # out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-        # show_img(out.get_image()[:, :, ::-1])
+        for imid in image_ids:
+            print(evaluator.evaluate(img_ids=[imid]))
+
+        im = cv2.imread(dataset_dicts[0]["file_name"])
+        outputs = predictor(im)
+        v = Visualizer(
+            im[:, :, ::-1],
+            metadata=kitti_meta,
+            scale=0.5,
+            instance_mode=ColorMode.IMAGE_BW
+        )
+        out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+        show_img(out.get_image()[:, :, ::-1])
 
 
