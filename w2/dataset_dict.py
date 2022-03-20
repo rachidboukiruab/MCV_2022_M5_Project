@@ -78,7 +78,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 # reads rle and decodes it with cocotools
 
                 print(frame_id, ":" ,path / "instances_txt" / (sequence + ".txt"))
-                print(rle)
+                print(str.encode(rle))
                 mask = coco_mask._frString(rle)
                 print(mask)
                 # uncodedStr = base64.b64decode(rle)
