@@ -9,6 +9,7 @@ from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 import os, cv2, random
 from dataset_dict import get_KITTI_dataset
 from detectron2.structures import Instances
+import json
 
 setup_logger()
 
@@ -46,8 +47,10 @@ if __name__ == '__main__':
 
         """ EVALUATION """
 
+        with open('w2\test.json') as f:
+            kitti_results = json.load(f)
+
         evaluator = COCOEvaluator("KITTI-MOTS_val",cfg, output_dir=str(results_dir))
-        print(evaluator)
 
         val_loader = build_detection_test_loader(cfg, "KITTI-MOTS_val")
-        print(inference_on_dataset(predictor.model, val_loader, evaluator))
+        print(inference_on_dataset(predictor.model, val_loader, kitti_results))
