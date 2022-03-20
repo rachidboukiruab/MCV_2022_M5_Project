@@ -41,6 +41,12 @@ if __name__ == '__main__':
         cfg.DATASETS.VAL = "KITTI-MOTS_val"
         predictor = DefaultPredictor(cfg)
 
+        im = cv2.imread("000000.png")
+        outputs = predictor(im[..., ::-1])
+        print(outputs["instances"].pred_classes)
+        MetadataCatalog.get(cfg.DATASETS.VAL[0])
+
+
         print('Evaluating model')
 
         """ EVALUATION """
