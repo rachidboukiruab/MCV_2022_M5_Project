@@ -16,14 +16,14 @@ import json
 setup_logger()
 
 # FIXME: Add the correct path here
-# dataset_dir = Path("/home/mcv/datasets/KITTI-MOTS/")
-dataset_dir = Path("/home/pau/Documents/datasets/kitti-mots")
+dataset_dir = Path("/home/mcv/datasets/KITTI-MOTS/")
+#dataset_dir = Path("/home/pau/Documents/datasets/kitti-mots")
 results_dir = Path('./results/task_e/')
 
 if __name__ == '__main__':
     # FIXME the detection model is NOT a resnet 50 --> Takes super long to infer
-    model_list = ['COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml']
-    # 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
+    model_list = ['COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
+    # 'COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml']
     # ]
 
     kitti_names = [""] * 11
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = len(kitti_names)
         cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = len(kitti_names)
-        cfg.MODEL.WEIGHTS = str(results_dir / "model_0003999.pth")
+        cfg.MODEL.WEIGHTS = str(results_dir / "model_0001129.pth")
         cfg.INPUT.MASK_FORMAT = "bitmask"
         cfg.DATASETS.TRAIN = (DATASET_NAME + "training",)
         cfg.DATASETS.TEST = (DATASET_NAME + PARTITION,)
