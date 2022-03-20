@@ -76,6 +76,7 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
                 rle = bytearray(rle, "utf8")
 
                 rleobj = frPyObjects([rle], height, width)[0]
+                print("releobj",rleobj)
                 mask = decode(rleobj)
                 print(f"Segmentation mask ({mask.shape})")
 
