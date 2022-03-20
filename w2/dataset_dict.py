@@ -77,7 +77,6 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
 
                 rleobj = frPyObjects([rle], height, width)[0]
                 mask = decode(rleobj)
-                print(f"Segmentation mask ({mask.shape})")
 
                 bbox = toBbox(rleobj)
 
