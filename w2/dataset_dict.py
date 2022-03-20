@@ -77,7 +77,8 @@ def get_KITTI_dataset(path: Path, part: str) -> List[Dict]:
             for frame_id, obj_id, class_id, height, width, rle in frame_gt.itertuples(index=False):
                 # reads rle and decodes it with cocotools
 
-                print(frame_id, ":" ,path / "instances_txt" / (sequence + ".txt"))
+                print(frame_id, ":", path / "instances_txt" / (sequence + ".txt"))
+                print(rle)
                 print(str.encode(rle))
                 mask = coco_mask._frString(rle)
                 print(mask)
