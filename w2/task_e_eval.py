@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = len(kitti_names)
         cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = len(kitti_names)
-        cfg.MODEL.WEIGHTS = str(results_dir / "model_0001129.pth")
+        cfg.MODEL.WEIGHTS = str(results_dir / "model_0002129.pth")
         cfg.INPUT.MASK_FORMAT = "bitmask"
         cfg.DATASETS.TRAIN = (DATASET_NAME + "training",)
         cfg.DATASETS.TEST = (DATASET_NAME + PARTITION,)
