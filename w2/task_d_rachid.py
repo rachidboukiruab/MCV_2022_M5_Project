@@ -20,8 +20,10 @@ os.makedirs(results_dir, exist_ok=True)
 
 if __name__ == '__main__':
 
-    model_list = ['COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml',
-                  'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
+    #model_list = ['COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml',
+    #              'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
+
+    model_list = ['COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml']
 
     for model_yaml in model_list:
         print('Creating dataset')
@@ -38,7 +40,6 @@ if __name__ == '__main__':
 
         metadata = MetadataCatalog.get(cfg.DATASETS.TRAIN[0])
         thing_classes = metadata.thing_classes
-        map_classes = {1:2,2:0}
 
         for d in ['training', 'val']:
             DatasetCatalog.register("KITTI-MOTS_" + d, lambda d=d: get_KITTI_dataset(dataset_dir, d))
