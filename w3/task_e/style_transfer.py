@@ -45,10 +45,9 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
     """
     step = 900
 
-
     for j in range(10):
         input_img = run_style_transfer(cnn, cnn_normalization_mean, cnn_normalization_std,
                                        content_img, style_img, input_img, num_steps=step, print_step=100,
                                        content_weight=1, style_weight=1000000)
 
-    save_image(input_img, os.path.join(result_path, 'step' + str(j * step) + '.png'))
+    save_image(input_img, os.path.join(result_path, f'{ii}.png'))
