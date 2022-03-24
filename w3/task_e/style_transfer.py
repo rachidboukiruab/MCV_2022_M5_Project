@@ -7,10 +7,9 @@ from torchvision.utils import save_image
 
 from utils import image_loader, make_dirs, device, run_style_transfer, cnn_normalization_mean, cnn_normalization_std
 
-result_path = './results'
-
-style_path = ""
-content_path = ""
+result_path = '/home/group01/MCV_2022_M5_Project/w3/te_data/results'
+style_path = "/home/group01/MCV_2022_M5_Project/w3/te_data/style"
+content_path = "/home/group01/MCV_2022_M5_Project/w3/te_data/content"
 
 # Generate a folder to save results
 make_dirs(result_path)
