@@ -56,7 +56,8 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
                                 content_img, style_img, input_img, num_steps=NUM_STEPS, print_step=100,
                                 content_weight=CONTENT_WEIGHT, style_weight=STYLE_WEIGHT)
 
-    output = output.reshape(content_size)
+    # FIXME: maybe reshape before saving?
+    # output = output.reshape(content_size)
     save_image(output, os.path.join(RESULT_PATH, f'{ii}.png'))
 
 print("PROCESS FINISHED")
