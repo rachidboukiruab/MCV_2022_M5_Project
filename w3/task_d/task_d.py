@@ -14,7 +14,7 @@ import json
 
 
 # Folders
-dataset_dir = '/images/'
+dataset_dir = '/export/home/group01/MCV_2022_M5_Project/w3/task_d/images/'
 results_dir = './results/'
 os.makedirs(results_dir, exist_ok=True)
 
@@ -68,18 +68,18 @@ if __name__ == '__main__':
 
     # Run inference with pre-trained Mask R-CNN
     for file in paths:
+
         print(f"Feature inference to image: {file}")
         if paths[file] == 'None':
-            break
+            continue
 
         img_path = os.path.join(dataset_dir,paths[file])
-        print(img_path)
+
         out_path = os.path.join(results_dir, paths[file])
-        print(out_path)
+
 
         #inference image 
         img = inference(img_path)
-
         cv2.imwrite(out_path, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
             
 
