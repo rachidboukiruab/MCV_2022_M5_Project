@@ -31,12 +31,11 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
 
     aux = Image.open(content)
     content_size = aux.size
-    print(max(content_size))
+    print(content_size)
 
     style_img = image_loader(style, max(content_size))
     content_img = image_loader(content, max(content_size))
 
-    print(style_img.size(), content_img.size())
     assert style_img.size() == content_img.size(), "style & content imgs should be same size"
 
     # input image as initializer
