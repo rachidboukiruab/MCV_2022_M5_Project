@@ -11,8 +11,8 @@ from utils import image_loader, make_dirs, device, run_style_transfer, cnn_norma
 # Generate a folder to save results
 make_dirs(RESULT_PATH)
 
-style_images = [f for f in listdir(STYLE_PATH) if isfile(join(STYLE_PATH, f))]
-content_images = [f for f in listdir(CONTENT_PATH) if isfile(join(CONTENT_PATH, f))]
+style_images = [join(STYLE_PATH,f) for f in listdir(STYLE_PATH) if isfile(join(STYLE_PATH, f))]
+content_images = [join(CONTENT_PATH,f) for f in listdir(CONTENT_PATH) if isfile(join(CONTENT_PATH, f))]
 
 # sort list
 style_images = sorted(style_images, key=lambda x: int(os.path.splitext(x)[0]))
