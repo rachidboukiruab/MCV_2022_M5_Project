@@ -51,7 +51,7 @@ class DatasetSplit(TypedDict):
 
 if __name__ == '__main__':
 
-    with open('./configs/dataset_split.json') as jsonfile:
+    with open('imgs_paths.json') as jsonfile:
         paths = json.load(jsonfile)
 
     model_yalm = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'
