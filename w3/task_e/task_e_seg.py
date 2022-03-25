@@ -12,10 +12,10 @@ from detectron2.utils.visualizer import Visualizer
 from config import RESULT_PATH
 
 
-def main(args: ArgumentParser):
-    dataset_path = Path(args.dataset_path)
+def main():
+    dataset_path = Path(RESULT_PATH)
     out_path = Path(RESULT_PATH)
-    out_path = out_path / "task_e"
+    out_path = out_path / "segmentation"
     out_path.mkdir(parents=True, exist_ok=True)
 
     MODEL = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'
@@ -48,16 +48,5 @@ def main(args: ArgumentParser):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(
-        description="Inference tool for Task A",
-        formatter_class=ArgumentDefaultsHelpFormatter
-    )
-    parser.add_argument(
-        "dataset_path",
-        type=str,
-        help="Path where to find Out-of-Context images"
-    )
-    args = parser.parse_args()
-
-    main(args)
+    main()
 
