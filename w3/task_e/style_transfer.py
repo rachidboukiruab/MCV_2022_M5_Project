@@ -18,9 +18,12 @@ content_images = [f for f in listdir(CONTENT_PATH) if isfile(join(CONTENT_PATH, 
 style_images = sorted(style_images, key=lambda x: int(os.path.splitext(x)[0]))
 content_images = sorted(content_images, key=lambda x: int(os.path.splitext(x)[0]))
 
+print(style_images)
+
 cnn = models.vgg19(pretrained=True).features.to(device).eval()
 
 for ii, (style, content) in enumerate(zip(style_images, content_images)):
+    print(style)
 
     style_img = image_loader(style)
     content_img = image_loader(content)
