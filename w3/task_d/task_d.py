@@ -68,8 +68,9 @@ if __name__ == '__main__':
 
     # Run inference with pre-trained Mask R-CNN
     for file in paths:
+        print(f"Feature inference to image: {file}")
         if paths[file] == 'None':
-            continue
+            break
         else:
             img_path = os.path.join(dataset_dir,paths[file])
             out_path2 = os.path.join(results_dir, paths[file])
@@ -78,7 +79,7 @@ if __name__ == '__main__':
             img = inference(img_path)
 
             cv2.imwrite(out_path2, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
-            print(f"Feature inference to image: {img_path}")
+            
 
 
 
