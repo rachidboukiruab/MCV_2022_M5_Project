@@ -29,6 +29,8 @@ preprocess = transforms.Compose([
 
 results_dict = {}
 for filename in imgs_path:
+    list_results = list()
+
     img_name = filename.split("/")[-1]
 
     input_image = Image.open(join(INFERENCE_PATH, filename))
@@ -48,9 +50,10 @@ for filename in imgs_path:
 
     top5_prob, top5_catid = torch.topk(probabilities, 5)
     for i in range(top5_prob.size(0)):
-        results_dict[img_name] = (categories[top5_catid[i]], top5_prob[i].item())
+        list_results.append((categories[top5_catid[i]], top5_prob[i].item()))
         print(categories[top5_catid[i]], top5_prob[i].item())
 
+    results_dict[img_name] = list_results
     with open(join(INFERENCE_PATH, "classification", 'class_result.json'), 'w') as outfile:
         json.dump(results_dict, outfile)
 
