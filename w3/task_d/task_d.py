@@ -1,14 +1,10 @@
-from detectron2.utils.logger import setup_logger
 from detectron2 import model_zoo
 from detectron2.config import get_cfg
-from detectron2.utils.visualizer import Visualizer, ColorMode
-from detectron2.data import MetadataCatalog, DatasetCatalog, build_detection_test_loader
-from detectron2.engine import DefaultTrainer, DefaultPredictor
-from detectron2.evaluation import COCOEvaluator, inference_on_dataset
-from utils import show_img
+from detectron2.utils.visualizer import Visualizer
+from detectron2.data import MetadataCatalog
+from detectron2.engine import DefaultPredictor
 import os, cv2, random
-from dataset_dict import get_KITTI_dataset
-from detectron2.structures import Instances
+
 
 
 """ FEATURE  INFERENCE using MASK R-CNN
