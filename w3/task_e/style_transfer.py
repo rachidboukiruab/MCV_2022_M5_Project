@@ -22,7 +22,7 @@ cnn = models.vgg19(pretrained=True).features.to(device).eval()
 for ii, (style, content) in enumerate(zip(style_images, content_images)):
     # relevant path
     style = join(STYLE_PATH, style)
-    content = join(STYLE_PATH, content)
+    content = join(CONTENT_PATH, content)
 
     print(style)
     print(content)
