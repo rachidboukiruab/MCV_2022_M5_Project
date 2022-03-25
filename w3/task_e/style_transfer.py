@@ -30,7 +30,8 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
     # print(content)
 
     aux = Image.open(content)
-    content_size = aux.shape
+    content_size = aux.shape()
+    print(max(content_size))
 
     style_img = image_loader(style, max(content_size))
     content_img = image_loader(content, max(content_size))
