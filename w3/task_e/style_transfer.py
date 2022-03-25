@@ -24,8 +24,8 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
     style = join(STYLE_PATH, style)
     content = join(CONTENT_PATH, content)
 
-    print(style)
-    print(content)
+    # print(style)
+    # print(content)
 
     content_size = content.shape
 
