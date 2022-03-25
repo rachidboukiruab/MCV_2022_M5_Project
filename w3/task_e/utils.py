@@ -139,12 +139,12 @@ def image_loader(image_name, to_reshape):
     # fake batch dimension required to fit network's input dimensions
 
     loader = transforms.Compose([
-        transforms.Resize(to_reshape),  # scale imported image
+        transforms.Resize((to_reshape,to_reshape)),  # scale imported image
         transforms.ToTensor()])  # transform it into a torch tensor
 
     image = loader(image).unsqueeze(0)
     return image.to(device, torch.float)
-
+Resize
 
 def get_input_optimizer(input_img):
     # this line to show that input is a parameter that requires a gradient
