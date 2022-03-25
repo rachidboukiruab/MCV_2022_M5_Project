@@ -4,6 +4,8 @@ from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
 from detectron2.engine import DefaultPredictor
 import os, cv2, random
+from typing_extensions import TypedDict
+import json
 
 
 
@@ -12,7 +14,7 @@ import os, cv2, random
 
 
 # Folders
-dataset_dir = '/home/group01/MCV_2022_M5_Project/w3/datasets/coco/images/val2017/'
+dataset_dir = '/home/group01/MCV_2022_M5_Project/w3/task_d/images/'
 results_dir = './results/'
 os.makedirs(results_dir, exist_ok=True)
 
@@ -32,8 +34,25 @@ def inference(img_path):
     # cv2_imshow(out.get_image()[:, :, ::-1])
     return out.get_image()[:, :, ::-1]
 
+class DatasetSplit(TypedDict):
+    """
+    A typed dict to represent experiment settings. Types should match those in
+    the configuration JSON file used as input parameter.
+    """
+    gt_img: str
+    background_1: str
+    black: str
+    totally_black:str
+    noise: str
+    background2:str
+    background3:str
+    background4: str
+
 
 if __name__ == '__main__':
+
+    with open('./configs/dataset_split.json') as jsonfile:
+        paths = json.load(jsonfile)
 
     model_yalm = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'
 
@@ -48,15 +67,18 @@ if __name__ == '__main__':
     predictor = DefaultPredictor(cfg)
 
     # Run inference with pre-trained Mask R-CNN
-    file =  '000000020247.jpg'
-    img_path = os.path.join(dataset_dir,file)
-    out_path2 = os.path.join(results_dir, file)
+    for file in paths:
+        if paths[file] == 'None':
+            continue
+        else:
+            img_path = os.path.join(dataset_dir,paths[file])
+            out_path2 = os.path.join(results_dir, paths[file])
 
-    #inference image 
-    img = inference(img_path)
+            #inference image 
+            img = inference(img_path)
 
-    cv2.imwrite(out_path2, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
-    print(f"Feature inference to image: {img_path}")
+            cv2.imwrite(out_path2, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
+            print(f"Feature inference to image: {img_path}")
 
 
 
