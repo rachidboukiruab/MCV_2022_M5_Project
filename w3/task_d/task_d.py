@@ -13,7 +13,7 @@ import os, cv2, random
 
 # Folders
 dataset_dir = '/home/group01/MCV_2022_M5_Project/w3/datasets/coco/images/val2017/'
-results_dir = './results/task_c/'
+results_dir = './results/'
 os.makedirs(results_dir, exist_ok=True)
 
 
