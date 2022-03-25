@@ -3,7 +3,9 @@ from os import listdir
 from os.path import isfile, join
 
 import torchvision.models as models
+from PIL import Image
 from torchvision.utils import save_image
+
 from config import RESULT_PATH, STYLE_PATH, CONTENT_PATH, NUM_STEPS, CONTENT_WEIGHT, STYLE_WEIGHT
 from utils import image_loader, make_dirs, device, run_style_transfer, cnn_normalization_mean, cnn_normalization_std
 
@@ -27,10 +29,12 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
     # print(style)
     # print(content)
 
-    content_size = content.shape
+    content_size = Image.open(content).shape
 
     style_img = image_loader(style, max(content_size))
     content_img = image_loader(content, max(content_size))
+
+
 
     assert style_img.size() == content_img.size(), "style & content imgs should be same size"
 
