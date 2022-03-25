@@ -52,3 +52,5 @@ for filename in imgs_path:
 
     with open(join(INFERENCE_PATH,"classification",'class_result.json'), 'w') as outfile:
         json.dump(results_dict, outfile)
+
+print("PROCESS FINISHED")

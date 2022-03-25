@@ -44,6 +44,8 @@ def main(args: ArgumentParser):
             [int(cv2.IMWRITE_PNG_COMPRESSION), 9]
         )
 
+    print("PROCESS FINISHED")
+
 
 if __name__ == "__main__":
     parser = ArgumentParser(
@@ -58,3 +60,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(args)
+
