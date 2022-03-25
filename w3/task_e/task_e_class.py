@@ -49,6 +49,7 @@ for filename in imgs_path:
     top5_prob, top5_catid = torch.topk(probabilities, 5)
     for i in range(top5_prob.size(0)):
         results_dict[img_name] = (categories[top5_catid[i]], top5_prob[i].item())
+        print(categories[top5_catid[i]], top5_prob[i].item())
 
     with open(join(INFERENCE_PATH, "classification", 'class_result.json'), 'w') as outfile:
         json.dump(results_dict, outfile)
