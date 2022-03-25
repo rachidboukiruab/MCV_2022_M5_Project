@@ -56,10 +56,13 @@ if __name__ == '__main__':
     img_path = os.path.join(dataset_dir,file)
     out_path2 = os.path.join(results_dir, file)
 
+    #inference image 
     img = inference(img_path)
 
     cv2.imwrite(out_path2, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
     print(f"Feature inference to image: {img_path}")
+
+
 
     
 
