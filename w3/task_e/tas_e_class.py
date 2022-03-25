@@ -13,13 +13,14 @@ from config import RESULT_PATH
 # !wget https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt
 from utils import make_dirs
 
+INFERENCE_PATH = RESULT_PATH
 model = models.resnet50(pretrained=True)
 model.eval()
 
-imgs_path = [f for f in listdir(RESULT_PATH) if isfile(join(RESULT_PATH, f))]
+imgs_path = [f for f in listdir(INFERENCE_PATH) if isfile(join(INFERENCE_PATH, f))]
 imgs_path = sorted(imgs_path, key=lambda x: int(os.path.splitext(x)[0]))
 
-make_dirs(join(RESULT_PATH,"classification"))
+make_dirs(join(INFERENCE_PATH,"classification"))
 
 results_dict = {}
 for filename in imgs_path:
@@ -49,5 +50,5 @@ for filename in imgs_path:
     for i in range(top5_prob.size(0)):
         results_dict[img_name] = (categories[top5_catid[i]], top5_prob[i].item())
 
-    with open(join(RESULT_PATH,"classification",'class_result.json'), 'w') as outfile:
+    with open(join(INFERENCE_PATH,"classification",'class_result.json'), 'w') as outfile:
         json.dump(results_dict, outfile)
