@@ -35,7 +35,7 @@ def inference(img_path):
 
 if __name__ == '__main__':
 
-    model_yalm = ['COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml']
+    model_yalm = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'
 
     cfg = get_cfg() 
 
