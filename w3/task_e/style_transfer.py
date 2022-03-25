@@ -27,8 +27,10 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
     print(style)
     print(content)
 
-    style_img = image_loader(style)
-    content_img = image_loader(content)
+    content_size = content.shape
+
+    style_img = image_loader(style, max(content_size))
+    content_img = image_loader(content, max(content_size))
 
     assert style_img.size() == content_img.size(), "style & content imgs should be same size"
 
@@ -50,7 +52,7 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
                                 content_img, style_img, input_img, num_steps=NUM_STEPS, print_step=100,
                                 content_weight=CONTENT_WEIGHT, style_weight=STYLE_WEIGHT)
 
-    output = output.reshape(content_img.shape)
+    output = output.reshape(content_size)
     save_image(output, os.path.join(RESULT_PATH, f'{ii}.png'))
 
 print("PROCESS FINISHED")

@@ -17,10 +17,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 cnn_normalization_mean = torch.tensor([0.485, 0.456, 0.406]).to(device)
 cnn_normalization_std = torch.tensor([0.229, 0.224, 0.225]).to(device)
 
-loader = transforms.Compose([
-    transforms.Resize(IMSIZE),  # scale imported image
-    transforms.ToTensor()])  # transform it into a torch tensor
-
 
 class Normalization(nn.Module):
     def __init__(self, mean, std):
@@ -140,9 +136,14 @@ def get_style_model_and_losses(cnn, normalization_mean, normalization_std,
     return model, style_losses, content_losses
 
 
-def image_loader(image_name):
+def image_loader(image_name, to_reshape):
     image = Image.open(image_name)
     # fake batch dimension required to fit network's input dimensions
+
+    loader = transforms.Compose([
+        transforms.Resize(to_reshape),  # scale imported image
+        transforms.ToTensor()])  # transform it into a torch tensor
+
     image = loader(image).unsqueeze(0)
     return image.to(device, torch.float)
 
