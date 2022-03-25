@@ -20,18 +20,18 @@ model.eval()
 imgs_path = [f for f in listdir(INFERENCE_PATH) if isfile(join(INFERENCE_PATH, f))]
 imgs_path = sorted(imgs_path, key=lambda x: int(os.path.splitext(x)[0]))
 
-make_dirs(join(INFERENCE_PATH,"classification"))
+make_dirs(join(INFERENCE_PATH, "classification"))
+
+preprocess = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
 
 results_dict = {}
 for filename in imgs_path:
     img_name = filename.split("/")[-1]
 
-    input_image = Image.open(filename)
-
-    preprocess = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+    input_image = Image.open(join(INFERENCE_PATH, filename))
 
     input_tensor = preprocess(input_image)
     input_batch = input_tensor.unsqueeze(0)
@@ -50,7 +50,7 @@ for filename in imgs_path:
     for i in range(top5_prob.size(0)):
         results_dict[img_name] = (categories[top5_catid[i]], top5_prob[i].item())
 
-    with open(join(INFERENCE_PATH,"classification",'class_result.json'), 'w') as outfile:
+    with open(join(INFERENCE_PATH, "classification", 'class_result.json'), 'w') as outfile:
         json.dump(results_dict, outfile)
 
 print("PROCESS FINISHED")
