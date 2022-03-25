@@ -7,13 +7,15 @@ from detectron2 import model_zoo
 from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog
 from detectron2.engine import DefaultPredictor
-from detectron2.evaluation import COCOEvaluator, inference_on_dataset
-from detectron2.structures import Instances
-from detectron2.utils.visualizer import Visualizer, ColorMode
+from detectron2.utils.visualizer import Visualizer
+
+from config import RESULT_PATH
+
 
 def main(args: ArgumentParser):
     dataset_path = Path(args.dataset_path)
-    out_path = Path("../results/task_e")
+    out_path = Path(RESULT_PATH)
+    out_path = out_path / "task_e"
     out_path.mkdir(parents=True, exist_ok=True)
 
     MODEL = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'
