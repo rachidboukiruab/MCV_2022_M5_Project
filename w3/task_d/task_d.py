@@ -14,7 +14,7 @@ import json
 
 
 # Folders
-dataset_dir = '/home/group01/MCV_2022_M5_Project/w3/task_d/images/'
+dataset_dir = '/images/'
 results_dir = './results/'
 os.makedirs(results_dir, exist_ok=True)
 
@@ -71,14 +71,16 @@ if __name__ == '__main__':
         print(f"Feature inference to image: {file}")
         if paths[file] == 'None':
             break
-        else:
-            img_path = os.path.join(dataset_dir,paths[file])
-            out_path2 = os.path.join(results_dir, paths[file])
 
-            #inference image 
-            img = inference(img_path)
+        img_path = os.path.join(dataset_dir,paths[file])
+        print(img_path)
+        out_path = os.path.join(results_dir, paths[file])
+        print(out_path)
 
-            cv2.imwrite(out_path2, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
+        #inference image 
+        img = inference(img_path)
+
+        cv2.imwrite(out_path, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
             
 
 
