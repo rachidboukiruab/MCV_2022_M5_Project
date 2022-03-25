@@ -8,8 +8,6 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 from PIL import Image
 
-from config import IMSIZE
-
 content_layers_default = ['conv_4']
 style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
