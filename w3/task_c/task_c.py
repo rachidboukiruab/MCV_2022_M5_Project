@@ -58,8 +58,9 @@ if __name__ == '__main__':
         cv2.imwrite(os.path.join(results_dir, img_name), img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])'''
 
         # model string Detection/InstanceSegmentation
-        model_type = model_yalm.split('/')[0].split('-')[-1]
-        out_path = os.path.join(results_dir, model_type + '/')
+        #model_type = model_yalm.split('/')[0].split('-')[-1]
+        model_name = model_yalm.split('/')[1].split('.')[0]
+        out_path = os.path.join(results_dir, model_name + '/')
         os.makedirs(out_path, exist_ok=True)
 
         # Run inference with pre-trained Faster R-CNN  & Mask R-CNN
@@ -72,7 +73,7 @@ if __name__ == '__main__':
             #inference image 
             img = inference(img_path)
             cv2.imwrite(out_path2, img)
-            print(f"Processed img {file} for {model_type}")
+            print(f"Processed img {file} for {model_name}")
             
 
 
