@@ -38,6 +38,8 @@ def main():
             MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2
         )
         out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+        print(out)
+        print(img_path.parts[-1])
 
         cv2.imwrite(
             str(out_path / img_path.parts[-1]),
