@@ -28,7 +28,7 @@ def main():
 
     predictor = DefaultPredictor(cfg)
     print(dataset_path)
-    for img_path in dataset_path.glob("*.jpg"):
+    for img_path in dataset_path.glob("*.png"):
         im = cv2.imread(str(img_path))
 
         # Inference
