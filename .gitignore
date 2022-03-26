@@ -133,3 +133,6 @@ dmypy.json
 
 # Results
 w?/results/*
+
+# Photoshop extension
+*.psd
