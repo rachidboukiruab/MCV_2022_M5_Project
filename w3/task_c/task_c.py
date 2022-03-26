@@ -4,7 +4,6 @@ from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
 from detectron2.engine import DefaultPredictor
 import os, cv2
-import glob
 
 
 
@@ -60,7 +59,7 @@ if __name__ == '__main__':
 
         # model string Detection/InstanceSegmentation
         model_type = model_yalm.split('/')[0].split('-')[-1]
-        out_path = os.path.join(results_dir, model_type)
+        out_path = os.path.join(results_dir, model_type + '/')
         os.makedirs(out_path, exist_ok=True)
 
         # Run inference with pre-trained Faster R-CNN  & Mask R-CNN
@@ -72,7 +71,7 @@ if __name__ == '__main__':
 
             #inference image 
             img = inference(img_path)
-            cv2.imwrite(out_path, img)
+            cv2.imwrite(out_path2, img)
             print(f"Processed img {file} for {model_type}")
             
 
