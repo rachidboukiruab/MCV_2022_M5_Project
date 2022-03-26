@@ -27,7 +27,7 @@ def main():
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
 
     predictor = DefaultPredictor(cfg)
-
+    print(dataset_path)
     for img_path in dataset_path.glob("*.jpg"):
         im = cv2.imread(str(img_path))
 
