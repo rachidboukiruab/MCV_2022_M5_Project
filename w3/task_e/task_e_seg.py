@@ -16,6 +16,7 @@ def main():
     dataset_path = Path(RESULT_PATH)
     out_path = Path(RESULT_PATH)
     out_path = out_path / "segmentation"
+    print(out_path)
     out_path.mkdir(parents=True, exist_ok=True)
 
     MODEL = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'
