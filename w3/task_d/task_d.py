@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
         #inference image 
         img = inference(img_path)
-        cv2.imwrite(out_path, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
+        cv2.imwrite(out_path, img)
             
 
 
