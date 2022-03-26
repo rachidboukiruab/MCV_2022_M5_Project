@@ -51,9 +51,6 @@ class DatasetSplit(TypedDict):
 
 if __name__ == '__main__':
 
-    with open('img_paths.json') as jsonfile:
-        paths = json.load(jsonfile)
-
     model_yalm = 'COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml'
 
     cfg = get_cfg() 
@@ -67,15 +64,14 @@ if __name__ == '__main__':
     predictor = DefaultPredictor(cfg)
 
     # Run inference with pre-trained Mask R-CNN
-    for file in paths:
+    for file in os.listdir(dataset_dir):
 
         print(f"Feature inference to image: {file}")
-        if paths[file] == 'None':
-            continue
+    
 
-        img_path = os.path.join(dataset_dir,paths[file])
+        img_path = os.path.join(dataset_dir,file)
 
-        out_path = os.path.join(results_dir, paths[file])
+        out_path = os.path.join(results_dir,file)
 
 
         #inference image 
