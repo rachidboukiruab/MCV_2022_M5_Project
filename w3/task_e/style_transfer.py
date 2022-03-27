@@ -2,6 +2,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 
+import torch
 import torchvision.models as models
 from PIL import Image
 from torchvision.utils import save_image
@@ -59,5 +60,6 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
     # FIXME: maybe reshape before saving?
     # output = output.reshape(content_size)
     save_image(output, os.path.join(RESULT_PATH, f'{ii}.png'))
+    torch.cuda.empty_cache()
 
 print("PROCESS FINISHED")
