@@ -135,6 +135,7 @@ dmypy.json
 w?/results/*
 w?/task_?/results/*
 
-# Photoshop extension
+# Photoshop and jpg extension
 *.psd
+*.jpg
 w3/task_c/tests.ipynb
