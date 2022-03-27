@@ -34,8 +34,11 @@ for ii, (style, content) in enumerate(zip(style_images, content_images)):
     content_size = aux.size
     print(content_size)
 
-    style_img = image_loader(style, max(content_size))
-    content_img = image_loader(content, max(content_size))
+    if min(content_size) > 1000:
+        content_size = (800, 800)
+
+    style_img = image_loader(style, min(content_size))
+    content_img = image_loader(content, min(content_size))
 
     assert style_img.size() == content_img.size(), "style & content imgs should be same size"
 
