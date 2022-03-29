@@ -149,13 +149,14 @@ def main(exp: ExperimentSettings) -> None:
     best_model = -1
     best_acc = 0.0
     for epoch in range(exp["epochs"]):
-        train_loss = train_model(online_train_loader, model, device, optimizer, exp["log_interval"], loss, lr_scheduler)
-        message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(epoch + 1, exp["epochs"], train_loss)
+        lr_scheduler.step()
+        train_loss = train_model(online_train_loader, model, device, optimizer, exp["log_interval"], loss)
+        message = 'Epoch: {}/{}. Train set: Average loss: {}'.format(epoch + 1, exp["epochs"], train_loss)
 
         test_loss = eval(online_test_loader, model, loss,device)
         test_loss /= len(online_test_loader)
 
-        message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch + 1, exp["epochs"],test_loss)
+        message += '\nEpoch: {}/{}. Validation set: Average loss: {}'.format(epoch + 1, exp["epochs"],test_loss)
 
 
         # w&b logger
@@ -196,7 +197,7 @@ def main(exp: ExperimentSettings) -> None:
     plot_embeddings(test_embeddings_ocl, test_labels_ocl, f'{exp["architecture"]}_embeddings_test.jpg') """
 
 
-def train_model(train_loader, model, device, optimizer, log_interval, loss_fn, lr_scheduler):
+def train_model(train_loader, model, device, optimizer, log_interval, loss_fn):
     """
     Trains 1 epoch
     """
@@ -251,8 +252,8 @@ def train_model(train_loader, model, device, optimizer, log_interval, loss_fn, l
             losses = []
 
         running_loss/=(batch_idx + 1)
-    lr_scheduler.step()
-    return running_loss, lr_scheduler
+    
+    return running_loss
 
 
 @torch.no_grad()
