@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from torchinfo import summary
-from utils import make_dirs, print_colored, COLOR_WARNING, HardNegativePairSelector, extract_embeddings, plot_embeddings
+from utils import make_dirs, print_colored, COLOR_WARNING, HardNegativePairSelector
 from datasets import BalancedBatchSampler
 from models import EmbeddingNet
 from losses import OnlineContrastiveLoss, OnlineTripletLoss
