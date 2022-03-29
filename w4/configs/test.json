@@ -1,0 +1,23 @@
+{
+  	"exp_name": "test",
+	"data_path": "/home/group01/mcv/datasets/MIT_split",
+	"out_path": "/home/group01/MCV_2022_M5_Project/w4/wandb_out",
+	"load_weights": null,
+	"freeze": true,
+	"batch_size": 24,
+	"lr": 0.0003,
+	"momentum": 0.9,
+	"weight_decay": 1e-4,
+	"epochs": 500,
+	"early_stopping": 20,
+	"model": "smallnet",
+	"model_params": {},
+	"classes": 8,
+	"wandb_project": "week4",
+	"wandb_entity": "m5project",
+	"save_every": 10,
+	"architecture" : "siamese", 
+	"n_samples" : 25,
+	"margin" : 1,
+	"log_interval" : 50
+}
