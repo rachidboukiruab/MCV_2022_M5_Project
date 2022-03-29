@@ -11,14 +11,9 @@ class BalancedBatchSampler(BatchSampler):
     Returns batches of size n_classes * n_samples
     """
 
-    def __init__(self, labels, n_classes, n_samples):
-        self.labels = labels
-        self.labels_set = set(self.labels)
-        self.label_to_indices = {label: np.where(self.labels.numpy() == label)[0]
-                                 for label in self.labels_set}
-        for l in self.labels_set:
-            np.random.shuffle(self.label_to_indices[l])
-        self.used_label_indices_count = {label: 0 for label in self.labels_set}
+    def __init__(self, loader, n_classes, n_samples):
+        self.labels = loader.classes
+        self.used_label_indices_count = loader.class_to_idx
         self.count = 0
         self.n_classes = n_classes
         self.n_samples = n_samples
