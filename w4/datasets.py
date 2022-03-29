@@ -13,7 +13,7 @@ class BalancedBatchSampler(BatchSampler):
 
     def __init__(self, labels, n_classes, n_samples):
         self.labels = labels
-        self.labels_set = list(set(self.labels.numpy()))
+        self.labels_set = set(self.labels)
         self.label_to_indices = {label: np.where(self.labels.numpy() == label)[0]
                                  for label in self.labels_set}
         for l in self.labels_set:
