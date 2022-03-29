@@ -14,7 +14,7 @@ class BalancedBatchSampler(BatchSampler):
     def __init__(self, labels, n_classes, n_samples):
         self.labels = labels
         self.labels_set = list(set(self.labels))
-        self.label_to_indices = {label: np.where(self.np.array(labels) == label)[0]
+        self.label_to_indices = {label: np.where(np.array(self.labels) == label)[0]
                                  for label in self.labels_set}
         for l in self.labels_set:
             np.random.shuffle(self.label_to_indices[l])
