@@ -5,4 +5,4 @@
 #SBATCH --gres gpu:1 # Para pedir Pascales MAX 8
 #SBATCH -o %x_%u_%j.out # File to which STDOUT will be written
 #SBATCH -e %x_%u_%j.err # File to which STDERR will be written
-python main.py /home/group01/MCV_2022_M5_Project/w4/configs/test.json
+python3.8 main.py /home/group01/MCV_2022_M5_Project/w4/configs/test.json
