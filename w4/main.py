@@ -112,8 +112,8 @@ def main(exp: ExperimentSettings) -> None:
 
     #kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 
-    online_train_loader = BalancedBatchSampler(train_data.classes, exp["classes"], exp["n_samples"])
-    online_test_loader = BalancedBatchSampler(test_data.classes, exp["classes"], exp["n_samples"])
+    online_train_loader = BalancedBatchSampler(train_data, exp["classes"], exp["n_samples"])
+    online_test_loader = BalancedBatchSampler(test_data, exp["classes"], exp["n_samples"])
 
 
     print_colored(f"(dataset info) train: {len(online_train_loader)*exp['epochs']} images", COLOR_WARNING)
