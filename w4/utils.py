@@ -1,6 +1,6 @@
 # TODO colourful prints
 import os
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from itertools import combinations
@@ -43,7 +43,7 @@ def colorize_string(string: str, color_id):
     """
     return color_id + string + '\x1b[0m'
 
-def plot_embeddings(embeddings, targets,filename, xlim=None, ylim=None):
+""" def plot_embeddings(embeddings, targets,filename, xlim=None, ylim=None):
     plt.figure(figsize=(10,10))
     for i in range(10):
         inds = np.where(targets==i)[0]
@@ -66,7 +66,7 @@ def extract_embeddings(device, dataloader, model):
             embeddings[k:k+len(images)] = model.get_embedding(images).data.to(device=device).numpy()
             labels[k:k+len(images)] = target.numpy()
             k += len(images)
-    return embeddings, labels
+    return embeddings, labels """
 
 def pdist(vectors):
     distance_matrix = -2 * vectors.mm(torch.t(vectors)) + vectors.pow(2).sum(dim=1).view(1, -1) + vectors.pow(2).sum(

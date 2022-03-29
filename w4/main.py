@@ -190,10 +190,10 @@ def main(exp: ExperimentSettings) -> None:
     if (weight_path / "weights_final.pth").exists():
         wandb.save(str(weight_path / f"weights_final.pth"))
 
-    train_embeddings_ocl, train_labels_ocl = extract_embeddings(online_train_loader, model)
+    """ train_embeddings_ocl, train_labels_ocl = extract_embeddings(online_train_loader, model)
     plot_embeddings(train_embeddings_ocl, train_labels_ocl, f'{exp["architecture"]}_embeddings_train.jpg')
     test_embeddings_ocl, test_labels_ocl = extract_embeddings(online_test_loader, model)
-    plot_embeddings(test_embeddings_ocl, test_labels_ocl, f'{exp["architecture"]}_embeddings_test.jpg')
+    plot_embeddings(test_embeddings_ocl, test_labels_ocl, f'{exp["architecture"]}_embeddings_test.jpg') """
 
 
 def train_model(train_loader, model, device, optimizer, log_interval, loss_fn, lr_scheduler):
