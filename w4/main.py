@@ -209,21 +209,21 @@ def train_model(train_loader, model, device, optimizer, log_interval, loss_fn):
     losses = []
     running_loss = 0.0
     
-    for  batch_idx, tdata in enumerate(train_loader):
+    for  batch_idx, (data,target) in enumerate(train_loader):
 
         # get imgs & labels -> to GPU/CPU
-        data, target = tdata
         target = target if len(target) > 0 else None
         if not type(data) in (tuple, list):
             data = (data,)
        
-        data = tuple(d.to(device) for d in data)
-        if target is not None:
-            target = target.to(device)
+            data = tuple(d.to(device) for d in data)
+            if target is not None:
+                target = target.to(device)
 
         optimizer.zero_grad()
 
-        output = model(*data)
+        outputs = model(*data)
+
         if type(outputs) not in (tuple, list):
             outputs = (outputs,)
 
