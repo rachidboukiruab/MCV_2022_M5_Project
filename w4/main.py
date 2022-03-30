@@ -6,6 +6,7 @@ from os.path import join
 from pathlib import Path
 from typing import TypedDict, Dict, Optional, Any
 import numpy as np
+import sys
 
 import torch
 import wandb
@@ -13,7 +14,7 @@ from torch import optim, nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-from torchinfo import summary
+#from torchinfo import summary
 from utils import make_dirs, print_colored, COLOR_WARNING, HardNegativePairSelector
 from datasets import BalancedBatchSampler
 from models import EmbeddingNet
@@ -98,13 +99,13 @@ def main(exp: ExperimentSettings) -> None:
         #transforms.RandomResizedCrop(256, (0.15, 1.0)),
         #transforms.RandomRotation(degrees=30),
         #transforms.RandomHorizontalFlip(p=0.5),
-        transforms.ToTensor(),
         transforms.Resize((256, 256)),
+        transforms.ToTensor(),
     ])
 
     transfs_t = transforms.Compose([
-        transforms.ToTensor(),
         transforms.Resize((256, 256)),
+        transforms.ToTensor(),
     ])
 
     train_data = ImageFolder(str(exp["data_path"] / "train"), transform=transfs)
@@ -131,7 +132,9 @@ def main(exp: ExperimentSettings) -> None:
     # load model
     model = EmbeddingNet()
     model.to(device=device)
+    print(model)
 
+    
     if exp["architecture"] == "siamese":
         loss = OnlineContrastiveLoss(exp["margin"], HardNegativePairSelector())
 
