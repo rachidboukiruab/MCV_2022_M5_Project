@@ -118,6 +118,9 @@ def main(exp: ExperimentSettings) -> None:
     online_train_loader = DataLoader(train_data, batch_sampler=train_batchSampler, pin_memory=True)
     online_test_loader = DataLoader(test_data, batch_sampler=test_batchSampler, pin_memory=True)
 
+    #train_loader = DataLoader(train_data, batch_size=exp["batch_size"], pin_memory=True)
+    #test_loader = DataLoader(test_data, batch_size=exp["batch_size"], pin_memory=True)
+
 
     print_colored(f"(dataset info) train: {len(online_train_loader)*exp['epochs']} images", COLOR_WARNING)
     print_colored(f"(dataset info) test: {len(online_test_loader)*exp['epochs']} images", COLOR_WARNING)
