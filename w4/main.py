@@ -115,8 +115,8 @@ def main(exp: ExperimentSettings) -> None:
     train_batchSampler = BalancedBatchSampler(train_data.targets, exp["classes"], exp["n_samples"])
     test_batchSampler = BalancedBatchSampler(test_data.targets, exp["classes"], exp["n_samples"])
 
-    online_train_loader = DataLoader(train_data, train_batchSampler, pin_memory=True, shuffle=True)
-    online_test_loader = DataLoader(test_data, test_batchSampler, pin_memory=True)
+    online_train_loader = DataLoader(train_data, batch_sampler=train_batchSampler, pin_memory=True)
+    online_test_loader = DataLoader(test_data, batch_sampler=test_batchSampler, pin_memory=True)
 
 
     print_colored(f"(dataset info) train: {len(online_train_loader)*exp['epochs']} images", COLOR_WARNING)
