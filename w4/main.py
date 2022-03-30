@@ -215,7 +215,7 @@ def train_model(train_loader, model, device, optimizer, log_interval, loss_fn):
         target = target if len(target) > 0 else None
         if not type(data) in (tuple, list):
             data = (data,)
-       
+        if device:
             data = tuple(d.to(device) for d in data)
             if target is not None:
                 target = target.to(device)
@@ -271,10 +271,10 @@ def eval(test_loader, model, loss_fn, device):
             target = target if len(target) > 0 else None
             if not type(data) in (tuple, list):
                 data = (data,)
-
-            data = tuple(d.to(device) for d in data)
-            if target is not None:
-                target = target.to(device)
+            if device:
+                data = tuple(d.to(device) for d in data)
+                if target is not None:
+                    target = target.to(device)
 
             outputs = model(*data)
 

@@ -62,6 +62,7 @@ def extract_embeddings(device, dataloader, model):
         labels = np.zeros(len(dataloader.dataset))
         k = 0
         for images, target in dataloader:
+            if device:
             images = images.to(device=device)
             embeddings[k:k+len(images)] = model.get_embedding(images).data.to(device=device).numpy()
             labels[k:k+len(images)] = target.numpy()
