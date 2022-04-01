@@ -1,6 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
+from torchvision import models
+
 class EmbeddingNet(nn.Module):
     def __init__(self):
         super(EmbeddingNet, self).__init__()
@@ -24,7 +26,6 @@ class EmbeddingNet(nn.Module):
 
     def get_embedding(self, x):
         return self.forward(x)
-
 
 
 class SiameseNet(nn.Module):
@@ -54,3 +55,23 @@ class TripletNet(nn.Module):
 
     def get_embedding(self, x):
         return self.embedding_net(x)
+
+
+class EmbeddingLayer(nn.Module):
+    def __init__(self, embed_size):
+        super().__init__()
+        self.linear = nn.Linear(512, embed_size)
+        self.activation = nn.ReLU()
+
+    def forward(self, x):
+        x = x.squeeze(-1).squeeze(-1)
+        x = self.activation(x)
+        x = self.linear(x)
+        return x
+
+
+def create_headless_resnet18(embed_size):
+    flatten = EmbeddingLayer(embed_size)
+    model = models.resnet18(pretrained=True, progress=False)
+    model = nn.Sequential(*list(model.children())[:-1], flatten)
+    return model
