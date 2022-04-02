@@ -28,7 +28,7 @@ if __name__ == '__main__':
     model = create_headless_resnet18(EMBED_SHAPE)
     # LOAD PRE_TRAINED WEIGHTS
     model.load_state_dict(torch.load(trained_path / weights_filename))
-    model = model[8]
+    model = model[:9]
 
     transfs = transforms.Compose([
         transforms.ToTensor(),
@@ -44,7 +44,6 @@ if __name__ == '__main__':
                     '#bff78d', '#8df7af']
     with torch.no_grad():
         for ii, (img, label) in enumerate(query):
-            print(model(img.unsqueeze(0)).shape)
             query_data.append(model(img.unsqueeze(0)).squeeze().detach().numpy())
             color_4_umap.append(select_color[label])
 
