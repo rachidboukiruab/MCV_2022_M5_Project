@@ -12,8 +12,8 @@ from models import create_headless_resnet18
 if __name__ == '__main__':
 
     #########
-    min_dist = 0.0001
-    n_neighbors = 10
+    min_dist = 0.1
+    n_neighbors = 50
 
     #########
     data_path = Path("/home/group01/mcv/datasets/MIT_split")
