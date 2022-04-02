@@ -36,12 +36,12 @@ if __name__ == '__main__':
     query_data = np.empty((len(query), 32))
 
     color_4_umap = list()
-    select_color = [(66, 135, 245), (161, 66, 245), (230, 66, 245), (245, 66, 135), (245, 66, 66), (245, 179, 66), (203, 245, 66), (66, 245, 75)]
+    select_color = ['#8db6f7', '#b98df7', '#f78df2', '#f78da8', '#f7a68d', '#f7e08d',
+                    '#bff78d', '#8df7af']
     with torch.no_grad():
         for ii, (img, label) in enumerate(query):
             query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
             color_4_umap.append(select_color[label])
-
 
     print(f"QUERY SHAPE {query_data.shape}")
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     if n_components == 2:
         ax = fig.add_subplot(111)
-        ax.scatter(u[:, 0], u[:, 1], c = color_4_umap)
+        ax.scatter(u[:, 0], u[:, 1], c=color_4_umap)
     if n_components == 3:
         ax = fig.add_subplot(111, projection='3d')
     plt.title('UMAP')
