@@ -49,13 +49,13 @@ if __name__ == '__main__':
 
     print(f"QUERY LEN {len(query_data)} with {query_data[0].shape} shape each one ")
 
-    # pca = PCA(n_components=EMBED_SHAPE)
-    # pca.fit(query_data)
-    # query_features_compressed = pca.transform(query_data)
+    pca = PCA(n_components=EMBED_SHAPE)
+    pca.fit(query_data)
+    query_features_compressed = pca.transform(query_data)
 
     n_components = 2
     tsne_results = TSNE(n_components=n_components, verbose=1, metric='manhattan').fit_transform(
-        query_data)
+        query_features_compressed)
 
     if n_components == 2:
         scatter_plot = plt.scatter(tsne_results[:, 0], tsne_results[:, 1], c=color_4_umap)
