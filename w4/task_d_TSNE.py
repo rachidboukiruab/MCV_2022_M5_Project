@@ -47,7 +47,7 @@ if __name__ == '__main__':
             query_data.append(model(img.unsqueeze(0)).squeeze().detach().numpy())
             color_4_umap.append(select_color[label])
 
-    print(f"QUERY LEN {len(query_data)}")
+    print(f"QUERY LEN {len(query_data)} with {query_data[0].shape} shape each one ")
 
     pca = PCA(n_components=EMBED_SHAPE)
     pca.fit(query_data)
