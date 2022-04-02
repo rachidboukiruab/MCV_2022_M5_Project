@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     if n_components == 2:
         ax = fig.add_subplot(111)
-        ax.scatter(u[:, 0], u[:, 1])
+        ax.scatter(u[:, 0], u[:, 1], c = color_4_umap)
     if n_components == 3:
         ax = fig.add_subplot(111, projection='3d')
     plt.title('UMAP')
