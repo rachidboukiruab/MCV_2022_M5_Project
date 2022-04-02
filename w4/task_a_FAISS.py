@@ -23,9 +23,7 @@ def build_net(device, d=64):
 
 
 def build_index(model, train_dataset, d=32):
-    # USES GPU!!
 
-    res = faiss.StandardGpuResources()  # defines resource, use a single GPU
     index = faiss.IndexFlatL2(d)  # build the index
 
     id = 0
