@@ -51,7 +51,7 @@ if __name__ == '__main__':
     pca.fit(query_features)
     query_features_compressed = pca.transform(query_features)
 
-    tsne_results = TSNE(n_components=2, verbose=1, metric='euclidean').fit_transform(query_features_compressed)
+    tsne_results = TSNE(n_components=2, verbose=1, metric='euclidean').fit_transform(query_features)
 
     colormap = plt.cm.get_cmap('coolwarm')
 
