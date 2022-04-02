@@ -41,7 +41,6 @@ if __name__ == '__main__':
 
     print(f"QUERY SHAPE {query_data.shape}")
     embedding = umap.UMAP(n_components=2, min_dist = min_dist,n_neighbors = n_neighbors, metric='cosine').fit(query_data) # reduces from 32 to 2
-    print(f"EMBEDING SHAPE {embedding.shape}")
 
     f = umap.plot.points(embedding,
                          labels=['coast', 'forest', 'highway', 'inside_city', 'mountain', 'Opencountry', 'street',
