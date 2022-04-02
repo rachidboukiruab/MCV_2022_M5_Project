@@ -8,7 +8,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import transforms, models
 from torchvision.datasets import ImageFolder
-
+from models import create_headless_resnet18
 from utils import print_colored, COLOR_WARNING
 
 
@@ -21,13 +21,7 @@ def build_net(device, d=64):
     return model
 
 
-def create_headless_resnet18():
-    model = models.resnet18(pretrained=True, progress=False)
-    model = nn.Sequential(*list(model.children())[:-1])
-    return model
-
-
-def build_index(model, train_dataset, d=64):
+def build_index(model, train_dataset, d=32):
     # USES GPU!!
 
     res = faiss.StandardGpuResources()  # defines resource, use a single GPU
@@ -51,7 +45,7 @@ def build_index(model, train_dataset, d=64):
     return gpu_index
 
 
-def search_faiss(index, query, k=4):
+def search_faiss(index, query, k=5):
     D, I = index.search(query, k)  # actual search
     print(I[:5])  # neighbors of the 5 first queries
     print(I[-5:])  # neighbors of the 5 last queries
@@ -86,8 +80,7 @@ if __name__ == '__main__':
     print_colored(f"(dataset info) train: {len(train_loader)} images in the folder", COLOR_WARNING)
     print_colored(f"(dataset info) test: {len(test_loader)} images in the folder", COLOR_WARNING)
 
-    # model = build_net(device)
-    model = create_headless_resnet18
+    model = create_headless_resnet18()
     index = build_index(model, train_loader)
 
     for img, label in test_loader:
