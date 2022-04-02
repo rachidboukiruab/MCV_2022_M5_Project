@@ -61,4 +61,4 @@ if __name__ == '__main__':
     if n_components == 3:
         ax = fig.add_subplot(111, projection='3d')
     plt.title('UMAP')
-    plt.savefig("./results/jupytest/triplet.png")
+    plt.savefig("./results/jupytest/siamese.png")
