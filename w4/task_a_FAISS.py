@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import faiss
+import numpy as np
 import torch
 import torchvision
 from torch import nn
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     data_path = Path("/home/group01/mcv/datasets/MIT_split")
-    batch_size = 64
+    EMBED_SHAPE = 32
 
     transfs_t = transforms.Compose([
         transforms.ToTensor(),
@@ -66,12 +67,23 @@ if __name__ == '__main__':
     train_data = ImageFolder(str(data_path / "train"), transform=transfs_t)
     test_data = ImageFolder(str(data_path / "test"), transform=transfs_t)
 
-
-    model = create_headless_resnet18()
+    model = create_headless_resnet18(EMBED_SHAPE)
     index = build_index(model, test_data)
 
+    k = 5  # we want to see 5 nearest neighbors
+    query_data = np.empty((len(test_data), EMBED_SHAPE))
+
+    pred_labels_list = list()
+    gt_label_list = list()
+    metrics_list = list()
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
-            query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
-            color_4_umap.append(select_color[label])
+            xq = model(img.unsqueeze(0)).squeeze().numpy()
+            pred_label, metrics = index.search(xq, k)
+            pred_labels_list.append(pred_label)
+            gt_label_list.append(label)
+            metrics_list.append(metrics)
+            print(pred_label)
+            print(metrics)
+            print('--'*10)
 
