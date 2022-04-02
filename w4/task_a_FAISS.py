@@ -70,6 +70,8 @@ if __name__ == '__main__':
     model = create_headless_resnet18()
     index = build_index(model, test_data)
 
-    index.train()
-    for img, label in test_data:
+    with torch.no_grad():
+        for ii, (img, label) in enumerate(test_data):
+            query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
+            color_4_umap.append(select_color[label])
 
