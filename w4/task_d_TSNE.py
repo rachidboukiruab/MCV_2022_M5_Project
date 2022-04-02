@@ -60,10 +60,10 @@ if __name__ == '__main__':
     if n_components == 2:
         scatter_plot = plt.scatter(tsne_results[:, 0], tsne_results[:, 1], c=color_4_umap, cmap=colormap)
     if n_components == 3:
-        scatter_plot = plt.scatter(tsne_results[:, 0], tsne_results[:, 1], tsne_results[:, 2], c=color_4_umap)
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(tsne_results[:, 0], tsne_results[:, 1], tsne_results[:, 2], c=color_4_umap)
 
-    scatter_plot = plt.scatter(tsne_results[:, 0], tsne_results[:, 1], c=color_4_umap, cmap=colormap)
     plt.show()
-
     plt.savefig("./results/jupytest/tsne_siamese.png")
 
