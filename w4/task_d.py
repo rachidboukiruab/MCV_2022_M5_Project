@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     weights_filename = ["weights.pth", "weights_triplet.pth"]
 
-    model = create_headless_resnet18()
+    model = create_headless_resnet18(32)
     # LOAD PRE_TRAINED WEIGHTS
     model.load_state_dict(torch.load(trained_path / weights_filename[0]))
 
