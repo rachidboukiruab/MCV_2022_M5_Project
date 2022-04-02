@@ -8,6 +8,7 @@ import numpy as np
 from torchvision.datasets import ImageFolder
 
 from models import create_headless_resnet18
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
@@ -40,3 +41,5 @@ if __name__ == '__main__':
                          labels=['coast', 'forest', 'highway', 'inside_city', 'mountain', 'Opencountry', 'street',
                                  'tallbuilding'])
 
+    umap.plot.show(f)
+    plt.imsave("/results/jupytest/siamese.png")
