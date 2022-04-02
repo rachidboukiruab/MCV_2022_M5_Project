@@ -59,5 +59,5 @@ if __name__ == '__main__':
     plt.colorbar(scatter_plot)
     plt.show()
 
-    plt.savefig("./results/jupytest/siamese.png")
+    plt.savefig("./results/jupytest/tsne_siamese.png")
 
