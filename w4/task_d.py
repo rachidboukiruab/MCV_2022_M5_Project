@@ -1,14 +1,12 @@
 from pathlib import Path
 
-import torch
-import umap
-import umap.plot
-
+import matplotlib.pyplot as plt
 import numpy as np
+import torch
+import umap.plot
 from torchvision.datasets import ImageFolder
 
 from models import create_headless_resnet18
-import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
