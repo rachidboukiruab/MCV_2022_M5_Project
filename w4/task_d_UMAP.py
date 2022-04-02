@@ -27,6 +27,7 @@ if __name__ == '__main__':
     model = create_headless_resnet18(EMBED_SHAPE)
     # LOAD PRE_TRAINED WEIGHTS
     model.load_state_dict(torch.load(trained_path / weights_filename))
+    model = model[:9]
 
     transfs = transforms.Compose([
         transforms.ToTensor(),
@@ -35,14 +36,14 @@ if __name__ == '__main__':
     ])
 
     query = ImageFolder(str(data_path / "test"), transform=transfs)
-    query_data = np.empty((len(query), EMBED_SHAPE))
+    query_data = np.empty((len(query), 512))
 
     color_4_umap = list()
     select_color = ['#8db6f7', '#b98df7', '#f78df2', '#f78da8', '#f7a68d', '#f7e08d',
                     '#bff78d', '#8df7af']
     with torch.no_grad():
         for ii, (img, label) in enumerate(query):
-            query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
+            query_data[ii, :] = model(img.unsqueeze(0)).squeeze().detach().numpy()
             color_4_umap.append(select_color[label])
 
     print(f"QUERY SHAPE {query_data.shape}")
@@ -52,7 +53,6 @@ if __name__ == '__main__':
 
     u = umap.UMAP(n_components=n_components, min_dist=min_dist, n_neighbors=n_neighbors, metric='manhattan').fit_transform(
         query_data)  # reduces from 32 to 2
-    print(u.shape)
 
     fig = plt.figure()
 
