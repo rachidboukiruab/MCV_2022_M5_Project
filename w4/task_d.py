@@ -40,7 +40,6 @@ if __name__ == '__main__':
     with torch.no_grad():
         for ii, (img, label) in enumerate(query):
             query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
-            print(type(label))
             color_4_umap.append(select_color[label])
 
 
