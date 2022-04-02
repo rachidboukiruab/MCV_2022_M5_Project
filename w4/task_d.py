@@ -20,13 +20,13 @@ if __name__ == '__main__':
     feature_path = Path("./results/retrieval")
     trained_path = Path("./results/jupytest")
 
-    weights_filename = ["weights.pth", "weights_triplet.pth"]
+    weights_filename = "weights_contrastive.pth"
 
     EMBED_SHAPE = 32
 
     model = create_headless_resnet18(EMBED_SHAPE)
     # LOAD PRE_TRAINED WEIGHTS
-    model.load_state_dict(torch.load(trained_path / weights_filename[1]))
+    model.load_state_dict(torch.load(trained_path / weights_filename))
 
     transfs = transforms.Compose([
         transforms.ToTensor(),
