@@ -35,9 +35,13 @@ if __name__ == '__main__':
     query = ImageFolder(str(data_path / "test"), transform=transfs)
     query_data = np.empty((len(query), 32))
 
+    color_4_umap = np.empty((len(query)))
+    select_color = [(66, 135, 245), (161, 66, 245), (230, 66, 245), (245, 66, 135), (245, 66, 66), (245, 179, 66), (203, 245, 66), (66, 245, 75)]
     with torch.no_grad():
-        for ii, (img, _) in enumerate(query):
+        for ii, (img, label) in enumerate(query):
             query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
+            color_4_umap[ii] = select_color[label]
+
 
     print(f"QUERY SHAPE {query_data.shape}")
 
