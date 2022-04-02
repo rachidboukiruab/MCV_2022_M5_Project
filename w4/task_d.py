@@ -54,5 +54,5 @@ if __name__ == '__main__':
         ax.scatter(u[:, 0], u[:, 1])
     if n_components == 3:
         ax = fig.add_subplot(111, projection='3d')
-    plt.title('UMAP ')
-    plt.savefig("/results/jupytest/siamese.png")
+    plt.title('UMAP')
+    plt.savefig("./results/jupytest/siamese.png")
