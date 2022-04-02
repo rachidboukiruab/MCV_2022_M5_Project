@@ -39,7 +39,8 @@ if __name__ == '__main__':
         for ii, (img, _) in enumerate(query):
             query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
 
-    embedding = umap.UMAP(n_components=2, min_dist = min_dist,n_neighbors = n_neighbors, metric='hellinger').fit(query) # reduces from 32 to 2
+    print(f"QUERY SHAPE {query_data.shape}")
+    embedding = umap.UMAP(n_components=2, min_dist = min_dist,n_neighbors = n_neighbors, metric='hellinger').fit(query_data) # reduces from 32 to 2
     print(f"EMBEDING SHAPE {embedding.shape}")
 
     f = umap.plot.points(embedding,
