@@ -57,32 +57,19 @@ if __name__ == '__main__':
 
     data_path = Path("/home/group01/mcv/datasets/MIT_split")
     batch_size = 64
-    transfs = transforms.Compose([
-        transforms.ColorJitter(brightness=.3, hue=.3),
-        transforms.RandomResizedCrop(256, (0.15, 1.0)),
-        transforms.RandomRotation(degrees=30),
-        transforms.RandomHorizontalFlip(p=0.5),
-        transforms.ToTensor(),
-        transforms.Resize((256, 256)),
-    ])
 
     transfs_t = transforms.Compose([
         transforms.ToTensor(),
         transforms.Resize((256, 256)),
     ])
 
-    train_data = ImageFolder(str(data_path / "train"), transform=transfs)
+    train_data = ImageFolder(str(data_path / "train"), transform=transfs_t)
     test_data = ImageFolder(str(data_path / "test"), transform=transfs_t)
 
-    train_loader = DataLoader(train_data, batch_size=batch_size, pin_memory=True, shuffle=True)
-    test_loader = DataLoader(test_data, batch_size=batch_size, pin_memory=True)
-
-    print_colored(f"(dataset info) train: {len(train_loader)} images in the folder", COLOR_WARNING)
-    print_colored(f"(dataset info) test: {len(test_loader)} images in the folder", COLOR_WARNING)
 
     model = create_headless_resnet18()
-    index = build_index(model, train_loader)
+    index = build_index(model, test_data)
 
-    for img, label in test_loader:
-        # TODO
-        pass
+    index.train()
+    for img, label in test_data:
+
