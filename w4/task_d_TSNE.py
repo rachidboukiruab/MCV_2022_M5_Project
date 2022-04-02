@@ -66,6 +66,3 @@ if __name__ == '__main__':
 
     plt.title('TSNE')
     plt.savefig("./results/jupytest/tsne_siamese.png")
-
-    tsne_to_grid_plotter_manual(tsne_results[:, 0], tsne_results[:, 1],
-                                selected_filenames)
