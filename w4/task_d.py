@@ -45,6 +45,7 @@ if __name__ == '__main__':
 
     u = umap.UMAP(n_components=n_components, min_dist=min_dist, n_neighbors=n_neighbors, metric='cosine').fit_transform(
         query_data)  # reduces from 32 to 2
+    print(u)
 
     fig = plt.figure()
 
