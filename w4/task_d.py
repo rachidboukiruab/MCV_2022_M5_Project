@@ -40,9 +40,9 @@ if __name__ == '__main__':
             query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
 
     print(f"QUERY SHAPE {query_data.shape}")
-    embedding = umap.UMAP(n_components=2, min_dist = min_dist,n_neighbors = n_neighbors, metric='cosine').fit(query_data) # reduces from 32 to 2
+    embedding = umap.UMAP(n_components=2, min_dist=min_dist, n_neighbors=n_neighbors, metric='cosine').fit_transform(
+        query_data)  # reduces from 32 to 2
 
-    f = umap.plot.points(embedding, labels=['coast', 'forest', 'highway', 'inside_city', 'mountain', 'Opencountry', 'street','tallbuilding'])
-
-    umap.plot.show(f)
+    plt.scatter(embedding[:, 0], embedding[:, 1], c=query_data)
+    plt.title('UMAP ')
     plt.imsave("/results/jupytest/siamese.png")
