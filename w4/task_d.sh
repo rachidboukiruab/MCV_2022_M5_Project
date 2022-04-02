@@ -5,4 +5,4 @@
 #SBATCH --gres gpu:1 # Para pedir Pascales MAX 8
 #SBATCH -o ./slurm_logs.%x_%u_%j.out # File to which STDOUT will be written
 #SBATCH -e ./slurm_logs.%x_%u_%j.err # File to which STDERR will be written
-python3.8 task_d.py
+python task_d.py
