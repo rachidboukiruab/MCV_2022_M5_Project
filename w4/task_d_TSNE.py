@@ -53,7 +53,7 @@ if __name__ == '__main__':
     query_features_compressed = pca.transform(query_data)
 
     n_components = 2
-    tsne_results = TSNE(n_components=n_components, verbose=1, metric='euclidean').fit_transform(query_features_compressed)
+    tsne_results = TSNE(n_components=n_components, verbose=1, metric='manhattan').fit_transform(query_features_compressed)
 
     colormap = plt.cm.get_cmap('coolwarm')
 
