@@ -44,7 +44,7 @@ if __name__ == '__main__':
                     '#bff78d', '#8df7af']
     with torch.no_grad():
         for ii, (img, label) in enumerate(query):
-            query_data.append(model(img.unsqueeze(0)).squeeze().numpy().squeeze().detach().numpy())
+            query_data.append(model(img.unsqueeze(0)).squeeze().detach().numpy())
             color_4_umap.append(select_color[label])
 
     print(f"QUERY LEN {len(query_data)}")
@@ -54,8 +54,8 @@ if __name__ == '__main__':
     query_features_compressed = pca.transform(query_data)
 
     n_components = 2
-    tsne_results = TSNE(n_components=n_components, verbose=1, metric='manhattan').fit_transform(query_features_compressed)
-
+    tsne_results = TSNE(n_components=n_components, verbose=1, metric='manhattan').fit_transform(
+        query_features_compressed)
 
     if n_components == 2:
         scatter_plot = plt.scatter(tsne_results[:, 0], tsne_results[:, 1], c=color_4_umap)
@@ -66,4 +66,3 @@ if __name__ == '__main__':
 
     plt.title('TSNE')
     plt.savefig("./results/jupytest/tsne_siamese.png")
-
