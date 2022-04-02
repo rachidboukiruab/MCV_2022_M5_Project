@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     print(f"QUERY SHAPE {query_data.shape}")
 
-    n_components = 2
+    n_components = 3
 
     u = umap.UMAP(n_components=n_components, min_dist=min_dist, n_neighbors=n_neighbors, metric='manhattan').fit_transform(
         query_data)  # reduces from 32 to 2
@@ -60,5 +60,6 @@ if __name__ == '__main__':
         ax.scatter(u[:, 0], u[:, 1], c=color_4_umap)
     if n_components == 3:
         ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(u[:, 0], u[:, 1], u[:, 2], c=color_4_umap, s=100)
     plt.title('UMAP')
     plt.savefig("./results/jupytest/siamese.png")
