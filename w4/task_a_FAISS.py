@@ -28,7 +28,7 @@ def build_index(model, train_dataset, d=32):
 
     id = 0
     for data, label in train_dataset:
-        xb = model(data.unsqueeze(0)).squeeze().numpy()
+        xb = model(data.unsqueeze(0)).squeeze().detach().numpy()
         img_dict = {id: (label, xb)}
         index.add(img_dict)  # add vectors to the index
 
