@@ -1,17 +1,18 @@
+import os
+from pathlib import Path
+
 import faiss
 import torch
 import torchvision
 from torch import nn
 from torch.utils.data import DataLoader
-from torchvision import transforms
+from torchvision import transforms, models
 from torchvision.datasets import ImageFolder
 
 from utils import print_colored, COLOR_WARNING
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-def build_net(device, d = 64):
+def build_net(device, d=64):
     model = torchvision.models.resnet50(pretrained=True, progress=True)
     model.eval()
     model.fc = nn.Linear(in_features=2048, out_features=d)
@@ -20,17 +21,25 @@ def build_net(device, d = 64):
     return model
 
 
+def create_headless_resnet18():
+    model = models.resnet18(pretrained=True, progress=False)
+    model = nn.Sequential(*list(model.children())[:-1])
+    return model
+
+
 def build_index(model, train_dataset, d=64):
     # USES GPU!!
 
     res = faiss.StandardGpuResources()  # defines resource, use a single GPU
     index = faiss.IndexFlatL2(d)  # build the index
-    gpu_index = faiss.index_cpu_to_gpu(res, 0, index) # make it into a gpu index
+    gpu_index = faiss.index_cpu_to_gpu(res, 0, index)  # make it into a gpu index
     print(gpu_index.is_trained)
 
-    for data in train_dataset:
+    id = 0
+    for data, label in train_dataset:
         xb = model(data)
-        gpu_index.add(xb)  # add vectors to the index
+        img_dict = {id: (label, xb)}
+        gpu_index.add(img_dict)  # add vectors to the index
 
         # SANITY TODO: remove this after debugging
         D, I = gpu_index.search(xb[:5], 4)  # sanity check
@@ -49,8 +58,11 @@ def search_faiss(index, query, k=4):
 
 
 if __name__ == '__main__':
-    # TODO load dataset
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    data_path = Path("/home/group01/mcv/datasets/MIT_split")
+    batch_size = 64
     transfs = transforms.Compose([
         transforms.ColorJitter(brightness=.3, hue=.3),
         transforms.RandomResizedCrop(256, (0.15, 1.0)),
@@ -71,9 +83,13 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_data, batch_size=batch_size, pin_memory=True, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=batch_size, pin_memory=True)
 
-    print_colored(f"(dataset info) train: {len(train_loader) * epochs} images", COLOR_WARNING)
-    print_colored(f"(dataset info) test: {len(test_loader) * epochs} images", COLOR_WARNING)
-
     print_colored(f"(dataset info) train: {len(train_loader)} images in the folder", COLOR_WARNING)
     print_colored(f"(dataset info) test: {len(test_loader)} images in the folder", COLOR_WARNING)
 
+    # model = build_net(device)
+    model = create_headless_resnet18
+    index = build_index(model, train_loader)
+
+    for img, label in test_loader:
+        # TODO
+        pass
