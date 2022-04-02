@@ -1,7 +1,12 @@
+import faiss
 import torch
 import torchvision
 from torch import nn
-import faiss
+from torch.utils.data import DataLoader
+from torchvision import transforms
+from torchvision.datasets import ImageFolder
+
+from utils import print_colored, COLOR_WARNING
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -45,3 +50,30 @@ def search_faiss(index, query, k=4):
 
 if __name__ == '__main__':
     # TODO load dataset
+
+    transfs = transforms.Compose([
+        transforms.ColorJitter(brightness=.3, hue=.3),
+        transforms.RandomResizedCrop(256, (0.15, 1.0)),
+        transforms.RandomRotation(degrees=30),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.ToTensor(),
+        transforms.Resize((256, 256)),
+    ])
+
+    transfs_t = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize((256, 256)),
+    ])
+
+    train_data = ImageFolder(str(data_path / "train"), transform=transfs)
+    test_data = ImageFolder(str(data_path / "test"), transform=transfs_t)
+
+    train_loader = DataLoader(train_data, batch_size=batch_size, pin_memory=True, shuffle=True)
+    test_loader = DataLoader(test_data, batch_size=batch_size, pin_memory=True)
+
+    print_colored(f"(dataset info) train: {len(train_loader) * epochs} images", COLOR_WARNING)
+    print_colored(f"(dataset info) test: {len(test_loader) * epochs} images", COLOR_WARNING)
+
+    print_colored(f"(dataset info) train: {len(train_loader)} images in the folder", COLOR_WARNING)
+    print_colored(f"(dataset info) test: {len(test_loader)} images in the folder", COLOR_WARNING)
+
