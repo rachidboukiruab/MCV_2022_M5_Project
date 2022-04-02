@@ -36,7 +36,7 @@ if __name__ == '__main__':
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
-    query = ImageFolder(str(data_path / "train"), transform=transfs)
+    query = ImageFolder(str(data_path / "test"), transform=transfs)
     query_data = []
 
     color_4_umap = list()
