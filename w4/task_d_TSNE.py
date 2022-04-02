@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -35,23 +36,23 @@ if __name__ == '__main__':
     ])
 
     query = ImageFolder(str(data_path / "train"), transform=transfs)
-    query_features = list()
+    query_data = np.empty((len(query), EMBED_SHAPE))
 
     color_4_umap = list()
     select_color = ['#8db6f7', '#b98df7', '#f78df2', '#f78da8', '#f7a68d', '#f7e08d',
                     '#bff78d', '#8df7af']
     with torch.no_grad():
         for ii, (img, label) in enumerate(query):
-            query_features.append(model(img.unsqueeze(0)).squeeze().numpy())
+            query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
             color_4_umap.append(select_color[label])
 
-    print(f"QUERY LEN {len(query_features)}")
+    print(f"QUERY LEN {len(query_data)}")
 
     pca = PCA(n_components=EMBED_SHAPE)
-    pca.fit(query_features)
-    query_features_compressed = pca.transform(query_features)
+    pca.fit(query_data)
+    query_features_compressed = pca.transform(query_data)
 
-    tsne_results = TSNE(n_components=2, verbose=1, metric='euclidean').fit_transform(query_features)
+    tsne_results = TSNE(n_components=2, verbose=1, metric='euclidean').fit_transform(query_data)
 
     colormap = plt.cm.get_cmap('coolwarm')
 
