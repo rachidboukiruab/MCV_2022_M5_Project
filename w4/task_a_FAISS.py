@@ -29,6 +29,7 @@ def build_index(model, train_dataset, d=32):
     id = 0
     for data, label in train_dataset:
         xb = model(data.unsqueeze(0)).squeeze().detach().numpy()
+        print(xb.shape)
         index.add(xb)  # add vectors to the index
 
         # SANITY TODO: remove this after debugging
