@@ -49,7 +49,7 @@ if __name__ == '__main__':
     print(f"QUERY SHAPE {query_data.shape}")
 
     # 2 for 2D, 3 for 3D
-    n_components = 3
+    n_components = 2
 
     u = umap.UMAP(n_components=n_components, min_dist=min_dist, n_neighbors=n_neighbors, metric='manhattan').fit_transform(
         query_data)  # reduces from 32 to 2
