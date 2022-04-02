@@ -36,17 +36,17 @@ if __name__ == '__main__':
     ])
 
     query = ImageFolder(str(data_path / "test"), transform=transfs)
-    query_data = []
+    query_data = np.empty((len(query), EMBED_SHAPE))
 
     color_4_umap = list()
     select_color = ['#8db6f7', '#b98df7', '#f78df2', '#f78da8', '#f7a68d', '#f7e08d',
                     '#bff78d', '#8df7af']
     with torch.no_grad():
         for ii, (img, label) in enumerate(query):
-            query_data.append(model(img.unsqueeze(0)).squeeze().detach().numpy())
+            query_data[ii, :] = model(img.unsqueeze(0)).squeeze().detach().numpy()
             color_4_umap.append(select_color[label])
 
-    print(f"QUERY LEN {len(query_data)} with {query_data[0].shape} shape each one ")
+    print(f"QUERY SHAPE {query_data.shape}")
 
     pca = PCA(n_components=EMBED_SHAPE)
     pca.fit(query_data)
