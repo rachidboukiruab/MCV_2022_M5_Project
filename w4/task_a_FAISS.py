@@ -23,21 +23,20 @@ def build_net(device, d=64):
 
 
 def build_index(model, train_dataset, d=32):
-
     index = faiss.IndexFlatL2(d)  # build the index
 
-    id = 0
-    for data, label in train_dataset:
-        xb = model(data.unsqueeze(0)).squeeze().detach().numpy()
-        print(xb.shape)
-        index.add(xb)  # add vectors to the index
+    xb = np.empty((len(train_dataset), d))
+    for ii, (data, label) in enumerate(train_dataset):
+        xb[ii, :] = model(data.unsqueeze(0)).squeeze().detach().numpy()
 
-        # SANITY TODO: remove this after debugging
-        D, I = index.search(xb[:5], 4)  # sanity check
-        print(
-            "As a sanity check, we can first search a few database vectors, to make sure the nearest neighbor is indeed the vector itself.")
-        print(I)
-        print(D)
+    index.add(xb)  # add vectors to the index
+
+    # SANITY TODO: remove this after debugging
+    D, I = index.search(xb[:5], 4)  # sanity check
+    print(
+        "As a sanity check, we can first search a few database vectors, to make sure the nearest neighbor is indeed the vector itself.")
+    print(I)
+    print(D)
 
     return index
 
@@ -75,4 +74,4 @@ if __name__ == '__main__':
             metrics_list.append(metrics)
             print(pred_label)
             print(metrics)
-            print('--'*10)
+            print('--' * 10)
