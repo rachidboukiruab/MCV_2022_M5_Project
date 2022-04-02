@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import umap.plot
+from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
 from models import create_headless_resnet18
@@ -25,7 +26,13 @@ if __name__ == '__main__':
     # LOAD PRE_TRAINED WEIGHTS
     model.load_state_dict(torch.load(trained_path / weights_filename[0]))
 
-    query = ImageFolder(str(data_path / "test"))
+    transfs = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize((224, 224)),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+    query = ImageFolder(str(data_path / "test"), transform=transfs)
     query_data = np.empty((len(query), 32))
 
     with torch.no_grad():
