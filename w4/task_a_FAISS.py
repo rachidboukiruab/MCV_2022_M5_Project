@@ -119,10 +119,8 @@ if __name__ == '__main__':
 
     for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
         id_nn = [pd_labels[0][0]]  # 1st nn
-        aux = list()
         for ll in id_nn:
-            aux.append(find_in_train[ll][1])
-        pd_single.append(aux)
+            pd_single.append(find_in_train[ll][1])
 
     print(gt_label_list)
     print(pd_single)
