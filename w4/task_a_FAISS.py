@@ -125,5 +125,5 @@ if __name__ == '__main__':
     # gt_label_list = gt_label_list_copy
 
     map = mAP(gt_label_list, pd_single)
-    print('mAP={:.2f}'.format(map*100))
+    print('mAP={:.3f}'.format(map*100))
 
