@@ -148,8 +148,8 @@ if __name__ == '__main__':
         id_nn = pd_labels[0][1:5]  # 1st nn
         print(id_nn)
         aux = list()
-        for ll in find_in_train[id_nn]:
-            aux.append(ll[1])
+        for ll in id_nn:
+            aux.append(find_in_train[ll])
         print(aux)
         pd_single.append(aux)
 
