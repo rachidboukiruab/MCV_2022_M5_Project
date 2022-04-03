@@ -12,7 +12,7 @@ from torchvision import transforms, models
 from torchvision.datasets import ImageFolder
 from models import create_headless_resnet18
 from utils import print_colored, COLOR_WARNING
-
+from sklearn.metrics import average_precision_score
 
 def build_net(device, d=64):
     model = torchvision.models.resnet50(pretrained=True, progress=True)
@@ -72,15 +72,28 @@ if __name__ == '__main__':
             gt_label_list.append(label)
             metrics_list.append(metrics)
 
-    plot_samples = 3
-    fig, axs = plt.subplots(plot_samples, k)
+    PLOT = False
+    if PLOT:
+        plot_samples = 3
+        fig, axs = plt.subplots(plot_samples, k)
 
-    print(f"first {plot_samples}-th samples: ", pred_labels_list[:plot_samples])
-    for row in range(plot_samples):
-        axs[row, 0].imshow(test_data[row][0].permute((1, 2, 0)).numpy())  # plots query img
-        for column in range(1, k):
-            axs[row, column].imshow(find_in_train[pred_labels_list[row][0][column]][0].permute((1, 2, 0)).numpy())
-            print(f"for img {row}, nn id: {pred_labels_list[row][0][column]}")
+        print(f"first {plot_samples}-th samples: ", pred_labels_list[:plot_samples])
+        for row in range(plot_samples):
+            axs[row, 0].imshow(test_data[row][0].permute((1, 2, 0)).numpy())  # plots query img
+            for column in range(1, k):
+                axs[row, column].imshow(find_in_train[pred_labels_list[row][0][column]][0].permute((1, 2, 0)).numpy())
+                print(f"for img {row}, nn id: {pred_labels_list[row][0][column]}")
 
-    plt.title(f'{k} nearest imgs for firts {plot_samples}-th images (FAISS)')
-    plt.savefig("./results/jupytest/faiss.png")
+        plt.title(f'{k} nearest imgs for firts {plot_samples}-th images (FAISS)')
+        plt.savefig("./results/jupytest/faiss.png")
+
+    # EVAL
+
+    print(pred_labels_list[0])
+    print(gt_label_list[0])
+
+    for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
+
+
+
+
