@@ -53,7 +53,7 @@ if __name__ == '__main__':
     # pca.fit(query_data)
     # query_features_compressed = pca.transform(query_data)
 
-    n_components = 2
+    n_components = 3
     tsne_results = TSNE(n_components=n_components, verbose=1, metric='manhattan').fit_transform(
         query_data)
 
