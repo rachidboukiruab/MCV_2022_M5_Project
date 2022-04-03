@@ -2,7 +2,6 @@
 import os
 #import matplotlib.pyplot as plt
 import numpy as np
-import torch
 from itertools import combinations
 
 
@@ -200,7 +199,7 @@ def pk(actual, predicted, k=10):
         if actual == predicted[i]:
             score += 1
     
-    return score / min(len(actual), k)
+    return score / len(predicted)
 
 def mpk(actual, predicted, k=10):
     """
@@ -222,11 +221,11 @@ def mpk(actual, predicted, k=10):
     """
     pk_list = []
     for i in range(len(actual)):
-        pk = pk(actual[i], predicted[i], k)
-        pk_list.append(pk)
+        score = pk(actual[i], predicted[i], k)
+        pk_list.append(score)
     return np.mean(pk_list)
 
-def AP(actual, predicted, catalogue_labels):
+def AP(actual, predicted):
     """
     Computes the precision at k.
     This function computes the average precision precision between the query image and a list
@@ -237,8 +236,6 @@ def AP(actual, predicted, catalogue_labels):
              The element that has to be predicted
     predicted : list
                 A list of predicted elements (order does matter)
-    catalogue_labels : list
-        The ground truth labels of the catalogue
     Returns
     -------
     score : double
@@ -248,16 +245,17 @@ def AP(actual, predicted, catalogue_labels):
     ap = 0
     for i in range(len(predicted)):
         a = pk(actual, predicted, i+1)
-        if actual == predicted[i]: b = 1
-        else: b = 0
+        if actual == predicted[i]: 
+            b = 1
+            gtp += 1
+        else: 
+            b = 0
         c = a*b
         ap += c
-        if actual == catalogue_labels[i]:
-            gtp += 1
 
     return ap/gtp
 
-def mAP(actual, predicted, catalogue_labels):
+def mAP(actual, predicted):
     """
     Computes the precision at k.
     This function computes the mean Average Precision between the query image and a list
@@ -268,8 +266,6 @@ def mAP(actual, predicted, catalogue_labels):
              The query elements that have to be predicted
     predicted : list
                 A list of predicted elements (order does matter) for each query element
-    catalogue_labels : list
-        The ground truth labels of the catalogue
     Returns
     -------
     score : double
@@ -277,6 +273,6 @@ def mAP(actual, predicted, catalogue_labels):
     """
     ap_list = []
     for i in range(len(actual)):
-        ap = AP(actual[i], predicted[i], catalogue_labels)
+        ap = AP(actual[i], predicted[i])
         ap_list.append(ap)
     return np.mean(ap_list)
