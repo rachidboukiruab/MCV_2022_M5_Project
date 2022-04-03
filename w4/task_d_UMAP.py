@@ -36,7 +36,7 @@ if __name__ == '__main__':
     ])
 
     query = ImageFolder(str(data_path / "test"), transform=transfs)
-    query_data = np.empty((len(query), 52))
+    query_data = np.empty((len(query), 512))
 
     color_4_umap = list()
     select_color = ['#8db6f7', '#b98df7', '#f78df2', '#f78da8', '#f7a68d', '#f7e08d',
