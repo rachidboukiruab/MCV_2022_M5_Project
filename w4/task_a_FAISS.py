@@ -54,10 +54,11 @@ if __name__ == '__main__':
     test_data = ImageFolder(str(data_path / "test"), transform=transfs_t)
 
     model = create_headless_resnet18(EMBED_SHAPE)
+    model = model[:9]
     index, find_in_train = build_index(model, test_data)
 
     k = 5  # we want to see 5 nearest neighbors
-    query_data = np.empty((len(test_data), EMBED_SHAPE))
+    query_data = np.empty((len(test_data), 512))
 
     pred_labels_list = list()
     gt_label_list = list()
@@ -65,6 +66,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
             xq = model(img.unsqueeze(0)).squeeze().numpy()
+            print(xq.shape)
             xq = np.float32(xq)
             metrics, pred_label = index.search(np.array([xq]), k)
             pred_labels_list.append(pred_label)
