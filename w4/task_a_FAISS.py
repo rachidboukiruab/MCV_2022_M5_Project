@@ -127,15 +127,3 @@ if __name__ == '__main__':
     map = mAP(gt_label_list, pd_single)
     print('mAP=', map)
 
-    # # For each class
-    # # prepare data
-    # pred_labels_list = list()
-    # gt_label_list = list()
-    # for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
-    #
-    # precision = dict()
-    # recall = dict()
-    # average_precision = dict()
-    # for i in range(8):
-    #     precision[i], recall[i], _ = precision_recall_curve(Y_test[:, i], y_score[:, i])
-    #     average_precision[i] = average_precision_score(Y_test[:, i], y_score[:, i])
