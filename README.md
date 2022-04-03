@@ -23,7 +23,7 @@
 
 ## Week 4
 - [Source Code](https://github.com/rachidboukiruab/MCV_2022_M5_Project/tree/main/w4)
-- [Presentation](link)
+- [Presentation](https://docs.google.com/presentation/d/1dwItGQm5mnEOTzImtCfxJM6WCPhARowRxvyPHOeyraw/edit?usp=sharing)
 
 ## Week 5
 - [Source Code](https://github.com/rachidboukiruab/MCV_2022_M5_Project/tree/main/w5)
