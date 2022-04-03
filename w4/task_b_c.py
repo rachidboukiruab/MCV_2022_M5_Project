@@ -31,9 +31,10 @@ import sys
 import pickle
 
 from models import create_headless_resnet18
+from utils import mpk, mAP
 
 
-""" def visualizer_hook(umapper, umap_embeddings, labels, split_name, keyname, *args):
+def visualizer_hook(umapper, umap_embeddings, labels, split_name, keyname, *args):
     logging.info(
         "UMAP plot for the {} split and label set {}".format(split_name, keyname)
     )
@@ -48,14 +49,14 @@ from models import create_headless_resnet18
     for i in range(num_classes):
         idx = labels == label_set[i]
         plt.plot(umap_embeddings[idx, 0], umap_embeddings[idx, 1], ".", markersize=1)
-    plt.show() """
+    plt.show() 
 
 
 def main(config):
     data_path = Path(config["data_path"])
     output_path = Path(config["out_path"])
     model = create_headless_resnet18(config["embed_size"])
-    #model.load_state_dict(torch.load('/home/aharris/shared/m5/weights_contrastive_100_scheduler.pth'))
+    model.load_state_dict(torch.load('/home/aharris/shared/m5/trunk_best3.pth'))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     #summary(model)
@@ -86,9 +87,9 @@ def main(config):
         batch_size=config["batch_size"],
         length_before_new_iter=len(dataset),
     )
-    optimizer = optim.Adam(model.parameters(), 3E-4)
+    #optimizer = optim.Adam(model.parameters(), 3E-4)
 
-    model = model.to(device)
+    #model = model.to(device)
 
     if config["loss_type"] == "contrastive":
         loss_funcs = {
@@ -103,30 +104,36 @@ def main(config):
         }
         mining_funcs = {
             #"tuple_miner": miners.MultiSimilarityMiner(epsilon=0.1)
+            """ "tuple_miner" : miners.BatchEasyHardMiner(
+                              pos_strategy=miners.BatchEasyHardMiner.EASY,
+                              neg_strategy=miners.BatchEasyHardMiner.SEMIHARD,
+                              allowed_pos_range=None,
+                              allowed_neg_range=None,
+                              ) """
             "tuple_miner" : miners.BatchHardMiner()
         }
 
     record_keeper, _, _ = logging_presets.get_record_keeper(
         str(output_path / "logs"), str(output_path / "tb")
     )
-    #dataset_dict = {"val": test_dataset}
+    dataset_dict = {"val": test_dataset}
     model_folder = str(output_path / "models")
     hooks = logging_presets.get_hook_container(record_keeper)
 
-    """ # Create the tester
+    # Create the tester
     tester = testers.GlobalEmbeddingSpaceTester(
         end_of_testing_hook=hooks.end_of_testing_hook,
         visualizer=umap.UMAP(),
         visualizer_hook=visualizer_hook,
-        #dataloader_num_workers=1,
+        dataloader_num_workers=1,
         accuracy_calculator=AccuracyCalculator(k="max_bin_count"),
     )
 
     end_of_epoch_hook = hooks.end_of_epoch_hook(
         tester, dataset_dict, model_folder, test_interval=10, patience=1
-    )"""
+    )
 
-    metric_trainer = trainers.MetricLossOnly(
+    """ metric_trainer = trainers.MetricLossOnly(
         models={"trunk": model},
         optimizers={"trunk_optimizer": optimizer},
         batch_size=config["batch_size"],
@@ -135,55 +142,67 @@ def main(config):
         dataset=dataset,
         data_device=device,
         sampler=class_sampler,
-        lr_schedulers= {"trunk":model, "step_type" : optim.lr_scheduler.StepLR(optimizer,)},
+        lr_schedulers= {"trunk":model, "step_type" : optim.lr_scheduler.StepLR(optimizer, step_size=2,gamma=0.9)},
         end_of_iteration_hook=hooks.end_of_iteration_hook,
-        end_of_epoch_hook=None,
+        end_of_epoch_hook=end_of_epoch_hook,
     )
-    metric_trainer.train(1, 100)   
-    torch.save(model.state_dict(), '{}/weights_{}.pth'.format(config['out_path'], config['loss_type'])) 
+    metric_trainer.train(1, 100)   """ 
+    #torch.save(model.state_dict(), '{}/weights_{}.pth'.format(config['out_path'], config['loss_type'])) 
     
-    
+    #sys.exit()
     #feature extraction (embeddings):
-    catalogue_meta = dataset.samples
-    query_meta  = test_dataset.samples
+    catalogue_meta = [(x[0].split('/')[-1], x[1]) for x in dataset.imgs]
+    query_meta = [(x[0].split('/')[-1], x[1]) for x in test_dataset.imgs]
     
     catalogue_data = np.empty((len(dataset), config['embed_size']))
     with torch.no_grad():
         for ii, (img, _) in enumerate(dataset):
             catalogue_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy() 
 
-    with open("{}_catalogue_{}_{}.npy".format(config['feature_path'],config['loss_type'], config['embed_size']), "wb") as f:
-        np.save(f, catalogue_data)
+    """ with open("{}_catalogue_{}_{}.npy".format(config['feature_path'],config['loss_type'], config['embed_size']), "wb") as f:
+        np.save(f, catalogue_data) """
 
     query_data = np.empty((len(test_dataset), config['embed_size']))
     with torch.no_grad():
         for ii, (img, _) in enumerate(test_dataset):
             query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy() 
 
-    with open("{}_query_{}_{}.npy".format(config['feature_path'],config['loss_type'], config['embed_size']), "wb") as f:
-        np.save(f, query_data)
+    """ with open("{}_query_{}_{}.npy".format(config['feature_path'],config['loss_type'], config['embed_size']), "wb") as f:
+        np.save(f, query_data) """
 
-
+    catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
+    query_labels = np.asarray([x[1] for x in query_meta])
+    
     #Image retrieval:
 
     if config['retrieval_method'] == 'knn':
-        catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
-        query_labels = np.asarray([x[1] for x in query_meta])
-
-        knn = KNeighborsClassifier(n_neighbors=5)
+        
+        knn = KNeighborsClassifier(n_neighbors=len(catalogue_labels))
         knn = knn.fit(catalogue_data, catalogue_labels)
-        predictions = knn.predict(query_data)
-        pr_prob = knn.predict_proba(query_data)
         neighbors = knn.kneighbors(query_data)[1]
+        #print(neighbors)
+        
+        neighbors_labels = []
+        for i in range(len(neighbors)):
+            neighbors_class = [catalogue_meta[j][1] for j in neighbors[i]]
+            neighbors_labels.append(neighbors_class)
 
-        with open('./results/retrieval/knn_{}_{}_scheduler.pkl'.format(config['loss_type'], config['embed_size']),'wb') as handle:
+        query_labels = [x[1] for x in query_meta]
+
+        p_1 = mpk(query_labels,neighbors_labels, 1)
+        p_5 = mpk(query_labels,neighbors_labels, 5)
+        print('P@1=',p_1)
+        print('P@5=',p_5)
+
+        map = mAP(query_labels,neighbors_labels)
+        print('mAP=',map)
+        with open('./results/retrieval/trunk_knn_{}_{}.pkl'.format(config['loss_type'], config['embed_size']),'wb') as handle:
             pickle.dump(neighbors,handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-    else: #euclidian top10
+    else: #NN 
 
-        results = []
-        top10_results = []
+        neighbors = []
         score = {}
         print("Searching...")
         for i in range(len(query_data)):
@@ -192,38 +211,34 @@ def main(config):
             query_feature = np.array(query_feature)
             query_feature = torch.from_numpy(query_feature)
             for j in range(len(catalogue_data)):
-                # if database contains query-image
-                #img = catalogue_meta[j][0]
-                # print("origin: "+img)
                 catalogue_feature = catalogue_data[j]
                 catalogue_feature = np.array(catalogue_feature)
                 catalogue_feature = torch.from_numpy(catalogue_feature)
                 output = torch.dist(catalogue_feature, query_feature, p=1)
-                if output == 0:
-                    continue
-                # print(output)
                 score[j] = abs(output)
             print("Search Finished")
-            #top10 = sorted(score.items(), key=lambda score: score[1], reverse=False)[:10]
-            top10 = sorted(score, key=score.get, reverse=False)[:10]
-            print("10 most relevant pictures for the query image ", query_img[0],"from class", query_img[1], " are as below: ")
-            results_class = [catalogue_meta[j][1] for j in top10]
-            #names = [catalogue_meta[j][0] for j in top10]
-            print("(img_name, class)")
-            for index in top10:
-                print(catalogue_meta[index])
-                # image = plt.imread(img)
-                # plt.imshow(image)
-                # plt.show()
-                # plt.savefig('./result/picture')
-            print(results_class)
-            results.append(results_class)
-            top10_results.append(top10)
+            sorted_imgs = sorted(score, key=score.get, reverse=False)
+            neighbors.append(sorted_imgs)
 
-        outfile = open('./results/retrieval/top10_{}_{}_scheduler_hard.pkl'.format(config['loss_type'],config['embed_size']),'wb')
-        pickle.dump(top10_results,outfile)
-        outfile.close()
+            outfile = open('./results/retrieval/trunk_NN_{}_{}.pkl'.format(config['loss_type'],config['embed_size']),'wb')
+            pickle.dump(neighbors,outfile)
+            outfile.close()
+                
 
+            neighbors_labels = []
+            for i in range(len(neighbors)):
+                neighbors_class = [catalogue_meta[j][1] for j in neighbors[i]]
+                neighbors_labels.append(neighbors_class)
+
+            query_labels = [x[1] for x in query_meta]
+
+            p_1 = mpk(query_labels,neighbors_labels, 1)
+            p_5 = mpk(query_labels,neighbors_labels, 5)
+            print('P@1=',p_1)
+            print('P@5=',p_5)
+
+            map = mAP(query_labels,neighbors_labels)
+            print('mAP=',map)
 
 
 if __name__ == "__main__":
@@ -231,10 +246,10 @@ if __name__ == "__main__":
         "data_path": "MIT",
         "out_path": "./results/jupytest/",
         "feature_path" : "./results/retrieval/",
-        "retrieval_method" : "knn",
-        "embed_size": 100,
-        "batch_size": 128,
-        "loss_type": "contrastive"
+        "retrieval_method" : "nn",
+        "embed_size": 32,
+        "batch_size": 64,
+        "loss_type": "triplet",
     }
     logging.getLogger().setLevel(logging.INFO)
     logging.info("VERSION %s" % pytorch_metric_learning.__version__)
