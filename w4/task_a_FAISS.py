@@ -112,14 +112,12 @@ if __name__ == '__main__':
     metrics_list = list()
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
-            print(label)
             xq = model(img.unsqueeze(0)).squeeze().numpy()
             xq = np.float32(xq)
             metrics, pred_label = index.search(np.array([xq]), k)
             pred_labels_list.append(pred_label)
             gt_label_list.append(label)
             metrics_list.append(metrics)
-    print("imgs")
     PLOT = False
     if PLOT:
         plot_samples = 3
@@ -142,7 +140,6 @@ if __name__ == '__main__':
 
         for xz in range(len(pred_labels_list)):
             labels_list_auxz = pred_labels_list[xz][0]
-            print(labels_list_auxz)
             for xy in range(len(labels_list_auxz)):
                 auxxy = labels_list_auxz[xy]
                 print(f"query_{xz}_k{xy}: {labels_names[find_in_train[auxxy][1]]}")
