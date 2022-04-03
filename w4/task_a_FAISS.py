@@ -97,6 +97,7 @@ if __name__ == '__main__':
     # print(pred_labels_list[0])  # [[  0 202 320 542  64]]
     # print(gt_label_list[0])  # 0
 
+    print(pred_labels_list)
     pd_single = list()
 
     for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
