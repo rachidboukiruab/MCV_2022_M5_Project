@@ -73,7 +73,7 @@ if __name__ == '__main__':
             gt_label_list.append(label)
             metrics_list.append(metrics)
 
-    plot_samples = 10
+    plot_samples = 3
     fig, axs = plt.subplots(plot_samples, k)
 
     print(f"first {plot_samples}-th samples: ", pred_labels_list[:plot_samples])
