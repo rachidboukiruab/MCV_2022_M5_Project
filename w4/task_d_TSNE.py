@@ -63,5 +63,6 @@ if __name__ == '__main__':
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(tsne_results[:, 0], tsne_results[:, 1], tsne_results[:, 2], c=color_4_umap)
 
+    print('DONE')
     plt.title('TSNE')
     plt.savefig("./results/jupytest/tsne_siamese.png")
