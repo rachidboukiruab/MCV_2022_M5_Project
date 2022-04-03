@@ -57,7 +57,7 @@ if __name__ == '__main__':
     metrics_list = list()
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
-            if label == 7:
+            if label == 0:
                 xq = model(img.unsqueeze(0)).squeeze().numpy()
                 xq = np.float32(xq)
                 metrics, pred_label = index.search(np.array([xq]), k)
