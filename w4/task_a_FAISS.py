@@ -77,7 +77,7 @@ if __name__ == '__main__':
     for row in range(plot_samples + 1):
         axs[row, 0].imshow(test_data[row][0].permute((1, 2, 0)).numpy())  # plots query img
         for column in range(1, k):
-            axs[row, column].imshow(find_in_train[pred_labels_list[row][0][column]][0])
+            axs[row, column].imshow(find_in_train[pred_labels_list[row][0][column]][0].permute((1, 2, 0)).numpy())
             print(f"for img {row}, nn id: {pred_labels_list[row][0][column]}")
 
     plt.title(f'{k} nearest imgs for firts {plot_samples}-th images (FAISS)')
