@@ -141,7 +141,7 @@ if __name__ == '__main__':
         for xz in range(len(pred_labels_list)):
             labels_list_auxz = pred_labels_list[xz][0]
             print(labels_list_auxz)
-            for xy in range(1, len(labels_list_auxz)):
+            for xy in range(len(labels_list_auxz)):
                 auxxy = labels_list_auxz[xy]
                 plt.imsave(f"./results/jupytest/slides/query_{xz}_k{xy}.png",
                            find_in_train[auxxy][0].permute((1, 2, 0)).numpy())
