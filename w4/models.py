@@ -70,8 +70,23 @@ class EmbeddingLayer(nn.Module):
         return x
 
 
+class FlattenOnly(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return x.squeeze(-1).squeeze(-1)
+
+
 def create_headless_resnet18(embed_size):
-    flatten = EmbeddingLayer(embed_size)
+    embed = EmbeddingLayer(embed_size)
+    model = models.resnet18(pretrained=True, progress=False)
+    model = nn.Sequential(*list(model.children())[:-1], embed)
+    return model
+
+
+def create_headless_resnet18_noembed():
+    flatten = FlattenOnly()
     model = models.resnet18(pretrained=True, progress=False)
     model = nn.Sequential(*list(model.children())[:-1], flatten)
     return model
