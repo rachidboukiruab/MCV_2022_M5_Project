@@ -58,7 +58,7 @@ if __name__ == '__main__':
     model = model[:9]
     index, find_in_train = build_index(model, test_data, d=512)
 
-    k = 5  # we want to see 5 nearest neighbors
+    k = 10  # we want to see 5 nearest neighbors
     query_data = np.empty((len(test_data), 512))
 
     pred_labels_list = list()
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     pd_single = list()
 
     for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
-        id_nn = pd_labels[0][1]  # 1st nn
+        id_nn = pd_labels[0][1:5]  # 1st nn
         pd_single.append(find_in_train[id_nn][1])
 
     pd_single = np.array(pd_single)
@@ -107,5 +107,5 @@ if __name__ == '__main__':
 
     scores_k1 = mapk(gt_label, pd_single, k=1)
     scores_k5 = mapk(gt_label, pd_single, k=5)
-    print("MAP@k=1: ", scores_k1)
-    print("MAP@k=5: ", scores_k5)
+    print("MAP@1: ", scores_k1)
+    print("MAP@5: ", scores_k5)
