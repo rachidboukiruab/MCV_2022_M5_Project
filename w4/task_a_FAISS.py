@@ -137,13 +137,14 @@ if __name__ == '__main__':
         plt.savefig("./results/jupytest/faiss.png")
 
     SLIDES = True
+    labels_names = ['Open Country', 'Coast', 'Forest', 'Highway', 'Inside City', 'Mountain', 'Street', 'Tall Building']
     if SLIDES:
 
         for xz in range(len(pred_labels_list)):
             labels_list_auxz = pred_labels_list[xz][0]
             print(labels_list_auxz)
             for xy in range(len(labels_list_auxz)):
-                auxxy = labels_list_auxz[xy]
+                auxxy = labels_names[labels_list_auxz[xy]]
                 print(f"query_{xz}_k{xy}: {find_in_train[auxxy][1]}")
                 plt.imsave(f"./results/jupytest/slides/query_{xz}_k{xy}.png",
                            find_in_train[auxxy][0].permute((1, 2, 0)).numpy())
