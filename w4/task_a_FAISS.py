@@ -143,7 +143,7 @@ if __name__ == '__main__':
             for xy in range(1,len(labels_list_auxz)):
                 auxxy = labels_list_auxz[xy]
                 print(find_in_train[auxxy][0].shape)
-                cv2.imwrite(f"./results/jupytest/slides/query_{xz}_k{xy}.png", find_in_train[auxxy][0])
+                cv2.imwrite(f"./results/jupytest/slides/query_{xz}_k{xy}.png", find_in_train[auxxy][0].numpy())
 
     # EVAL
 
