@@ -144,8 +144,8 @@ if __name__ == '__main__':
             labels_list_auxz = pred_labels_list[xz][0]
             print(labels_list_auxz)
             for xy in range(len(labels_list_auxz)):
-                auxxy = labels_names[labels_list_auxz[xy]]
-                print(f"query_{xz}_k{xy}: {find_in_train[auxxy][1]}")
+                auxxy = labels_list_auxz[xy]
+                print(f"query_{xz}_k{xy}: {labels_names[find_in_train[auxxy][1]]}")
                 plt.imsave(f"./results/jupytest/slides/query_{xz}_k{xy}.png",
                            find_in_train[auxxy][0].permute((1, 2, 0)).numpy())
 
