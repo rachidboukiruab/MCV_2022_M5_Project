@@ -14,6 +14,7 @@ from models import create_headless_resnet18
 from utils import print_colored, COLOR_WARNING
 from sklearn.metrics import average_precision_score
 
+
 def build_net(device, d=64):
     model = torchvision.models.resnet50(pretrained=True, progress=True)
     model.eval()
@@ -89,11 +90,17 @@ if __name__ == '__main__':
 
     # EVAL
 
-    print(pred_labels_list[0])
-    print(gt_label_list[0])
+    # print(pred_labels_list[0])  # [[  0 202 320 542  64]]
+    # print(gt_label_list[0])  # 0
 
-    # for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
+    pd_single = list()
 
+    for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
+        id_nn = pd_labels[0][1]  # 1st nn
+        pd_single.append(find_in_train[id_nn][1])
 
+    pd_single = np.array(pd_single)
+    gt_label = np.array(gt_label_list)
 
-
+    scores = average_precision_score(gt_label, pd_single)
+    print("Average precission: ",scores)
