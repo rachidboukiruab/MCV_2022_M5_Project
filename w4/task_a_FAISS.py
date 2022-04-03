@@ -98,7 +98,7 @@ if __name__ == '__main__':
     ])
 
     train_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/train", transform=transfs_t)
-    test_data = ImageFolder("/home/group01/SLIDES-imgs", transform=transfs_t)
+    test_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/test", transform=transfs_t)
 
     model = create_headless_resnet18(EMBED_SHAPE)
     model = model[:9]
@@ -136,7 +136,7 @@ if __name__ == '__main__':
         plt.title(f'{k} nearest imgs for firts {plot_samples}-th images (FAISS)')
         plt.savefig("./results/jupytest/faiss.png")
 
-    SLIDES = True
+    SLIDES = False
     labels_names = ['Open Country', 'Coast', 'Forest', 'Highway', 'Inside City', 'Mountain', 'Street', 'Tall Building']
     if SLIDES:
 
