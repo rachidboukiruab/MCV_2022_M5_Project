@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import cv2
 import faiss
 import numpy as np
 import torch
@@ -88,7 +89,7 @@ if __name__ == '__main__':
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    data_path = Path("/home/group01/SLIDES-imgs")
+    data_path = Path("/home/group01/mcv/datasets/MIT_split/")
     EMBED_SHAPE = 32
 
     transfs_t = transforms.Compose([
@@ -96,14 +97,14 @@ if __name__ == '__main__':
         transforms.Resize((256, 256)),
     ])
 
-    train_data = ImageFolder(str(data_path / "train"), transform=transfs_t)
-    test_data = ImageFolder(str(data_path / "test"), transform=transfs_t)
+    train_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/train", transform=transfs_t)
+    test_data = ImageFolder("/home/group01/SLIDES-imgs", transform=transfs_t)
 
     model = create_headless_resnet18(EMBED_SHAPE)
     model = model[:9]
     index, find_in_train = build_index(model, test_data, d=512)
 
-    k = 11  # we want to see 10 nearest neighbors + the img itself
+    k = 4  # we want to see 10 nearest neighbors + the img itself
     query_data = np.empty((len(test_data), 512))
 
     pred_labels_list = list()
@@ -133,6 +134,15 @@ if __name__ == '__main__':
 
         plt.title(f'{k} nearest imgs for firts {plot_samples}-th images (FAISS)')
         plt.savefig("./results/jupytest/faiss.png")
+
+    SLIDES = True
+    if SLIDES:
+
+        for xz in range(len(pred_labels_list)):
+            labels_list_auxz = pred_labels_list[xz][0]
+            for xy in range(1,len(labels_list_auxz)):
+                auxxy = labels_list_auxz[xy]
+                cv2.imwrite(f"/results/jupytest/slides/query_{xz}_k{xy}",pred_labels_list[auxxy][0])
 
     # EVAL
 
