@@ -117,7 +117,7 @@ if __name__ == '__main__':
     p_1 = mpk(gt_label_list, pd_single, 1)
     p_5 = mpk(gt_label_list, pd_single, 5)
     print('P@1={:.2f}'.format(p_1*100))
-    print('P@5={:.2f}'.format(p_1*100))
+    print('P@5={:.2f}'.format(p_5*100))
 
     # gt_label_list_copy = list()
     # for zz in gt_label_list:
