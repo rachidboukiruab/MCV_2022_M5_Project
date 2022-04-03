@@ -66,4 +66,4 @@ if __name__ == '__main__':
 
     print('DONE')
     plt.title('TSNE')
-    plt.savefig("./results/jupytest/tsne_siamese.png")
+    plt.savefig("./results/jupytest/tsne_siamese#D.png")
