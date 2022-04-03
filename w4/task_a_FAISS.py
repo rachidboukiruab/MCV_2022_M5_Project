@@ -99,13 +99,10 @@ if __name__ == '__main__':
         id_nn = pd_labels[0][1:5]  # 1st nn
         pd_single.append(find_in_train[id_nn][1])
 
-    pd_single = np.array(pd_single)
-    gt_label = np.array(gt_label_list)
-
     print(pd_single[:5])
-    print(gt_label[:5])
+    print(gt_label_list[:5])
 
-    scores_k1 = mapk(gt_label, pd_single, k=1)
-    scores_k5 = mapk(gt_label, pd_single, k=5)
+    scores_k1 = mapk(gt_label_list, pd_single, k=1)
+    scores_k5 = mapk(gt_label_list, pd_single, k=5)
     print("MAP@1: ", scores_k1)
     print("MAP@5: ", scores_k5)
