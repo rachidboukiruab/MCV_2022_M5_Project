@@ -35,6 +35,7 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     data_path = Path("/home/group01/mcv/datasets/MIT_split/")
+    trained_path = Path("./results/jupytest")
     EMBED_SHAPE = 32
 
     transfs_t = transforms.Compose([
@@ -46,7 +47,8 @@ if __name__ == '__main__':
     test_data = ImageFolder("/home/group01/SLIDES-imgs", transform=transfs_t)
 
     model = create_headless_resnet18(EMBED_SHAPE)
-    model = model[:9]
+    weights_filename = "CONTRASTIVE.pth"
+    model.load_state_dict(torch.load(trained_path / weights_filename))
     index, find_in_train = build_index(model, train_data, d=512)
 
     k = 5  # we want to see 10 nearest neighbors + the img itself
