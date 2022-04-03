@@ -74,6 +74,7 @@ if __name__ == '__main__':
     plot_samples = 10
     fig, axs = plt.subplots(plot_samples, k)
 
+    print(f"first {plot_samples}-th samples: ", pred_labels_list[:plot_samples])
     for row in range(plot_samples):
         axs[row, 0].imshow(test_data[row][0].permute((1, 2, 0)).numpy())  # plots query img
         for column in range(1, k):
