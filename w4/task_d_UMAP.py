@@ -22,11 +22,12 @@ if __name__ == '__main__':
 
     weights_filename = "model.weights"
 
-    EMBED_SHAPE = 52
+    EMBED_SHAPE = 32
 
     model = create_headless_resnet18(EMBED_SHAPE)
     # LOAD PRE_TRAINED WEIGHTS
     model.load_state_dict(torch.load(trained_path / weights_filename))
+    model = model[:9]
 
     transfs = transforms.Compose([
         transforms.ToTensor(),
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     ])
 
     query = ImageFolder(str(data_path / "test"), transform=transfs)
-    query_data = np.empty((len(query), EMBED_SHAPE))
+    query_data = np.empty((len(query), 52))
 
     color_4_umap = list()
     select_color = ['#8db6f7', '#b98df7', '#f78df2', '#f78da8', '#f7a68d', '#f7e08d',
