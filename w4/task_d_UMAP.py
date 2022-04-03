@@ -20,7 +20,7 @@ if __name__ == '__main__':
     feature_path = Path("./results/retrieval")
     trained_path = Path("./results/jupytest")
 
-    weights_filename = "CONTRASTIVE.pth"
+    weights_filename = "trunk_best3.pth"
 
     EMBED_SHAPE = 32
 
@@ -64,5 +64,5 @@ if __name__ == '__main__':
         ax.scatter(u[:, 0], u[:, 1], u[:, 2], c=color_4_umap)
 
     plt.title('UMAP')
-    plt.savefig("./results/jupytest/siamese_umap3D.png")
+    plt.savefig("./results/jupytest/triplet_umap3D.png")
     print('DONE')

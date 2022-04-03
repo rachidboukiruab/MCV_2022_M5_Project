@@ -21,7 +21,7 @@ if __name__ == '__main__':
     feature_path = Path("./results/retrieval")
     trained_path = Path("./results/jupytest")
 
-    weights_filename = "CONTRASTIVE.pth"
+    weights_filename = "trunk_best3.pth"
 
     EMBED_SHAPE = 32
 
@@ -65,5 +65,5 @@ if __name__ == '__main__':
         ax.scatter(tsne_results[:, 0], tsne_results[:, 1], tsne_results[:, 2], c=color_4_umap)
 
     plt.title('TSNE')
-    plt.savefig("./results/jupytest/tsne_siamese3D.png")
+    plt.savefig("./results/jupytest/tsne_triplet3D.png")
     print('DONE')
