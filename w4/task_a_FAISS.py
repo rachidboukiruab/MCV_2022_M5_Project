@@ -142,7 +142,7 @@ if __name__ == '__main__':
             labels_list_auxz = pred_labels_list[xz][0]
             for xy in range(1,len(labels_list_auxz)):
                 auxxy = labels_list_auxz[xy]
-                cv2.imwrite(f"./results/jupytest/slides/query_{xz}_k{xy}.png", find_in_train[auxxy][0].permute((1, 2, 0)).numpy())
+                plt.imsave(f"./results/jupytest/slides/query_{xz}_k{xy}.png", find_in_train[auxxy][0].permute((1, 2, 0)).numpy())
 
     # EVAL
 
