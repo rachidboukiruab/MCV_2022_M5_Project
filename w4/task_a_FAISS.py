@@ -104,7 +104,7 @@ if __name__ == '__main__':
     model = model[:9]
     index, find_in_train = build_index(model, train_data, d=512)
 
-    k = 4  # we want to see 10 nearest neighbors + the img itself
+    k = 3  # we want to see 10 nearest neighbors + the img itself
     query_data = np.empty((len(test_data), 512))
 
     pred_labels_list = list()
