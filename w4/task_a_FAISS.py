@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     SLIDES = True
 
-    if SLIDES:
+    if False:
 
         for xz in range(len(pred_labels_list)):
             labels_list_auxz = pred_labels_list[xz][0]
