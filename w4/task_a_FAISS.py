@@ -1,17 +1,13 @@
-import os
 from pathlib import Path
+
 import faiss
 import numpy as np
 import torch
-import torchvision
 from matplotlib import pyplot as plt
-from torch import nn
-from torch.utils.data import DataLoader
-from torchvision import transforms, models
+from torchvision import transforms
 from torchvision.datasets import ImageFolder
+
 from models import create_headless_resnet18
-from utils import print_colored, COLOR_WARNING
-from sklearn.metrics import average_precision_score
 
 
 def apk(actual, predicted, k=10):
@@ -146,20 +142,16 @@ if __name__ == '__main__':
 
     for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
         id_nn = pd_labels[0][1:5]  # 1st nn
-        print(id_nn)
+
         aux = list()
         for ll in id_nn:
             aux.append(find_in_train[ll][1])
-        print(aux)
         pd_single.append(aux)
 
     gt_label_list_copy = list()
     for zz in gt_label_list:
         gt_label_list_copy.append([zz])
     gt_label_list = gt_label_list_copy
-
-    print(pd_single[:5])
-    print(gt_label_list[:5])
 
     scores_k1 = mapk(gt_label_list, pd_single, k=1)
     scores_k5 = mapk(gt_label_list, pd_single, k=5)
