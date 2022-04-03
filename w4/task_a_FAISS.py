@@ -153,6 +153,11 @@ if __name__ == '__main__':
         print(aux)
         pd_single.append(aux)
 
+    gt_label_list_copy = list()
+    for zz in gt_label_list:
+        gt_label_list_copy.append([zz])
+    gt_label_list = gt_label_list_copy
+
     print(pd_single[:5])
     print(gt_label_list[:5])
 
