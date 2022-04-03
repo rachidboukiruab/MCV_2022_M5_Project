@@ -49,7 +49,7 @@ if __name__ == '__main__':
     model = model[:9]
     index, find_in_train = build_index(model, train_data, d=512)
 
-    k = 6  # we want to see 10 nearest neighbors + the img itself
+    k = 5  # we want to see 10 nearest neighbors + the img itself
     query_data = np.empty((len(test_data), 512))
 
     pred_labels_list = list()
@@ -97,12 +97,10 @@ if __name__ == '__main__':
     # print(pred_labels_list[0])  # [[  0 202 320 542  64]]
     # print(gt_label_list[0])  # 0
 
-    print(pred_labels_list)
     pd_single = list()
 
     for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
-        id_nn = pd_labels[0][1:5]  # 1st nn
-
+        id_nn = pd_labels[0]  # 1st nn
         aux = list()
         for ll in id_nn:
             aux.append(find_in_train[ll][1])
