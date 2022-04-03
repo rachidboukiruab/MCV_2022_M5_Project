@@ -67,7 +67,7 @@ if __name__ == '__main__':
                 pred_labels_list.append(pred_label)
                 gt_label_list.append(label)
                 metrics_list.append(metrics)
-    PLOT = True
+    PLOT = False
     if PLOT:
         plot_samples = 3
         fig, axs = plt.subplots(plot_samples, k)
