@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     model = create_headless_resnet18(EMBED_SHAPE)
     model = model[:9]
-    index, find_in_train = build_index(model, test_data)
+    index, find_in_train = build_index(model, test_data, d=512)
 
     k = 5  # we want to see 5 nearest neighbors
     query_data = np.empty((len(test_data), 512))
