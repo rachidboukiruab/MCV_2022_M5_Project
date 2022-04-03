@@ -274,8 +274,6 @@ def mAP(actual, predicted):
     """
     ap_list = []
     for i in range(len(actual)):
-        print(actual[i])
-        print( predicted[i])
         ap = AP(actual[i], predicted[i])
         ap_list.append(ap)
     return np.mean(ap_list)
