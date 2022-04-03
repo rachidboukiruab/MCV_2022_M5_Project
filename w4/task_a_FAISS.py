@@ -72,15 +72,6 @@ def mapk(actual, predicted, k=10):
     return np.mean([apk(a, p, k) for a, p in zip(actual, predicted)])
 
 
-def build_net(device, d=64):
-    model = torchvision.models.resnet50(pretrained=True, progress=True)
-    model.eval()
-    model.fc = nn.Linear(in_features=2048, out_features=d)
-    model = model.to(device)
-
-    return model
-
-
 def build_index(model, train_dataset, d=32):
     index = faiss.IndexFlatL2(d)  # build the index
 
