@@ -92,7 +92,7 @@ if __name__ == '__main__':
     print(pred_labels_list[0])
     print(gt_label_list[0])
 
-    for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
+    # for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
 
 
 
