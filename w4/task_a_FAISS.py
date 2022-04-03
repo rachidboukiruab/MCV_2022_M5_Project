@@ -44,12 +44,13 @@ if __name__ == '__main__':
     ])
 
     train_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/train", transform=transfs_t)
-    test_data = ImageFolder("/home/group01/SLIDES-imgs", transform=transfs_t)
+    test_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/test", transform=transfs_t)
 
     model = create_headless_resnet18(EMBED_SHAPE)
     weights_filename = "CONTRASTIVE.pth"
-    model.load_state_dict(torch.load(trained_path / weights_filename))
-    index, find_in_train = build_index(model, train_data, d=512)
+    model = model[:9]
+    # model.load_state_dict(torch.load(trained_path / weights_filename))
+    # index, find_in_train = build_index(model, train_data, d=32)
 
     k = 5  # we want to see 10 nearest neighbors + the img itself
     query_data = np.empty((len(test_data), 512))
