@@ -9,16 +9,6 @@ from utils import mpk, mAP
 feature_path = Path("./results/retrieval")
 os.makedirs(feature_path, exist_ok=True)
 
-'''def compute_mapk(gt,hypo,k_val):
-    apk_list = []
-    for ii,query in enumerate(gt):
-        for jj,sq in enumerate(query):
-            apk_val = 0.0
-            if len(hypo[ii]) > jj:
-                apk_val = apk([sq],hypo[ii][jj], k_val)
-            apk_list.append(apk_val)
-            
-    return np.mean(apk_list)'''
 
 if __name__ == '__main__':
     #Load the features/embeding data obtained from training set
