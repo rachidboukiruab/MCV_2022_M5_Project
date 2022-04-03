@@ -172,7 +172,7 @@ def main(config):
 
     catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
     query_labels = np.asarray([x[1] for x in query_meta])
-    
+
     #Image retrieval:
 
     if config['retrieval_method'] == 'knn':
@@ -224,13 +224,14 @@ def main(config):
             pickle.dump(neighbors,outfile)
             outfile.close()
                 
+            query_labels = [x[1] for x in query_meta]
 
             neighbors_labels = []
             for i in range(len(neighbors)):
                 neighbors_class = [catalogue_meta[j][1] for j in neighbors[i]]
                 neighbors_labels.append(neighbors_class)
 
-            query_labels = [x[1] for x in query_meta]
+            
 
             p_1 = mpk(query_labels,neighbors_labels, 1)
             p_5 = mpk(query_labels,neighbors_labels, 5)
