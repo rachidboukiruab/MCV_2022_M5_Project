@@ -140,9 +140,10 @@ if __name__ == '__main__':
 
         for xz in range(len(pred_labels_list)):
             labels_list_auxz = pred_labels_list[xz][0]
-            for xy in range(1,len(labels_list_auxz+1)):
+            for xy in range(1, len(labels_list_auxz) + 1):
                 auxxy = labels_list_auxz[xy]
-                plt.imsave(f"./results/jupytest/slides/query_{xz}_k{xy}.png", find_in_train[auxxy][0].permute((1, 2, 0)).numpy())
+                plt.imsave(f"./results/jupytest/slides/query_{xz}_k{xy}.png",
+                           find_in_train[auxxy][0].permute((1, 2, 0)).numpy())
 
     # EVAL
 
@@ -163,7 +164,6 @@ if __name__ == '__main__':
     for zz in gt_label_list:
         gt_label_list_copy.append([zz])
     gt_label_list = gt_label_list_copy
-
 
     scores_k1 = mapk(gt_label_list, pd_single, k=1)
     scores_k5 = mapk(gt_label_list, pd_single, k=5)
