@@ -20,7 +20,7 @@ if __name__ == '__main__':
     feature_path = Path("./results/retrieval")
     trained_path = Path("./results/jupytest")
 
-    weights_filename = "weights_1.pth"
+    weights_filename = "model.weights"
 
     EMBED_SHAPE = 64
 
