@@ -87,6 +87,8 @@ def build_index(model, train_dataset, d=32):
 
 if __name__ == '__main__':
 
+    labels_names = ['Open Country', 'Coast', 'Forest', 'Highway', 'Inside City', 'Mountain', 'Street', 'Tall Building']
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     data_path = Path("/home/group01/mcv/datasets/MIT_split/")
@@ -98,7 +100,7 @@ if __name__ == '__main__':
     ])
 
     train_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/train", transform=transfs_t)
-    test_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/test", transform=transfs_t)
+    test_data = ImageFolder("/home/group01/MAP_pc/test", transform=transfs_t)
 
     model = create_headless_resnet18(EMBED_SHAPE)
     model = model[:9]
@@ -112,12 +114,13 @@ if __name__ == '__main__':
     metrics_list = list()
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
-            xq = model(img.unsqueeze(0)).squeeze().numpy()
-            xq = np.float32(xq)
-            metrics, pred_label = index.search(np.array([xq]), k)
-            pred_labels_list.append(pred_label)
-            gt_label_list.append(label)
-            metrics_list.append(metrics)
+            if label == 0:
+                xq = model(img.unsqueeze(0)).squeeze().numpy()
+                xq = np.float32(xq)
+                metrics, pred_label = index.search(np.array([xq]), k)
+                pred_labels_list.append(pred_label)
+                gt_label_list.append(label)
+                metrics_list.append(metrics)
     PLOT = False
     if PLOT:
         plot_samples = 3
@@ -135,7 +138,7 @@ if __name__ == '__main__':
         plt.savefig("./results/jupytest/faiss.png")
 
     SLIDES = False
-    labels_names = ['Open Country', 'Coast', 'Forest', 'Highway', 'Inside City', 'Mountain', 'Street', 'Tall Building']
+
     if SLIDES:
 
         for xz in range(len(pred_labels_list)):
