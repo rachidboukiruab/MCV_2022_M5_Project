@@ -32,7 +32,7 @@ if __name__ == '__main__':
     neighbors = knn.kneighbors(query_data, return_distance=False)
     #print(neighbors)
 
-    outfile = open(feature_path / "KnnL1_results.pkl",'wb')
+    outfile = open(feature_path / "KnnL1_results_new.pkl",'wb')
     pickle.dump(neighbors,outfile)
     outfile.close()
     

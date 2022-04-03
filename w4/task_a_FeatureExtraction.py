@@ -44,6 +44,7 @@ if __name__ == '__main__':
 
     catalogue_data = np.empty((len(catalogue), 512))
     with torch.no_grad():
+        model.eval()
         for ii, (img, _) in enumerate(catalogue):
             catalogue_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy()
 
