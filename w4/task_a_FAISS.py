@@ -57,7 +57,7 @@ if __name__ == '__main__':
     metrics_list = list()
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
-            if label == 0:
+            if label == 1:
                 xq = model(img.unsqueeze(0)).squeeze().numpy()
                 xq = np.float32(xq)
                 metrics, pred_label = index.search(np.array([xq]), k)
@@ -120,7 +120,6 @@ if __name__ == '__main__':
     # for zz in gt_label_list:
     #     gt_label_list_copy.append([zz])
     # gt_label_list = gt_label_list_copy
-
 
     map = mAP(gt_label_list, pd_single)
     print('mAP=', map)
