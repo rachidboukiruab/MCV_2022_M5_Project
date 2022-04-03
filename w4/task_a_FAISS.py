@@ -98,7 +98,7 @@ if __name__ == '__main__':
     ])
 
     train_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/train", transform=transfs_t)
-    test_data = ImageFolder("/home/group01/SLIDES-imgs/dummy_c", transform=transfs_t)
+    test_data = ImageFolder("/home/group01/SLIDES-imgs", transform=transfs_t)
 
     model = create_headless_resnet18(EMBED_SHAPE)
     model = model[:9]
