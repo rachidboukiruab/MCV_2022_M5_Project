@@ -71,6 +71,7 @@ if __name__ == '__main__':
         for ii, (img, label) in enumerate(test_data):
             xq = model(img.unsqueeze(0)).squeeze().numpy()
             xq = np.float32(xq)
+            print(xq.shape)
             pred_label, metrics = index.search(xq, k)
             pred_labels_list.append(pred_label)
             gt_label_list.append(label)
