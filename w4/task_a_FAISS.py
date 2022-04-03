@@ -70,10 +70,11 @@ if __name__ == '__main__':
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
             xq = model(img.unsqueeze(0)).squeeze().numpy()
-            pred_label, metrics = index.search(xq, k)
-            pred_labels_list.append(pred_label)
-            gt_label_list.append(label)
-            metrics_list.append(metrics)
-            print(pred_label)
-            print(metrics)
-            print('--' * 10)
+            out_seach = index.search(xq, k)
+            print(out_seach)
+            # pred_labels_list.append(pred_label)
+            # gt_label_list.append(label)
+            # metrics_list.append(metrics)
+            # print(pred_label)
+            # print(metrics)
+            # print('--' * 10)
