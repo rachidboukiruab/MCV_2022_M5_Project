@@ -45,7 +45,7 @@ if __name__ == '__main__':
     ])
 
     train_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/train", transform=transfs_t)
-    test_data = ImageFolder("/home/group01/SLIDES-imgs", transform=transfs_t)
+    test_data = ImageFolder("/home/group01/mcv/datasets/MIT_split/test", transform=transfs_t)
 
     model = create_headless_resnet18(EMBED_SHAPE)
     model = model[:9]
@@ -60,13 +60,13 @@ if __name__ == '__main__':
     metrics_list = list()
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
-            # if label == 1:
-            xq = model(img.unsqueeze(0)).squeeze().numpy()
-            xq = np.float32(xq)
-            metrics, pred_label = index.search(np.array([xq]), k)
-            pred_labels_list.append(pred_label)
-            gt_label_list.append(label)
-            metrics_list.append(metrics)
+            if label == 1:
+                xq = model(img.unsqueeze(0)).squeeze().numpy()
+                xq = np.float32(xq)
+                metrics, pred_label = index.search(np.array([xq]), k)
+                pred_labels_list.append(pred_label)
+                gt_label_list.append(label)
+                metrics_list.append(metrics)
     PLOT = True
     if PLOT:
         plot_samples = 3
