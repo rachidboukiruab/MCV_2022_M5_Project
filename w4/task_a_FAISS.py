@@ -112,6 +112,8 @@ if __name__ == '__main__':
         gt_label_list_copy.append([zz])
     gt_label_list = gt_label_list_copy
 
+    print(gt_label_list)
+    print(pd_single)
     p_1 = mpk(gt_label_list, pd_single, 1)
     p_5 = mpk(gt_label_list, pd_single, 5)
     print('P@1=', p_1)
