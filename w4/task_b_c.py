@@ -55,7 +55,7 @@ def main(config):
     data_path = Path(config["data_path"])
     output_path = Path(config["out_path"])
     model = create_headless_resnet18(config["embed_size"])
-    #model.load_state_dict(torch.load('/home/aharris/shared/m5/weights_triplet_64_scheduler_hard.pth'))
+    #model.load_state_dict(torch.load('/home/aharris/shared/m5/weights_contrastive_100_scheduler.pth'))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     #summary(model)
@@ -102,7 +102,8 @@ def main(config):
             "metric_loss": losses.TripletMarginLoss(margin=0.1)
         }
         mining_funcs = {
-            "tuple_miner": miners.MultiSimilarityMiner(epsilon=0.1)
+            #"tuple_miner": miners.MultiSimilarityMiner(epsilon=0.1)
+            "tuple_miner" : miners.BatchHardMiner()
         }
 
     record_keeper, _, _ = logging_presets.get_record_keeper(
@@ -219,7 +220,7 @@ def main(config):
             results.append(results_class)
             top10_results.append(top10)
 
-        outfile = open('./results/retrieval/top10_{}_{}_scheduler.pkl'.format(config['loss_type'],config['embed_size']),'wb')
+        outfile = open('./results/retrieval/top10_{}_{}_scheduler_hard.pkl'.format(config['loss_type'],config['embed_size']),'wb')
         pickle.dump(top10_results,outfile)
         outfile.close()
 
@@ -231,9 +232,9 @@ if __name__ == "__main__":
         "out_path": "./results/jupytest/",
         "feature_path" : "./results/retrieval/",
         "retrieval_method" : "knn",
-        "embed_size": 64,
+        "embed_size": 100,
         "batch_size": 128,
-        "loss_type": "triplet"
+        "loss_type": "contrastive"
     }
     logging.getLogger().setLevel(logging.INFO)
     logging.info("VERSION %s" % pytorch_metric_learning.__version__)
