@@ -4,9 +4,10 @@ import faiss
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
+from sklearn.metrics import precision_recall_curve, average_precision_score
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-
+import pickle
 from models import create_headless_resnet18
 
 
@@ -87,7 +88,7 @@ if __name__ == '__main__':
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    data_path = Path("/home/group01/mcv/datasets/MIT_split")
+    data_path = Path("/home/group01/SLIDES-imgs")
     EMBED_SHAPE = 32
 
     transfs_t = transforms.Compose([
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     model = model[:9]
     index, find_in_train = build_index(model, test_data, d=512)
 
-    k = 11  # we want to see 10 nearest neighbors
+    k = 11  # we want to see 10 nearest neighbors + the img itself
     query_data = np.empty((len(test_data), 512))
 
     pred_labels_list = list()
@@ -153,7 +154,24 @@ if __name__ == '__main__':
         gt_label_list_copy.append([zz])
     gt_label_list = gt_label_list_copy
 
+
+    with open('faiss_.pickle', 'wb') as handle:
+        pickle.dump(a, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
     scores_k1 = mapk(gt_label_list, pd_single, k=1)
     scores_k5 = mapk(gt_label_list, pd_single, k=5)
     print("MAP@1: ", scores_k1)
     print("MAP@5: ", scores_k5)
+
+    # # For each class
+    # # prepare data
+    # pred_labels_list = list()
+    # gt_label_list = list()
+    # for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
+    #
+    # precision = dict()
+    # recall = dict()
+    # average_precision = dict()
+    # for i in range(8):
+    #     precision[i], recall[i], _ = precision_recall_curve(Y_test[:, i], y_score[:, i])
+    #     average_precision[i] = average_precision_score(Y_test[:, i], y_score[:, i])
