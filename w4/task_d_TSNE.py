@@ -25,10 +25,10 @@ if __name__ == '__main__':
 
     EMBED_SHAPE = 32
 
-    # model = create_headless_resnet18(EMBED_SHAPE)
-    # # LOAD PRE_TRAINED WEIGHTS
-    # model.load_state_dict(torch.load(trained_path / weights_filename))
-    model = torch.load(trained_path / weights_filename)
+    model = create_headless_resnet18(EMBED_SHAPE)
+    # LOAD PRE_TRAINED WEIGHTS
+    model.load_state_dict(torch.load(trained_path / weights_filename))
+
 
     transfs = transforms.Compose([
         transforms.ToTensor(),
