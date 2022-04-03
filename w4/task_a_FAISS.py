@@ -130,7 +130,8 @@ if __name__ == '__main__':
         for row in range(plot_samples):
             axs[row, 0].imshow(test_data[row][0].permute((1, 2, 0)).numpy())  # plots query img
             for column in range(1, k):
-                axs[row, column].imshow(find_in_train[pred_labels_list[row][0][column]][0].permute((1, 2, 0)).numpy())
+                img_aux = find_in_train[pred_labels_list[row][0][column]][0].permute((1, 2, 0))
+                axs[row, column].imshow(img_aux.numpy())
                 print(f"for img {row}, nn id: {pred_labels_list[row][0][column]}")
 
         plt.title(f'{k} nearest imgs for firts {plot_samples}-th images (FAISS)')
@@ -145,7 +146,6 @@ if __name__ == '__main__':
 
     for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
         id_nn = pd_labels[0][1:5]  # 1st nn
-        print(find_in_train)
         pd_single.append(find_in_train[id_nn][1])
 
     print(pd_single[:5])
