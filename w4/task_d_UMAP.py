@@ -62,5 +62,7 @@ if __name__ == '__main__':
     if n_components == 3:
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(u[:, 0], u[:, 1], u[:, 2], c=color_4_umap)
+
     plt.title('UMAP')
     plt.savefig("./results/jupytest/siamese_umap3D.png")
+    print('DONE')
