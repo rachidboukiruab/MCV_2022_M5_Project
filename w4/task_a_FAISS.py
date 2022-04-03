@@ -11,7 +11,7 @@ from torchvision.datasets import ImageFolder
 import pickle
 from models import create_headless_resnet18
 from utils import mpk, mAP
-
+import time
 
 def build_index(model, train_dataset, d=32):
     index = faiss.IndexFlatL2(d)  # build the index
@@ -58,15 +58,19 @@ if __name__ == '__main__':
     pred_labels_list = list()
     gt_label_list = list()
     metrics_list = list()
+    time_list = []
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
-            if label == 7:
-                xq = model(img.unsqueeze(0)).squeeze().numpy()
-                xq = np.float32(xq)
-                metrics, pred_label = index.search(np.array([xq]), k)
-                pred_labels_list.append(pred_label)
-                gt_label_list.append(label)
-                metrics_list.append(metrics)
+            # if label == 7:
+            xq = model(img.unsqueeze(0)).squeeze().numpy()
+            xq = np.float32(xq)
+            start = time.time()
+            metrics, pred_label = index.search(np.array([xq]), k)
+            end = time.time()
+            time_list.append(end - start)
+            pred_labels_list.append(pred_label)
+            gt_label_list.append(label)
+            metrics_list.append(metrics)
     PLOT = False
     if PLOT:
         plot_samples = 3
@@ -126,4 +130,6 @@ if __name__ == '__main__':
 
     map = mAP(gt_label_list, pd_single)
     print('mAP={:.3f}'.format(map*100))
+    time_list = np.asarray(time_list)
+    print(f"FAISS mean TIME{np.mean(time_list)}")
 
