@@ -66,7 +66,6 @@ if __name__ == '__main__':
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
             xq = model(img.unsqueeze(0)).squeeze().numpy()
-            print(xq.shape)
             xq = np.float32(xq)
             metrics, pred_label = index.search(np.array([xq]), k)
             pred_labels_list.append(pred_label)
