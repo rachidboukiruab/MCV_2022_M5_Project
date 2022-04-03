@@ -165,9 +165,6 @@ if __name__ == '__main__':
     gt_label_list = gt_label_list_copy
 
 
-    with open('faiss_.pickle', 'wb') as handle:
-        pickle.dump(a, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
     scores_k1 = mapk(gt_label_list, pd_single, k=1)
     scores_k5 = mapk(gt_label_list, pd_single, k=5)
     print("MAP@1: ", scores_k1)
