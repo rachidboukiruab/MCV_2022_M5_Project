@@ -110,13 +110,22 @@ if __name__ == '__main__':
     # for zz in gt_label_list:
     #     gt_label_list_copy.append([zz])
     # gt_label_list = gt_label_list_copy
-    print(pred_labels_list)
-    print(gt_label_list)
-    print(pd_single)
     p_1 = mpk(gt_label_list, pd_single, 1)
     p_5 = mpk(gt_label_list, pd_single, 5)
     print('P@1=', p_1)
     print('P@5=', p_5)
+
+    pd_single = list()
+
+    for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
+        id_nn = pd_labels[0][0]  # 1st nn
+        aux = list()
+        for ll in id_nn:
+            aux.append(find_in_train[ll][1])
+        pd_single.append(aux)
+
+    print(gt_label_list)
+    print(pd_single)
 
     map = mAP(gt_label_list, pd_single)
     print('mAP=', map)
