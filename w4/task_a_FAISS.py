@@ -18,9 +18,11 @@ def build_index(model, train_dataset, d=32):
 
     xb = np.empty((len(train_dataset), d))
     find_in_train = dict()
-    for ii, (data, label) in enumerate(train_dataset):
-        find_in_train[ii] = (data, label)
-        xb[ii, :] = model(data.unsqueeze(0)).squeeze().detach().numpy()
+    with torch.no_grad():
+        model.eval()
+        for ii, (data, label) in enumerate(train_dataset):
+            find_in_train[ii] = (data, label)
+            xb[ii, :] = model(data.unsqueeze(0)).squeeze().detach().numpy()
 
     xb = np.float32(xb)
     index.add(xb)  # add vectors to the index
