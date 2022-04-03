@@ -64,5 +64,5 @@ if __name__ == '__main__':
         ax.scatter(u[:, 0], u[:, 1], u[:, 2], c=color_4_umap)
 
     plt.title('UMAP')
-    plt.savefig("./results/jupytest/triplet_umap3D.png")
+    plt.savefig("./results/jupytest/triplet_umap.png")
     print('DONE')
