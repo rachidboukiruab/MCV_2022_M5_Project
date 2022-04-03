@@ -252,8 +252,7 @@ def AP(actual, predicted):
             b = 0
         c = a*b
         ap += c
-    if gtp == 0:
-        return -1
+
     return ap/gtp
 
 def mAP(actual, predicted):
