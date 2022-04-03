@@ -80,7 +80,7 @@ if __name__ == '__main__':
         plt.title(f'{k} nearest imgs for firts {plot_samples}-th images (FAISS)')
         plt.savefig("./results/jupytest/faiss.png")
 
-    SLIDES = False
+    SLIDES = True
 
     if SLIDES:
 
