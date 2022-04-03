@@ -110,15 +110,16 @@ if __name__ == '__main__':
     # for zz in gt_label_list:
     #     gt_label_list_copy.append([zz])
     # gt_label_list = gt_label_list_copy
+
     p_1 = mpk(gt_label_list, pd_single, 1)
     p_5 = mpk(gt_label_list, pd_single, 5)
     print('P@1=', p_1)
     print('P@5=', p_5)
 
-    gt_label_list_copy = list()
-    for zz in gt_label_list:
-        gt_label_list_copy.append([zz] * k)
-    gt_label_list = gt_label_list_copy
+    # gt_label_list_copy = list()
+    # for zz in gt_label_list:
+    #     gt_label_list_copy.append([zz] * k)
+    # gt_label_list = gt_label_list_copy
 
     print(gt_label_list)
     print(pd_single)
