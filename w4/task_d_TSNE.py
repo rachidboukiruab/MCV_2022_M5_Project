@@ -29,7 +29,6 @@ if __name__ == '__main__':
     # LOAD PRE_TRAINED WEIGHTS
     model.load_state_dict(torch.load(trained_path / weights_filename))
 
-
     transfs = transforms.Compose([
         transforms.ToTensor(),
         transforms.Resize((224, 224)),
