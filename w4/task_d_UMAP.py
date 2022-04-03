@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     weights_filename = "model.weights"
 
-    EMBED_SHAPE = 64
+    EMBED_SHAPE = 52
 
     model = create_headless_resnet18(EMBED_SHAPE)
     # LOAD PRE_TRAINED WEIGHTS
