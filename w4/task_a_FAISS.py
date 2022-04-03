@@ -60,7 +60,7 @@ if __name__ == '__main__':
     metrics_list = list()
     with torch.no_grad():
         for ii, (img, label) in enumerate(test_data):
-            if label == 3:
+            if label == 4:
                 xq = model(img.unsqueeze(0)).squeeze().numpy()
                 xq = np.float32(xq)
                 metrics, pred_label = index.search(np.array([xq]), k)
@@ -116,8 +116,8 @@ if __name__ == '__main__':
 
     p_1 = mpk(gt_label_list, pd_single, 1)
     p_5 = mpk(gt_label_list, pd_single, 5)
-    print('P@1=', p_1)
-    print('P@5=', p_5)
+    print('P@1={:.2f}'.format(p_1*100))
+    print('P@5={:.2f}'.format(p_1*100))
 
     # gt_label_list_copy = list()
     # for zz in gt_label_list:
@@ -125,5 +125,5 @@ if __name__ == '__main__':
     # gt_label_list = gt_label_list_copy
 
     map = mAP(gt_label_list, pd_single)
-    print('mAP=', map)
+    print('mAP={:.2f}'.format(map*100))
 
