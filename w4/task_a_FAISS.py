@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+from ml_metrics import mapk
 import faiss
 import numpy as np
 import torch
@@ -105,5 +105,7 @@ if __name__ == '__main__':
     print(pd_single[:5])
     print(gt_label[:5])
 
-    scores = average_precision_score(gt_label, pd_single)
-    print("Average precision: ", scores)
+    scores_k1 = mapk(gt_label, pd_single, k=1)
+    scores_k5 = mapk(gt_label, pd_single, k=5)
+    print("MAP@k=1: ", scores_k1)
+    print("MAP@k=5: ", scores_k5)
