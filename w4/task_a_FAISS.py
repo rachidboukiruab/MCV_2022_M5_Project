@@ -5,6 +5,7 @@ import faiss
 import numpy as np
 import torch
 import torchvision
+from matplotlib import pyplot as plt
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import transforms, models
@@ -26,21 +27,15 @@ def build_index(model, train_dataset, d=32):
     index = faiss.IndexFlatL2(d)  # build the index
 
     xb = np.empty((len(train_dataset), d))
+    find_in_train = dict()
     for ii, (data, label) in enumerate(train_dataset):
         xb[ii, :] = model(data.unsqueeze(0)).squeeze().detach().numpy()
+        find_in_train[ii] = (data, label)
 
     xb = np.float32(xb)
-    print(xb.shape)
     index.add(xb)  # add vectors to the index
 
-    # SANITY TODO: remove this after debugging
-    D, I = index.search(xb[:5], 4)  # sanity check
-    print(
-        "As a sanity check, we can first search a few database vectors, to make sure the nearest neighbor is indeed the vector itself.")
-    print(I)
-    print(D)
-
-    return index
+    return index, find_in_train
 
 
 if __name__ == '__main__':
@@ -59,7 +54,7 @@ if __name__ == '__main__':
     test_data = ImageFolder(str(data_path / "test"), transform=transfs_t)
 
     model = create_headless_resnet18(EMBED_SHAPE)
-    index = build_index(model, test_data)
+    index, find_in_train = build_index(model, test_data)
 
     k = 5  # we want to see 5 nearest neighbors
     query_data = np.empty((len(test_data), EMBED_SHAPE))
@@ -71,10 +66,18 @@ if __name__ == '__main__':
         for ii, (img, label) in enumerate(test_data):
             xq = model(img.unsqueeze(0)).squeeze().numpy()
             xq = np.float32(xq)
-            pred_label, metrics = index.search(np.array([xq]), k)
+            metrics, pred_label = index.search(np.array([xq]), k)
             pred_labels_list.append(pred_label)
             gt_label_list.append(label)
             metrics_list.append(metrics)
-            print(pred_label)
-            print(metrics)
-            print('--' * 10)
+
+    plot_samples = 10
+    fig, axs = plt.subplots(plot_samples, k)
+
+    for row in range(k + 1):
+        axs[row, 0].imshow(test_data[row][0])  # plots query img
+        for column in range(1, k):
+            axs[row, column].imshow(find_in_train[pred_labels_list[row][0][column]][0])
+
+    plt.title(f'{k} nearest imgs for firts {plot_samples}-th images (FAISS)')
+    plt.savefig("./results/jupytest/faiss.png")
