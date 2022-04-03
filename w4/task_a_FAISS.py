@@ -146,6 +146,7 @@ if __name__ == '__main__':
 
     for jj, (pd_labels, gt_labs) in enumerate(zip(pred_labels_list, gt_label_list)):
         id_nn = pd_labels[0][1:5]  # 1st nn
+        print(id_nn)
         pd_single.append(find_in_train[id_nn][1])
 
     print(pd_single[:5])
