@@ -116,10 +116,10 @@ if __name__ == '__main__':
     print('P@1=', p_1)
     print('P@5=', p_5)
 
-    # gt_label_list_copy = list()
-    # for zz in gt_label_list:
-    #     gt_label_list_copy.append([zz] * k)
-    # gt_label_list = gt_label_list_copy
+    gt_label_list_copy = list()
+    for zz in gt_label_list:
+        gt_label_list_copy.append([zz])
+    gt_label_list = gt_label_list_copy
 
     print(gt_label_list)
     print(pd_single)
