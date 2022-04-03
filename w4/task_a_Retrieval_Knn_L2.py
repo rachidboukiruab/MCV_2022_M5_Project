@@ -27,7 +27,7 @@ if __name__ == '__main__':
     catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
     query_labels = np.asarray([x[1] for x in query_meta])
 
-    knn = KNeighborsClassifier(n_neighbors=len(catalogue_labels), metric = "euclidean")
+    knn = KNeighborsClassifier(n_neighbors=5, metric = "euclidean")
     knn = knn.fit(catalogue_data, catalogue_labels)
     neighbors = knn.kneighbors(query_data)[1]
     #print(neighbors)
