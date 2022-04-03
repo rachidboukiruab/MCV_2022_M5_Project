@@ -27,12 +27,12 @@ if __name__ == '__main__':
     catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
     query_labels = np.asarray([x[1] for x in query_meta])
 
-    knn = KNeighborsClassifier(n_neighbors=len(catalogue_labels))
+    knn = KNeighborsClassifier(n_neighbors=len(catalogue_labels), metric = "manhattan")
     knn = knn.fit(catalogue_data, catalogue_labels)
-    neighbors = knn.kneighbors(query_data)[1]
+    neighbors = knn.kneighbors(query_data, return_distance=False)
     #print(neighbors)
 
-    outfile = open(feature_path / "Knn_results.pkl",'wb')
+    outfile = open(feature_path / "KnnL1_results.pkl",'wb')
     pickle.dump(neighbors,outfile)
     outfile.close()
     

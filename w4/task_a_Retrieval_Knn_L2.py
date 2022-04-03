@@ -1,11 +1,11 @@
 import pickle
 from pathlib import Path
 import numpy as np
-from utils import mpk, mAP
-import torch
+from sklearn.neighbors import KNeighborsClassifier
 import os
+from utils import mpk, mAP
 
-data_path = Path("/home/group01/mcv/datasets/MIT_split")
+#data_path = Path("/home/group01/mcv/datasets/MIT_split")
 feature_path = Path("./results/retrieval")
 os.makedirs(feature_path, exist_ok=True)
 
@@ -27,29 +27,15 @@ if __name__ == '__main__':
     catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
     query_labels = np.asarray([x[1] for x in query_meta])
 
-    neighbors = []
-    score = {}
-    print("Searching...")
-    for i in range(len(query_data)):
-        query_img = query_meta[i]
-        query_feature = query_data[i]
-        query_feature = np.array(query_feature)
-        query_feature = torch.from_numpy(query_feature)
-        for j in range(len(catalogue_data)):
-            catalogue_feature = catalogue_data[j]
-            catalogue_feature = np.array(catalogue_feature)
-            catalogue_feature = torch.from_numpy(catalogue_feature)
-            output = torch.dist(catalogue_feature, query_feature, p=1)
-            score[j] = abs(output)
-        print("Search Finished")
-        sorted_imgs = sorted(score, key=score.get, reverse=False)
-        neighbors.append(sorted_imgs)
-    
-    outfile = open(feature_path / "NN_results.pkl",'wb')
+    knn = KNeighborsClassifier(n_neighbors=len(catalogue_labels), metric = "euclidean")
+    knn = knn.fit(catalogue_data, catalogue_labels)
+    neighbors = knn.kneighbors(query_data)[1]
+    #print(neighbors)
+
+    outfile = open(feature_path / "KnnL2_results.pkl",'wb')
     pickle.dump(neighbors,outfile)
     outfile.close()
-        
-
+    
     neighbors_labels = []
     for i in range(len(neighbors)):
         neighbors_class = [catalogue_meta[j][1] for j in neighbors[i]]
