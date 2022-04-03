@@ -149,7 +149,7 @@ if __name__ == '__main__':
         print(id_nn)
         aux = list()
         for ll in id_nn:
-            aux.append(find_in_train[ll])
+            aux.append(find_in_train[ll][1])
         print(aux)
         pd_single.append(aux)
 
