@@ -103,4 +103,4 @@ if __name__ == '__main__':
     gt_label = np.array(gt_label_list)
 
     scores = average_precision_score(gt_label, pd_single)
-    print("Average precission: ",scores)
+    print("Average precision: ", scores)
