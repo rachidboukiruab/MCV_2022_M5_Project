@@ -102,7 +102,7 @@ if __name__ == '__main__':
     model = model[:9]
     index, find_in_train = build_index(model, test_data, d=512)
 
-    k = 10  # we want to see 5 nearest neighbors
+    k = 11  # we want to see 10 nearest neighbors
     query_data = np.empty((len(test_data), 512))
 
     pred_labels_list = list()
