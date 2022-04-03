@@ -50,7 +50,7 @@ if __name__ == '__main__':
     weights_filename = "CONTRASTIVE.pth"
     model = model[:9]
     # model.load_state_dict(torch.load(trained_path / weights_filename))
-    index, find_in_train = build_index(model, train_data, d=32)
+    index, find_in_train = build_index(model, train_data, d=512)
 
     k = 5  # we want to see 10 nearest neighbors + the img itself
     query_data = np.empty((len(test_data), 512))
