@@ -52,11 +52,12 @@ def visualizer_hook(umapper, umap_embeddings, labels, split_name, keyname, *args
     plt.show() 
 
 
+
 def main(config):
     data_path = Path(config["data_path"])
     output_path = Path(config["out_path"])
     model = create_headless_resnet18(config["embed_size"])
-    model.load_state_dict(torch.load('/home/aharris/shared/m5/trunk_best3.pth'))
+    model.load_state_dict(torch.load('/home/aharris/shared/m5/CONTRASTIVE.pth'))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     #summary(model)
@@ -87,9 +88,9 @@ def main(config):
         batch_size=config["batch_size"],
         length_before_new_iter=len(dataset),
     )
-    #optimizer = optim.Adam(model.parameters(), 3E-4)
+    optimizer = optim.Adam(model.parameters(), 3E-4)
 
-    #model = model.to(device)
+    model = model.to(device)
 
     if config["loss_type"] == "contrastive":
         loss_funcs = {
@@ -133,7 +134,7 @@ def main(config):
         tester, dataset_dict, model_folder, test_interval=10, patience=1
     )
 
-    """ metric_trainer = trainers.MetricLossOnly(
+    metric_trainer = trainers.MetricLossOnly(
         models={"trunk": model},
         optimizers={"trunk_optimizer": optimizer},
         batch_size=config["batch_size"],
@@ -146,100 +147,65 @@ def main(config):
         end_of_iteration_hook=hooks.end_of_iteration_hook,
         end_of_epoch_hook=end_of_epoch_hook,
     )
-    metric_trainer.train(1, 100)   """ 
+    metric_trainer.train(1, 100)   
     #torch.save(model.state_dict(), '{}/weights_{}.pth'.format(config['out_path'], config['loss_type'])) 
     
     #sys.exit()
     #feature extraction (embeddings):
     catalogue_meta = [(x[0].split('/')[-1], x[1]) for x in dataset.imgs]
     query_meta = [(x[0].split('/')[-1], x[1]) for x in test_dataset.imgs]
-    
+
+
     catalogue_data = np.empty((len(dataset), config['embed_size']))
     with torch.no_grad():
+        model.eval()
         for ii, (img, _) in enumerate(dataset):
+            
             catalogue_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy() 
 
-    """ with open("{}_catalogue_{}_{}.npy".format(config['feature_path'],config['loss_type'], config['embed_size']), "wb") as f:
-        np.save(f, catalogue_data) """
+    with open("{}_catalogue_{}_{}.npy".format(config['feature_path'],config['loss_type'], config['embed_size']), "wb") as f:
+        np.save(f, catalogue_data) 
 
     query_data = np.empty((len(test_dataset), config['embed_size']))
+    
     with torch.no_grad():
+        model.eval()
         for ii, (img, _) in enumerate(test_dataset):
             query_data[ii, :] = model(img.unsqueeze(0)).squeeze().numpy() 
 
-    """ with open("{}_query_{}_{}.npy".format(config['feature_path'],config['loss_type'], config['embed_size']), "wb") as f:
-        np.save(f, query_data) """
+    with open("{}_query_{}_{}.npy".format(config['feature_path'],config['loss_type'], config['embed_size']), "wb") as f:
+        np.save(f, query_data) 
+
 
     catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
     query_labels = np.asarray([x[1] for x in query_meta])
 
     #Image retrieval:
-
-    if config['retrieval_method'] == 'knn':
         
-        knn = KNeighborsClassifier(n_neighbors=len(catalogue_labels))
-        knn = knn.fit(catalogue_data, catalogue_labels)
-        neighbors = knn.kneighbors(query_data)[1]
-        #print(neighbors)
-        
-        neighbors_labels = []
-        for i in range(len(neighbors)):
-            neighbors_class = [catalogue_meta[j][1] for j in neighbors[i]]
-            neighbors_labels.append(neighbors_class)
+    knn = KNeighborsClassifier(n_neighbors=len(catalogue_labels),p=1)
+    knn = knn.fit(catalogue_data, catalogue_labels)
+    neighbors = knn.kneighbors(query_data)[1]
+    #print(neighbors)
+    
+    neighbors_labels = []
+    for i in range(len(neighbors)):
+        neighbors_class = [catalogue_meta[j][1] for j in neighbors[i]]
+        neighbors_labels.append(neighbors_class)
 
-        query_labels = [x[1] for x in query_meta]
+    query_labels = [x[1] for x in query_meta]
 
-        p_1 = mpk(query_labels,neighbors_labels, 1)
-        p_5 = mpk(query_labels,neighbors_labels, 5)
-        print('P@1=',p_1)
-        print('P@5=',p_5)
+    p_1 = mpk(query_labels,neighbors_labels, 1)
+    p_5 = mpk(query_labels,neighbors_labels, 5)
+    print('P@1=',p_1)
+    print('P@5=',p_5)
 
-        map = mAP(query_labels,neighbors_labels)
-        print('mAP=',map)
-        with open('./results/retrieval/trunk_knn_{}_{}.pkl'.format(config['loss_type'], config['embed_size']),'wb') as handle:
-            pickle.dump(neighbors,handle, protocol=pickle.HIGHEST_PROTOCOL)
+    map = mAP(query_labels,neighbors_labels)
+    print('mAP=',map)
+    with open('./results/retrieval/knn_{}_L1.pkl'.format(config['loss_type'], config['embed_size']),'wb') as handle:
+        pickle.dump(neighbors,handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-    else: #NN 
-
-        neighbors = []
-        score = {}
-        print("Searching...")
-        for i in range(len(query_data)):
-            query_img = query_meta[i]
-            query_feature = query_data[i]
-            query_feature = np.array(query_feature)
-            query_feature = torch.from_numpy(query_feature)
-            for j in range(len(catalogue_data)):
-                catalogue_feature = catalogue_data[j]
-                catalogue_feature = np.array(catalogue_feature)
-                catalogue_feature = torch.from_numpy(catalogue_feature)
-                output = torch.dist(catalogue_feature, query_feature, p=1)
-                score[j] = abs(output)
-            print("Search Finished")
-            sorted_imgs = sorted(score, key=score.get, reverse=False)
-            neighbors.append(sorted_imgs)
-
-            outfile = open('./results/retrieval/trunk_NN_{}_{}.pkl'.format(config['loss_type'],config['embed_size']),'wb')
-            pickle.dump(neighbors,outfile)
-            outfile.close()
-                
-            query_labels = [x[1] for x in query_meta]
-
-            neighbors_labels = []
-            for i in range(len(neighbors)):
-                neighbors_class = [catalogue_meta[j][1] for j in neighbors[i]]
-                neighbors_labels.append(neighbors_class)
-
-            
-
-            p_1 = mpk(query_labels,neighbors_labels, 1)
-            p_5 = mpk(query_labels,neighbors_labels, 5)
-            print('P@1=',p_1)
-            print('P@5=',p_5)
-
-            map = mAP(query_labels,neighbors_labels)
-            print('mAP=',map)
+   
 
 
 if __name__ == "__main__":
@@ -247,10 +213,9 @@ if __name__ == "__main__":
         "data_path": "MIT",
         "out_path": "./results/jupytest/",
         "feature_path" : "./results/retrieval/",
-        "retrieval_method" : "nn",
         "embed_size": 32,
         "batch_size": 64,
-        "loss_type": "triplet",
+        "loss_type": "CONTRASTIVE",
     }
     logging.getLogger().setLevel(logging.INFO)
     logging.info("VERSION %s" % pytorch_metric_learning.__version__)
