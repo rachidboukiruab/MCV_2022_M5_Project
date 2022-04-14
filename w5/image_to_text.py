@@ -18,9 +18,16 @@ def main(config):
     catalogue_meta = [(train[i]['filename'],train[i]['sentids']) for i in range(len(train))]
     query_meta = [(test[i]['filename'],test[i]['sentids']) for i in range(len(test))]
 
-    catalogue_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
-   
-    query_data = loadmat(f'{data_path}/vgg_feats.mat')
+    if config['type'] == 'image2text':
+
+        catalogue_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
+    
+        query_data = loadmat(f'{data_path}/vgg_feats.mat')
+
+    else:
+        quey_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
+    
+        catalogue_data = loadmat(f'{data_path}/vgg_feats.mat')
 
     ############REVISAR RETRIEVAL (5 POSIBLES SENTENCES)
     catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
@@ -56,5 +63,6 @@ if __name__ == "__main__":
     config = {
         "data_path": "/home/aharris/shared/m5/Flickr30k",
         "out_path": "./results/",
+        "type": "image2text"
     }
     main(config)
