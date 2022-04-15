@@ -24,7 +24,7 @@ class Triplet(nn.Module):
     
     def forward(self, x1,x2,x3):
         out1 = self.image_model(x1)
-        out2 = self.image_model(x2)
-        out3 = self.image_model(x3)
+        out2 = self.text_model(x2)
+        out3 = self.text_model(x3)
         return out1, out2, out3
     

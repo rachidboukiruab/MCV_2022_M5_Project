@@ -77,22 +77,13 @@ def main(config):
     # summary(model)
 
     transfs = transforms.Compose([
-        transforms.ColorJitter(brightness=.3, hue=.3),
-        transforms.RandomResizedCrop(256, (0.15, 1.0)),
-        transforms.RandomRotation(degrees=30),
-        transforms.RandomHorizontalFlip(p=0.5),
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-    test_transfs = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
     dataset = ImageFolder(str(data_path / "train"), transform=transfs)
-    test_dataset = ImageFolder(str(data_path / "test"), transform=test_transfs)
+    test_dataset = ImageFolder(str(data_path / "test"), transform=transfs)
 
     data_labels = [x for _, x in dataset.samples]
 
