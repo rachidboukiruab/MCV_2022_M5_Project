@@ -22,23 +22,24 @@ def main(config):
     query_meta = [(test[i]['filename'],test[i]['sentids']) for i in range(len(test))]
 
     if config['type'] == 'image2text':
-
-        catalogue_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
+        #EMBEDDINGS
+        """ catalogue_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
 
         catalogue_data = [catalogue_data[i][:] for i in (train_img)]
     
         query_data = loadmat(f'{data_path}/vgg_feats.mat')
 
-        query_data = [query_data[:][i] for i in (test_img)]
+        query_data = [query_data[:][i] for i in (test_img)] """
 
     else:
-        quey_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
+        #EMBEDDINGS
+        """ query_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
 
         query_data = [query_data[i][:] for i in (test_img)]        
     
         catalogue_data = loadmat(f'{data_path}/vgg_feats.mat')
 
-        catalogue_data = [catalogue_data[:][i] for i in (train_img)]
+        catalogue_data = [catalogue_data[:][i] for i in (train_img)] """
 
     ############REVISAR RETRIEVAL (5 POSIBLES SENTENCES)
     catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
