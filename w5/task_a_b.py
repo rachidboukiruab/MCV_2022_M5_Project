@@ -49,16 +49,26 @@ from models import Triplet
         plt.plot(umap_embeddings[idx, 0], umap_embeddings[idx, 1], ".", markersize=1)
     plt.show() """
 
+def mean_words(text_data):
+    img_texts = []
+    for i in range(len(text_data)):
+        #query_data[i] = dat
+        sentences = []
+        for sent in text_data[i]:
+            sentences.append(np.mean(sent, axis=0))
+        img_texts.append(sentences)
+    return np.asarray(img_texts)
 
 def main(config):
     data_path = Path(config["data_path"])
     output_path = Path(config["out_path"])
 
-    img_features = loadmat(f'{data_path}/vgg_feats.mat')
+    img_features = loadmat(f'{data_path}/vgg_feats.mat')['feats']
     txt_features = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
+    txt_features = mean_words(txt_features)
 
-    img_dimensions = np.asarray(img_features).shape
-    txt_dimensions = txt_features.shape
+    img_dimensions = np.asarray(img_features).shape # (4096, 31014) -> (features, images)
+    txt_dimensions = txt_features.shape # (31014, 5, 300) -> (images, sentences, features)
     
     model = Triplet(img_dimensions[0], txt_dimensions[2],config["embed_size"])
     #model.load_state_dict(torch.load('/home/aharris/shared/m5/CONTRASTIVE.pth'))
