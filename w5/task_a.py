@@ -28,8 +28,16 @@ from torchvision import transforms, models
 from torchvision.datasets import ImageFolder
 
 
-from models import Triplet
+from models import TripletLossModel
 from dataset import flickrDataset, TripletFlickrDatasetImgToTxt
+
+def decay_learning_rate(init_lr, optimizer, epoch):
+    """
+    decay learning late every 4 epoch
+    """
+    lr = init_lr * (0.1 ** (epoch // 4))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
 
 def mean_words(text_data):
     img_texts = []
@@ -56,25 +64,43 @@ def main(config):
                               batch_size=config["batch_size"],
                               shuffle=True)
 
+
+    # Triplet loss
     img_dimensions = np.asarray(img_features).shape # (31014, 4096) -> (features, images)
     txt_dimensions = txt_features.shape # (31014, 5, 300) -> (images, sentences, features)
     
-    model = Triplet(img_dimensions[0], txt_dimensions[2],config["embed_size"])
+    init_lr = 3E-4
+    optimizer = optim.Adam(model.parameters(), init_lr)
+    loss_func = losses.TripletMarginLoss(margin=0.1)
+
+    model = TripletLossModel(img_dimensions[0], 
+                    txt_dimensions[2],
+                    config["embed_size"],
+                    optimizer,
+                    loss_func)
     #model.load_state_dict(torch.load('/home/aharris/shared/m5/CONTRASTIVE.pth'))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # summary(model)
 
-    optimizer = optim.Adam(model.parameters(), 3E-4)
-
     model = model.to(device)
-    
-    # Triplet loss
-    loss_funcs = losses.TripletMarginLoss(margin=0.1)
-    mining_funcs = miners.BatchHardMiner()
 
     model_folder = str(output_path / "models")
 
+    model.train_start()
+    for epoch in range(12):
+        decay_learning_rate(init_lr, model.optimizer, epoch)
+
+        for i_batch, batch in enumerate(train_loader):
+            image_triple, caption_triple = batch
+            if device == "cuda":
+                image_triple = image_triple.cuda()
+                caption_triple = caption_triple.cuda()
+
+            loss = model.forward(image_triple, caption_triple)
+            print(f'epoch: {epoch}\titeration: {i_batch}\tLoss: {loss}')
+
+    torch.save(model.state_dict(), '{0}/Image2Text.model'.format(model_folder))
 
 
 if __name__ == "__main__":

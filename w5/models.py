@@ -27,4 +27,60 @@ class Triplet(nn.Module):
         out2 = self.text_model(x2)
         out3 = self.text_model(x3)
         return out1, out2, out3
+
+class TripletLossModel(nn.Module):
+    def __init__(self, dim1, dim2, embed_size, optimizer, loss_func):
+        super(TripletLossModel).__init__()
+        self.image_encoder = EmbeddingLayer(dim1,embed_size)
+        self.text_encoder = EmbeddingLayer(dim2,embed_size)
+        self.optimizer = optimizer
+        self.loss_func = loss_func
+    
+    def cuda(self):
+        """switch cuda
+        """
+        self.image_encoder.cuda()
+        self.text_encoder.cuda()
+
+    def cpu(self):
+        """switch cpu
+        """
+        self.image_encoder.cpu()
+        self.text_encoder.cpu()
+
+    def state_dict(self):
+        state_dict = [self.image_encoder.state_dict(), self.text_encoder.state_dict()]
+        return state_dict
+    
+    def load_state_dict(self, state_dict):
+        self.image_encoder.load_state_dict(state_dict[0])
+        self.text_encoder.load_state_dict(state_dict[1])
+    
+    def train_start(self):
+        """switch to train mode
+        """
+        self.image_encoder.train()
+        self.text_encoder.train()
+    
+    def val_start(self):
+        """switch to evaluate mode
+        """
+        self.image_encoder.eval()
+        self.text_encoder.eval()
+    
+    def forward(self, image_triple):
+        image, pos_cap, neg_cap = image_triple.get_batch()
+        image_encoded = self.image_encoder(image)
+        pos_text_encoded = self.text_encoder(pos_cap[0], pos_cap[1])
+        neg_text_encoded = self.text_encoder(neg_cap[0], neg_cap[1])
+        loss = self.loss_func(image_encoded, pos_text_encoded, neg_text_encoded)
+        
+        # measure accuracy and record loss
+        self.optimizer.zero_grad()
+
+        # compute gradient and do SGD step
+        loss.backward()
+        self.optimizer.step()
+
+        return loss.item()
     
