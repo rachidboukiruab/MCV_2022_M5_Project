@@ -27,9 +27,10 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms, models
 from torchvision.datasets import ImageFolder
 
-
+import os
 from models import TripletLossModel
 from dataset import flickrDataset, TripletFlickrDatasetImgToTxt
+from utils import collate_triplet_wrapper
 
 def decay_learning_rate(init_lr, optimizer, epoch):
     """
@@ -51,6 +52,7 @@ def mean_words(text_data):
 def main(config):
     data_path = Path(config["data_path"])
     output_path = Path(config["out_path"])
+    os.makedirs(output_path, exist_ok=True)
 
     img_features = loadmat(f'{data_path}/vgg_feats.mat')['feats']
     img_features = np.transpose(img_features)
@@ -62,7 +64,8 @@ def main(config):
 
     train_loader = DataLoader(triplet_train_data,
                               batch_size=config["batch_size"],
-                              shuffle=True)
+                              shuffle=True,
+                              collate_fn=collate_triplet_wrapper)
 
 
     # Triplet loss
@@ -70,20 +73,22 @@ def main(config):
     txt_dimensions = txt_features.shape # (31014, 5, 300) -> (images, sentences, features)
     
     init_lr = 3E-4
-    optimizer = optim.Adam(model.parameters(), init_lr)
     loss_func = losses.TripletMarginLoss(margin=0.1)
 
-    model = TripletLossModel(img_dimensions[0], 
+    model = TripletLossModel(img_dimensions[1], 
                     txt_dimensions[2],
                     config["embed_size"],
-                    optimizer,
+                    init_lr,
                     loss_func)
     #model.load_state_dict(torch.load('/home/aharris/shared/m5/CONTRASTIVE.pth'))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    model.cpu()
+    if device == "cuda":
+        model.cuda()
     # summary(model)
 
-    model = model.to(device)
+    #model = model.to(device)
 
     model_folder = str(output_path / "models")
 
@@ -105,10 +110,10 @@ def main(config):
 
 if __name__ == "__main__":
     config = {
-        "data_path": "/home/aharris/shared/m5/Flickr30k",
-        "out_path": "./results/jupytest/",
+        "data_path": "/home/group01/mcv/datasets/Flickr30k",
+        "out_path": "./results/taska/",
         "feature_path": "./results/retrieval/",
-        "embed_size": 32,
+        "embed_size": 1000,
         "batch_size": 64,
     }
     logging.getLogger().setLevel(logging.INFO)

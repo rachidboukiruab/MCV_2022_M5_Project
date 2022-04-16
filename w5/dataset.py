@@ -43,7 +43,7 @@ class TripletFlickrDatasetImgToTxt(Dataset):
         negative_caption = negative_captions[random.randint(0, len(negative_captions) - 1)]
 
         # image_triple, caption_triple
-        return (image, caption, negative_caption)
+        return (image, caption, negative_caption), (caption, image, negative_image)
 
 
 class ImageBatch:

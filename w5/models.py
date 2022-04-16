@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from torchvision import models
+from torch import optim
 
 class EmbeddingLayer(nn.Module):
     def __init__(self, dim, embed_size):
@@ -28,13 +29,14 @@ class Triplet(nn.Module):
         out3 = self.text_model(x3)
         return out1, out2, out3
 
-class TripletLossModel(nn.Module):
-    def __init__(self, dim1, dim2, embed_size, optimizer, loss_func):
-        super(TripletLossModel).__init__()
+class TripletLossModel:
+    def __init__(self, dim1, dim2, embed_size, lr, loss_func):
         self.image_encoder = EmbeddingLayer(dim1,embed_size)
         self.text_encoder = EmbeddingLayer(dim2,embed_size)
-        self.optimizer = optimizer
         self.loss_func = loss_func
+        params = list(self.text_encoder.parameters())
+        self.params = params
+        self.optimizer = optim.Adam(self.params, lr=lr, weight_decay=5e-4)
     
     def cuda(self):
         """switch cuda
@@ -68,13 +70,22 @@ class TripletLossModel(nn.Module):
         self.image_encoder.eval()
         self.text_encoder.eval()
     
-    def forward(self, image_triple):
+    def forward(self, image_triple, caption_triple):
         image, pos_cap, neg_cap = image_triple.get_batch()
         image_encoded = self.image_encoder(image)
-        pos_text_encoded = self.text_encoder(pos_cap[0], pos_cap[1])
-        neg_text_encoded = self.text_encoder(neg_cap[0], neg_cap[1])
+        pos_text_encoded = self.text_encoder(pos_cap[0])
+        neg_text_encoded = self.text_encoder(neg_cap[0])
         loss = self.loss_func(image_encoded, pos_text_encoded, neg_text_encoded)
+
+        # execute caption_triple
+        caption, pos_img, neg_img = caption_triple.get_batch()
+        text_encoded = self.text_encoder(caption[0])
+        pos_image_encoded = self.image_encoder(pos_img)
+        neg_image_encoded = self.image_encoder(neg_img)
+        caption_triple_loss = self.loss_func(text_encoded, pos_image_encoded, neg_image_encoded)
         
+        #loss = image_triple_loss + caption_triple_loss
+
         # measure accuracy and record loss
         self.optimizer.zero_grad()
 
