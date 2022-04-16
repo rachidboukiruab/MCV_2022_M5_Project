@@ -54,13 +54,13 @@ def colorize_string(string: str, color_id):
     plt.legend(MIT_split_classes)
     plt.savefig(f'./results/{filename}')
 
-def extract_embeddings(device, dataloader, model):
+def extract_embeddings(device, train_dataloader, model):
     with torch.no_grad():
         model.eval()
-        embeddings = np.zeros((len(dataloader.dataset), 2))
-        labels = np.zeros(len(dataloader.dataset))
+        embeddings = np.zeros((len(train_dataloader.dataset), 2))
+        labels = np.zeros(len(train_dataloader.dataset))
         k = 0
-        for images, target in dataloader:
+        for images, target in train_dataloader:
             if device:
             images = images.to(device=device)
             embeddings[k:k+len(images)] = model.get_embedding(images).data.to(device=device).numpy()

@@ -19,6 +19,7 @@ class Img2TextDataset(torchdata.Dataset):
         self.text_features = np.load(text_features_file, allow_pickle=True)
 
     def __getitem__(self, index):
+        # TODO
         img_features = self.img_features[index]  # (31014,)
         text_features = self.text_features[index]  # (5, W, 300)
 
