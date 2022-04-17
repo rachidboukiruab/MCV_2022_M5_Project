@@ -13,11 +13,9 @@ num_epochs = 12
 
 loss_func = losses.TripletMarginLoss()
 
-
 train_set = Img2TextDataset(img_features_file, text_features_file)
 train_dataloader = DataLoader(train_set, batch_size=32, shuffle=True, num_workers=4)
 grad_clip = 2
-
 
 # TEXT & IMGS MODELS
 image_model = ImgEncoder()
@@ -40,6 +38,8 @@ for epoch in range(num_epochs):
 
         # execute image_triple
         img_features, pos_text_features, neg_text_features = img_triple
+        img_features, pos_text_features, neg_text_features = img_features.to(
+            device), pos_text_features.to(device), neg_text_features.to(device)
         image_encoded = image_model(img_features)
         pos_text_encoded = text_model(pos_text_features)
         neg_text_encoded = text_model(neg_text_features)
@@ -47,6 +47,7 @@ for epoch in range(num_epochs):
 
         # execute caption_triple
         caption, pos_img, neg_img = caption_triple
+        caption, pos_img, neg_img = caption.to(device), pos_img.to(device), neg_img.to(device)
         caption_encoded = text_model(caption)
         pos_img_encoded = image_model(pos_img)
         neg_img_encoded = image_model(neg_img)
