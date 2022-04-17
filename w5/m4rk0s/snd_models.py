@@ -15,6 +15,7 @@ class ImgEncoder(torch.nn.Module):
 
 
 class TextEncoder(torch.nn.Module):
+    # FIXME: text encoder equal size for every embed
     def __init__(self):
         super(TextEncoder, self).__init__()
 
