@@ -19,8 +19,9 @@ class TextEncoder(torch.nn.Module):
         super(TextEncoder, self).__init__()
 
     def forward(self, x):
-        linear1 = torch.nn.Linear(x.shape, 1000) # esto daría cada vez una red distinta ??
+        x = x.flatten()
+        linear1 = torch.nn.Linear(x.shape[0], 1000)  # esto daría cada vez una red distinta ??
         activation = torch.nn.ReLU()
-        x = self.linear1(x)
-        x = self.activation(x)
+        x = linear1(x)
+        x = activation(x)
         return x

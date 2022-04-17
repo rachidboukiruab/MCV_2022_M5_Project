@@ -1,6 +1,9 @@
+import random
+
 import numpy as np
 import scipy.io
 import torch.utils.data as torchdata
+
 
 def decay_learning_rate(init_lr, optimizer, epoch):
     """
@@ -19,13 +22,29 @@ class Img2TextDataset(torchdata.Dataset):
         self.text_features = np.load(text_features_file, allow_pickle=True)
 
     def __getitem__(self, index):
-        # TODO
-        img_features = self.img_features[index]  # (31014,)
-        text_features = self.text_features[index]  # (5, W, 300)
+        image = self.img_features[index]  # (31014,)
+        # pos_caption = self.text_features[index]  # (5, W, 300)
+        positive_cap_sub_id = random.randint(0, self.text_features.shape[1] - 1)
+        pos_caption = self.text_features[index][positive_cap_sub_id]
 
-        # maybe useful for the future
+        while True:
+            negative_img_id = random.randint(0, self.img_features.shape[1] - 1)
+            if negative_img_id != index:
+                break
 
-        return (image, caption, negative_caption), (caption, image, negative_image)
+        while True:
+            negative_cap_id = random.randint(0, self.text_features.shape[1] - 1)
+            if negative_cap_id != index:
+                break
+
+        # neg caption extraction
+        negative_cap_sub_id = random.randint(0, self.text_features.shape[1] - 1)
+        negative_caption = self.text_features[negative_cap_id][negative_cap_sub_id]
+
+        # neg img extraction
+        negative_image = self.img_features[negative_img_id]
+
+        return (image, pos_caption, negative_caption), (pos_caption, image, negative_image)
 
     def __len__(self):
         return self.img_features.shape[1]
