@@ -1,9 +1,9 @@
 import torch
-from pytorch_metric_learning import losses
+from torch import nn
 from torch.nn.utils.clip_grad import clip_grad_norm_
 from torch.optim import Adam
 from torch.utils.data import DataLoader
-from torch import nn
+
 from snd_models import ImgEncoder, TextEncoder
 from snd_utils import Img2TextDataset, decay_learning_rate
 
