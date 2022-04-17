@@ -42,7 +42,7 @@ class Img2TextDataset(torchdata.Dataset):
         negative_caption = self.text_features[negative_cap_id][negative_cap_sub_id]
 
         # neg img extraction
-        negative_image = self.img_features[negative_img_id]
+        negative_image = self.img_features[:, negative_img_id]
 
         return (image, pos_caption, negative_caption), (pos_caption, image, negative_image)
 

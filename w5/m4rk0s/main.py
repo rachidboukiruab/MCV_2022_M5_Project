@@ -26,7 +26,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 image_model.to(device)
 text_model.to(device)
 
-# optimzier
+# optimizer
 params = list(image_model.parameters())
 params += list(text_model.parameters())
 
