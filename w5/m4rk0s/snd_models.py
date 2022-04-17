@@ -5,7 +5,7 @@ class ImgEncoder(torch.nn.Module):
     def __init__(self):
         super(ImgEncoder, self).__init__()
 
-        self.linear1 = torch.nn.Linear(31014, 1000)
+        self.linear1 = torch.nn.Linear(4096, 1000)
         self.activation = torch.nn.ReLU()
 
     def forward(self, x):

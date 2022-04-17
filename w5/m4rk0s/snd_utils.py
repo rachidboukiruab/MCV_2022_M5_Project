@@ -18,11 +18,11 @@ class Img2TextDataset(torchdata.Dataset):
     def __init__(self, img_features_file: str, text_features_file: str):
         assert img_features_file.split('/')[-1].split('.')[-1] == 'mat' and \
                text_features_file.split('/')[-1].split('.')[-1] == 'npy', 'img`s features must be .mat & text .npy'
-        self.img_features = scipy.io.loadmat(img_features_file)
+        self.img_features = scipy.io.loadmat(img_features_file)['feats']
         self.text_features = np.load(text_features_file, allow_pickle=True)
 
     def __getitem__(self, index):
-        image = self.img_features[index]  # (31014,)
+        image = self.img_features[:, index]  # (4096,)
         # pos_caption = self.text_features[index]  # (5, W, 300)
         positive_cap_sub_id = random.randint(0, self.text_features.shape[1] - 1)
         pos_caption = self.text_features[index][positive_cap_sub_id]
