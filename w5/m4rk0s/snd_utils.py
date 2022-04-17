@@ -5,6 +5,16 @@ import scipy.io
 import torch.utils.data as torchdata
 
 
+def reduce_txt_embeds(embeds):
+    aux1 = []
+    for i in range(len(embeds)):
+        aux2 = []
+        for sent in embeds[i]:
+            aux2.append(np.mean(sent, axis=0))
+        aux1.append(aux2)
+    return np.asarray(aux1)
+
+
 def decay_learning_rate(init_lr, optimizer, epoch):
     """
     decay learning late every 4 epoch
@@ -20,6 +30,7 @@ class Img2TextDataset(torchdata.Dataset):
                text_features_file.split('/')[-1].split('.')[-1] == 'npy', 'img`s features must be .mat & text .npy'
         self.img_features = scipy.io.loadmat(img_features_file)['feats']
         self.text_features = np.load(text_features_file, allow_pickle=True)
+        self.text_features = reduce_txt_embeds(self.text_features)
 
     def __getitem__(self, index):
         image = self.img_features[:, index]  # (4096,)
