@@ -40,6 +40,7 @@ for epoch in range(num_epochs):
         img_features, pos_text_features, neg_text_features = img_triple
         img_features, pos_text_features, neg_text_features = img_features.to(
             device), pos_text_features.to(device), neg_text_features.to(device)
+        print(img_features)
         image_encoded = image_model(img_features)
         pos_text_encoded = text_model(pos_text_features)
         neg_text_encoded = text_model(neg_text_features)
