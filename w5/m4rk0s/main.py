@@ -44,7 +44,7 @@ for epoch in range(num_epochs):
         image_encoded = image_model(img_features)
         pos_text_encoded = text_model(pos_text_features)
         neg_text_encoded = text_model(neg_text_features)
-        print(image_encoded.shape, pos_text_encoded.shape, neg_text_encoded.shape)
+
         image_triple_loss = loss_func(image_encoded, pos_text_encoded, neg_text_encoded)
 
         # execute caption_triple
