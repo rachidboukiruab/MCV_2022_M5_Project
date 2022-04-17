@@ -40,12 +40,17 @@ for epoch in range(num_epochs):
 
         # execute image_triple
         img_features, pos_text_features, neg_text_features = img_triple
-        image_encoded = ImgEncoder()
-        image_triple_loss = loss_func(img_features, pos_text_features, neg_text_features)
+        image_encoded = image_model(img_features)
+        pos_text_encoded = text_model(pos_text_features)
+        neg_text_encoded = text_model(neg_text_features)
+        image_triple_loss = loss_func(image_encoded, pos_text_encoded, neg_text_encoded)
 
         # execute caption_triple
         caption, pos_img, neg_img = caption_triple
-        caption_triple_loss = loss_func(caption, pos_img, neg_img)
+        caption_encoded = text_model(caption)
+        pos_img_encoded = image_model(pos_img)
+        neg_img_encoded = image_model(neg_img)
+        caption_triple_loss = loss_func(caption_encoded, pos_img_encoded, neg_img_encoded)
 
         loss = image_triple_loss + caption_triple_loss
         optimizer.zero_grad()
