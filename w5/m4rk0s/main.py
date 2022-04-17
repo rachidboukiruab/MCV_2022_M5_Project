@@ -3,15 +3,16 @@ from pytorch_metric_learning import losses
 from torch.nn.utils.clip_grad import clip_grad_norm_
 from torch.optim import Adam
 from torch.utils.data import DataLoader
-
+from torch import nn
 from snd_models import ImgEncoder, TextEncoder
 from snd_utils import Img2TextDataset, decay_learning_rate
 
 img_features_file = '/home/group01/mcv/datasets/Flickr30k/vgg_feats.mat'
 text_features_file = '/home/group01/mcv/datasets/Flickr30k/fasttext_feats.npy'
 num_epochs = 12
+margin = 0.7
 
-loss_func = losses.TripletMarginLoss()
+loss_func = nn.TripletMarginLoss(margin, p=2)
 
 train_set = Img2TextDataset(img_features_file, text_features_file)
 train_dataloader = DataLoader(train_set, batch_size=32, shuffle=True, num_workers=4)
