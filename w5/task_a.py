@@ -1,121 +1,90 @@
-import matplotlib.pyplot as plt
-import logging
-
-from pathlib import Path
-
-import pytorch_metric_learning
-from pytorch_metric_learning import distances
-from pytorch_metric_learning import miners
-from pytorch_metric_learning import losses
-from pytorch_metric_learning import samplers
-from pytorch_metric_learning import trainers
-from pytorch_metric_learning import testers
-import pytorch_metric_learning.utils.logging_presets as logging_presets
-from pytorch_metric_learning.utils.accuracy_calculator import AccuracyCalculator
-from scipy.io import loadmat
-
-import numpy as np
-import umap
 import torch
-import torch.nn as nn
-from cycler import cycler
-from torch import optim
-
-# from torchinfo import summary
+from torch import nn
+from torch.nn.utils.clip_grad import clip_grad_norm_
+from torch.optim import Adam
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
-from torchvision import transforms, models
-from torchvision.datasets import ImageFolder
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from models import ImgEncoder, TextEncoder
+from utils import decay_learning_rate
+from dataset import Img2TextDataset
 
-import os
-from models import TripletLossModel
-from dataset import flickrDataset, TripletFlickrDatasetImgToTxt
-from utils import collate_triplet_wrapper
+img_features_file = '/home/group01/mcv/datasets/Flickr30k/vgg_feats.mat'
+text_features_file = '/home/group01/mcv/datasets/Flickr30k/fasttext_feats.npy'
 
-def decay_learning_rate(init_lr, optimizer, epoch):
-    """
-    decay learning late every 4 epoch
-    """
-    lr = init_lr * (0.1 ** (epoch // 4))
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
+parser = ArgumentParser(
+        description='Torch-based image classification system',
+        formatter_class=ArgumentDefaultsHelpFormatter
+    )
+parser.add_argument("num_epochs",
+                    type=int,
+                    help="Number of epochs")
+parser.add_argument("lr",
+                    type=float,
+                    help="learning rate")
+parser.add_argument("weight_decay",
+                    type=float,
+                    help="weight decay")
+parser.add_argument("batch_size",
+                    type=int,
+                    help="batch size")
+parser.add_argument("margin",
+                    type=float,
+                    help="change margin for triplet loss")
+parser.add_argument("grad_clip",
+                    type=int,
+                    help="grad_clip")
 
-def mean_words(text_data):
-    img_texts = []
-    for i in range(len(text_data)):
-        sentences = []
-        for sent in text_data[i]:
-            sentences.append(np.mean(sent, axis=0))
-        img_texts.append(sentences)
-    return np.asarray(img_texts)
+args = parser.parse_args()
 
-def main(config):
-    data_path = Path(config["data_path"])
-    output_path = Path(config["out_path"])
-    os.makedirs(output_path, exist_ok=True)
+if __name__ == '__main__':
 
-    img_features = loadmat(f'{data_path}/vgg_feats.mat')['feats']
-    img_features = np.transpose(img_features)
-    txt_features = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
-    txt_features = mean_words(txt_features)
+    loss_func = nn.TripletMarginLoss(args.margin, p=2)
 
-    train_data = flickrDataset(img_features,txt_features)
-    triplet_train_data = TripletFlickrDatasetImgToTxt(train_data)
+    train_set = Img2TextDataset(img_features_file, text_features_file)
+    train_dataloader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
-    train_loader = DataLoader(triplet_train_data,
-                              batch_size=config["batch_size"],
-                              shuffle=True,
-                              collate_fn=collate_triplet_wrapper)
-
-
-    # Triplet loss
-    img_dimensions = np.asarray(img_features).shape # (31014, 4096) -> (features, images)
-    txt_dimensions = txt_features.shape # (31014, 5, 300) -> (images, sentences, features)
-    
-    init_lr = 3E-4
-    loss_func = losses.TripletMarginLoss(margin=0.1)
-
-    model = TripletLossModel(img_dimensions[1], 
-                    txt_dimensions[2],
-                    config["embed_size"],
-                    init_lr,
-                    loss_func)
-    #model.load_state_dict(torch.load('/home/aharris/shared/m5/CONTRASTIVE.pth'))
+    # TEXT & IMGS MODELS
+    image_model = ImgEncoder()
+    text_model = TextEncoder()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    image_model.to(device)
+    text_model.to(device)
 
-    model.cpu()
-    if device == "cuda":
-        model.cuda()
-    # summary(model)
+    # optimizer
+    params = list(image_model.parameters())
+    params += list(text_model.parameters())
 
-    #model = model.to(device)
+    optimizer = Adam(params, lr=args.lr, weight_decay=args.weight_decay)
 
-    model_folder = str(output_path / "models")
+    # training loop
+    for epoch in range(args.num_epochs):
+        decay_learning_rate(args.lr, optimizer, epoch)
 
-    model.train_start()
-    for epoch in range(12):
-        decay_learning_rate(init_lr, model.optimizer, epoch)
+        for i, (img_triple, caption_triple) in enumerate(train_dataloader):
 
-        for i_batch, batch in enumerate(train_loader):
-            image_triple, caption_triple = batch
-            if device == "cuda":
-                image_triple = image_triple.cuda()
-                caption_triple = caption_triple.cuda()
+            # execute image_triple
+            img_features, pos_text_features, neg_text_features = img_triple
+            img_features, pos_text_features, neg_text_features = img_features.to(
+                device), pos_text_features.to(device), neg_text_features.to(device)
+            image_encoded = image_model(img_features)
+            pos_text_encoded = text_model(pos_text_features)
+            neg_text_encoded = text_model(neg_text_features)
 
-            loss = model.forward(image_triple, caption_triple)
-            print(f'epoch: {epoch}\titeration: {i_batch}\tLoss: {loss}')
+            image_triple_loss = loss_func(image_encoded, pos_text_encoded, neg_text_encoded)
 
-    torch.save(model.state_dict(), '{0}/Image2Text.model'.format(model_folder))
+            # execute caption_triple
+            caption, pos_img, neg_img = caption_triple
+            caption, pos_img, neg_img = caption.to(device), pos_img.to(device), neg_img.to(device)
+            caption_encoded = text_model(caption)
+            pos_img_encoded = image_model(pos_img)
+            neg_img_encoded = image_model(neg_img)
+            caption_triple_loss = loss_func(caption_encoded, pos_img_encoded, neg_img_encoded)
 
+            loss = image_triple_loss + caption_triple_loss
+            optimizer.zero_grad()
+            loss.backward()
+            if args.grad_clip > 0:
+                clip_grad_norm_(params, args.grad_clip)
+            optimizer.step()
 
-if __name__ == "__main__":
-    config = {
-        "data_path": "/home/group01/mcv/datasets/Flickr30k",
-        "out_path": "./results/taska/",
-        "feature_path": "./results/retrieval/",
-        "embed_size": 1000,
-        "batch_size": 64,
-    }
-    logging.getLogger().setLevel(logging.INFO)
-    logging.info("VERSION %s" % pytorch_metric_learning.__version__)
-    main(config)
+            print(f'epoch: {epoch}\titeration: {i}\tLoss: {loss}')

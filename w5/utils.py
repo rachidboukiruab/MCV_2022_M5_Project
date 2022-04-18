@@ -3,9 +3,7 @@ import os
 #import matplotlib.pyplot as plt
 import numpy as np
 from itertools import combinations
-from dataset import ImageBatch, CaptionBatch, TripleBatch
 import torch
-from torch.nn.utils.rnn import pad_sequence
 
 
 COLOR_WARNING = "\x1b[0;30;43m"
@@ -119,6 +117,8 @@ class HardNegativePairSelector(PairSelector):
 
         return positive_pairs, top_negative_pairs
 
+
+##### RETRIEVAL METRICS #####
 def apk(actual, predicted, k=10):
     """
     Computes the average precision at k.
@@ -284,27 +284,20 @@ def mAP(actual, predicted):
 
 
 ####### DATASET UTILS ############
-def create_image_batch(image_list):
-    image_list = torch.tensor(image_list)
-    return ImageBatch(torch.stack(tuple(image_list)))
+def reduce_txt_embeds(embeds):
+    aux1 = []
+    for i in range(len(embeds)):
+        aux2 = []
+        for sent in embeds[i]:
+            aux2.append(np.mean(sent, axis=0))
+        aux1.append(aux2)
+    return np.asarray(aux1)
 
 
-def create_caption_batch(caption_list):
-    caption_list = torch.LongTensor(caption_list)
-    caption_lengths = torch.LongTensor([sentence_tensor.shape[0] for sentence_tensor in caption_list])
-    caption_batch = pad_sequence(tuple(caption_list), batch_first=True)
-    return CaptionBatch(caption_batch, caption_lengths)
-
-
-def collate_triplet_wrapper(batch):
-    image_triple, cap_triple = [data[0] for data in batch], [data[1] for data in batch]
-    img_triple_img = create_image_batch([t[0] for t in image_triple])
-    img_triple_cap = create_caption_batch([t[1] for t in image_triple])
-    img_triple_neg_cap = create_caption_batch([t[2] for t in image_triple])
-
-    cap_triple_cap = create_caption_batch([t[0] for t in cap_triple])
-    cap_triple_img = create_image_batch([t[1] for t in cap_triple])
-    cap_triple_neg_img = create_image_batch([t[2] for t in cap_triple])
-
-    return TripleBatch(img_triple_img, img_triple_cap, img_triple_neg_cap), \
-           TripleBatch(cap_triple_cap, cap_triple_img, cap_triple_neg_img)
+def decay_learning_rate(init_lr, optimizer, epoch):
+    """
+    decay learning late every 4 epoch
+    """
+    lr = init_lr * (0.1 ** (epoch // 4))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
