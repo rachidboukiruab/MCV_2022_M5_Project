@@ -140,3 +140,4 @@ w?/task_?/results/*
 *.jpg
 w3/task_c/tests.ipynb
 w5/tests.ipynb
+backup/*
