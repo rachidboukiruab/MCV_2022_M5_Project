@@ -26,16 +26,21 @@ parser.add_argument("weight_decay",
 parser.add_argument("batch_size",
                     type=int,
                     help="batch size")
+parser.add_argument("margin",
+                    type=float,
+                    help="change margin for triplet loss")
+parser.add_argument("grad_clip",
+                    type=int,
+                    help="grad_clip")
 
 args = parser.parse_args()
 
 if __name__ == '__main__':
 
-    loss_func = nn.TripletMarginLoss(0.7, p=2)
+    loss_func = nn.TripletMarginLoss(args.margin, p=2)
 
     train_set = Img2TextDataset(img_features_file, text_features_file)
     train_dataloader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, num_workers=4)
-    grad_clip = 2
 
     # TEXT & IMGS MODELS
     image_model = ImgEncoder()
@@ -77,8 +82,8 @@ if __name__ == '__main__':
             loss = image_triple_loss + caption_triple_loss
             optimizer.zero_grad()
             loss.backward()
-            if grad_clip > 0:
-                clip_grad_norm_(params, grad_clip)
+            if args.grad_clip > 0:
+                clip_grad_norm_(params, args.grad_clip)
             optimizer.step()
 
             print(f'epoch: {epoch}\titeration: {i}\tLoss: {loss}')
