@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from models import ImgEncoder, TextEncoder
 from utils import decay_learning_rate
-from dataset import Img2TextDataset
+from dataset import Text2ImgDataset
 import os
 
 img_features_file = '/home/group01/mcv/datasets/Flickr30k/vgg_feats.mat'
@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     loss_func = nn.TripletMarginLoss(args.margin, p=2)
 
-    train_set = Img2TextDataset(img_features_file, text_features_file)
+    train_set = Text2ImgDataset(img_features_file, text_features_file)
     train_dataloader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
     # TEXT & IMGS MODELS
@@ -62,17 +62,15 @@ if __name__ == '__main__':
     for epoch in range(args.num_epochs):
         decay_learning_rate(args.lr, optimizer, epoch)
 
-        for i, img_triple in enumerate(train_dataloader):
+        for i, caption_triple in enumerate(train_dataloader):
 
-            # execute image_triple
-            img_features, pos_text_features, neg_text_features = img_triple
-            img_features, pos_text_features, neg_text_features = img_features.to(
-                device), pos_text_features.to(device), neg_text_features.to(device)
-            image_encoded = image_model(img_features)
-            pos_text_encoded = text_model(pos_text_features)
-            neg_text_encoded = text_model(neg_text_features)
-
-            loss = loss_func(image_encoded, pos_text_encoded, neg_text_encoded)
+            # execute caption_triple
+            caption, pos_img, neg_img = caption_triple
+            caption, pos_img, neg_img = caption.to(device), pos_img.to(device), neg_img.to(device)
+            caption_encoded = text_model(caption)
+            pos_img_encoded = image_model(pos_img)
+            neg_img_encoded = image_model(neg_img)
+            loss = loss_func(caption_encoded, pos_img_encoded, neg_img_encoded)
             
             optimizer.zero_grad()
             loss.backward()
