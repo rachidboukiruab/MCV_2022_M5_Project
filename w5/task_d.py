@@ -1,12 +1,4 @@
 import torch
-from torch import nn
-from torch.nn.utils.clip_grad import clip_grad_norm_
-from torch.optim import Adam
-from torch.utils.data import DataLoader
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from models import ImgEncoder, TextEncoderBERT
-from utils import decay_learning_rate
-from dataset import Img2TextDataset
 import os
 import json
 import numpy as np
@@ -36,9 +28,7 @@ if __name__ == '__main__':
     train_TextFeatures = np.empty((len(train_data), 5, 300))
     with torch.no_grad():
         bert_model.eval()
-        for ii, (img, _) in enumerate(train_data):
-            train_TextFeatures[ii, :] = bert_model(img.unsqueeze(0)).squeeze().numpy()
-
+        
         for i, key in enumerate(train_data):
             for j, sentence in key['sentences']:
                 #print("{}, {}".format(i,sentence['raw']))
