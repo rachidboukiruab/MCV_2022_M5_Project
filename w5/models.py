@@ -1,4 +1,4 @@
-from torch.nn import Module, Linear, ReLU
+from torch.nn import Module, Linear, ReLU, init
 import numpy as np
 
 
@@ -8,15 +8,11 @@ class ImgEncoder(Module):
 
         self.linear1 = Linear(4096, embedding_size)
         self.activation = ReLU()
-
         self.init_weights()
 
     def init_weights(self):
         # Linear
-        r = np.sqrt(6.) / np.sqrt(self.linear1.in_features +
-                                  self.linear1.out_features)
-        self.linear1.weight.data.uniform_(-r, r)
-        self.linear1.bias.data.fill_(0)
+        init.kaiming_uniform_(self.linear1.weight, mode='fan_in', nonlinearity='relu')
     
     def forward(self, x):
         x = self.linear1(x)
@@ -35,10 +31,7 @@ class TextEncoder(Module):
 
     def init_weights(self):
         # Linear
-        r = np.sqrt(6.) / np.sqrt(self.linear1.in_features +
-                                  self.linear1.out_features)
-        self.linear1.weight.data.uniform_(-r, r)
-        self.linear1.bias.data.fill_(0)
+        init.kaiming_uniform_(self.linear1.weight, mode='fan_in', nonlinearity='relu')
     
     def forward(self, x):
         x = self.linear1(x)
