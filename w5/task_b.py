@@ -81,6 +81,6 @@ if __name__ == '__main__':
             print(f'epoch: {epoch}\titeration: {i}\tLoss: {loss}')
     
     state_dict = [image_model.state_dict(), text_model.state_dict()]
-    model_folder = str(output_path / "models")
+    model_folder = str(output_path + "/models")
     os.makedirs(model_folder, exist_ok=True)
     torch.save(state_dict, '{0}/Text2Image_weights.pth'.format(model_folder))

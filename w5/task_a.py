@@ -73,7 +73,7 @@ if __name__ == '__main__':
             neg_text_encoded = text_model(neg_text_features)
 
             loss = loss_func(image_encoded, pos_text_encoded, neg_text_encoded)
-            
+
             optimizer.zero_grad()
             loss.backward()
             if args.grad_clip > 0:
@@ -83,6 +83,6 @@ if __name__ == '__main__':
             print(f'epoch: {epoch}\titeration: {i}\tLoss: {loss}')
     
     state_dict = [image_model.state_dict(), text_model.state_dict()]
-    model_folder = str(output_path / "models")
+    model_folder = str(output_path + "/models")
     os.makedirs(model_folder, exist_ok=True)
     torch.save(state_dict, '{0}/Image2Text_weights.pth'.format(model_folder))
