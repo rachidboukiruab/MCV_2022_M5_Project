@@ -11,7 +11,7 @@ import os
 
 img_features_file = '/home/group01/mcv/datasets/Flickr30k/vgg_feats.mat'
 text_features_file = '/home/group01/mcv/datasets/Flickr30k/fasttext_feats.npy'
-output_path = "./results/task_a/"
+output_path = "./results/task_b/"
 
 parser = ArgumentParser(
         description='Torch-based image classification system',
@@ -71,7 +71,7 @@ if __name__ == '__main__':
             pos_img_encoded = image_model(pos_img)
             neg_img_encoded = image_model(neg_img)
             loss = loss_func(caption_encoded, pos_img_encoded, neg_img_encoded)
-            
+
             optimizer.zero_grad()
             loss.backward()
             if args.grad_clip > 0:
@@ -83,4 +83,4 @@ if __name__ == '__main__':
     state_dict = [image_model.state_dict(), text_model.state_dict()]
     model_folder = str(output_path / "models")
     os.makedirs(model_folder, exist_ok=True)
-    torch.save(state_dict, '{0}/Image2Text_weights.pth'.format(model_folder))
+    torch.save(state_dict, '{0}/Text2Image_weights.pth'.format(model_folder))
