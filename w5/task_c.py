@@ -4,20 +4,42 @@ from torch.nn.utils.clip_grad import clip_grad_norm_
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from models import ImgEncoder, TextEncoder, get_faster
+from models import ImgEncoder, TextEncoder, FasterRCNN
 from utils import decay_learning_rate
-from dataset import Img2TextDataset
+from dataset import FlickrFaster
 import os
 import numpy as np
 import sys
+from torchvision import transforms
+from PIL import Image
 
-def extract_visual_features(model, filepath,in_features):
+
+
+
+def extract_visual_features(model,device, filepath,in_features):
+    model.to(device=device)
+
+    tfms = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
     dir = os.listdir(filepath)
-    image_features = np.empty(in_features,len(dir))
-    model.eval()
-    with torch.no_grad():
-        for i in dir: 
-            image_features[i,:] = model(i)
+    image_features = np.empty((in_features,len(dir)))
+    
+    for i in dir: 
+        image = tfms(Image.open(os.path.join(filepath,i)))
+        model.eval()
+        with torch.no_grad():
+            img_tensor = image.to(device=device)
+            output = model(img_tensor.unsqueeze(0))
+            print(output)
+            print(len(output))
+            break
+            #image_features[i,:] = model(img_tensor.unsqueeze(0)).numpy
+
+            break
     return image_features
 
 
@@ -53,19 +75,25 @@ args = parser.parse_args()
 
 if __name__ == '__main__':
 
-    faster = get_faster()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    img_features = extract_visual_features(faster,train_path,in_features=1024)
+    faster = FasterRCNN()
+    print(faster)
+    
+    
+    img_features = extract_visual_features(faster,device,train_path,in_features=2048)
+    sys.exit()
 
     loss_func = nn.TripletMarginLoss(args.margin, p=2)
 
-    train_set = Img2TextDataset(img_features, text_features_file)
+    train_set = FlickrFaster(img_features, text_features_file)
+    
     train_dataloader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
     # TEXT & IMGS MODELS
-    image_model = ImgEncoder(dim=1024)
+    image_model = ImgEncoder(dim=2048)
     text_model = TextEncoder()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
     image_model.to(device)
     text_model.to(device)
 

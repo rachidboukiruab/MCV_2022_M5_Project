@@ -62,7 +62,7 @@ class Text2ImgDataset(Dataset):
         return self.img_features.shape[1]
 
 
-class FasterDataset(Dataset):
+class FlickrFaster(Dataset):
     def __init__(self, img_features, text_features_file: str):
         assert text_features_file.split('/')[-1].split('.')[-1] == 'npy', 'img`s features must be .mat & text .npy'
         self.text_features = np.load(text_features_file, allow_pickle=True)
