@@ -51,6 +51,9 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     image_model.to(device)
     text_model.to(device)
+    # init weights
+    image_model.init_weights()
+    text_model.init_weights()
 
     # optimizer
     params = list(image_model.parameters())

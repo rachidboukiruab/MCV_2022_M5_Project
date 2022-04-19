@@ -21,7 +21,6 @@ class ImgEncoder(Module):
 
 
 class TextEncoder(Module):
-    # FIXME: text encoder equal size for every embed
     def __init__(self, embedding_size = 1000):
         super(TextEncoder, self).__init__()
         self.linear1 = Linear(300, embedding_size)
