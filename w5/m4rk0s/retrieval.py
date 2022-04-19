@@ -12,9 +12,6 @@ import faiss
 from dataset import Img2TextDataset, Text2ImgDataset
 from models import ImgEncoder, TextEncoder
 
-img_features_file = '/home/group01/mcv/datasets/Flickr30k/vgg_feats.mat'
-text_features_file = '/home/group01/mcv/datasets/Flickr30k/fasttext_feats.npy'
-
 
 def main(config):
     # TODO: split .npy & .mat into train/test/val
@@ -24,6 +21,9 @@ def main(config):
     data_path = config['data_path']
     out_path = config['data_path']
     type_of_retrieval = config['type']
+
+    img_features_file = os.path.join(data_path,'vgg_feats.mat')
+    text_features_file = os.path.join(data_path,'fasttext_feats.npy')
 
     image_model = ImgEncoder()
     text_model = TextEncoder()
