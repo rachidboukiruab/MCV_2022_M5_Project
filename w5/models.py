@@ -1,7 +1,6 @@
-from torch.nn import Module, Linear, ReLU, init,Sequential
+from torch.nn import Module, Linear, ReLU, init, Sequential, Dropout, LayerNorm
 import numpy as np
 from torchvision import models
-
 
 
 class ImgEncoder(Module):
@@ -17,8 +16,9 @@ class ImgEncoder(Module):
         init.kaiming_uniform_(self.linear1.weight, mode='fan_in', nonlinearity='relu')
     
     def forward(self, x):
-        x = self.linear1(x)
         x = self.activation(x)
+        x = self.linear1(x)
+        x = x / x.pow(2).sum(1, keepdim=True).sqrt()
         return x
 
 
@@ -35,25 +35,45 @@ class TextEncoder(Module):
         init.kaiming_uniform_(self.linear1.weight, mode='fan_in', nonlinearity='relu')
     
     def forward(self, x):
-        x = self.linear1(x)
         x = self.activation(x)
+        x = self.linear1(x)
+        x = x / x.pow(2).sum(1, keepdim=True).sqrt()
         return x
 
 
+class LinearEncoder(Module):
+    def __init__(self, input_size: int, layer_sizes: list):
+        super(LinearEncoder, self).__init__()
+        layers = [Linear(input_size, layer_sizes[0])]
+
+        for ii in range(len(layer_sizes) - 1):
+            layers.append(ReLU())
+            # layers.append(Dropout(0.5))
+            # layers.append(LayerNorm(layer_sizes[ii]))
+            layers.append(Linear(layer_sizes[ii], layer_sizes[ii + 1]))
+
+        self.linear = Sequential(*layers)
+
+    def init_weights(self):
+        # Linear
+        for layer in self.linear:
+            if isinstance(layer, Linear):
+                init.kaiming_uniform_(layer.weight, mode='fan_in', nonlinearity='relu')
+
+    def forward(self, x):
+        x = self.linear(x)
+        x = x / x.pow(2).sum(1, keepdim=True).sqrt()
+        return x
+
 
 class FasterRCNN(Module):
-            def __init__(self):
-                super(FasterRCNN, self).__init__()
-                self.original_model = models.detection.fasterrcnn_resnet50_fpn(pretrained = True)
-                self.fc = Linear(2048,1024)
-                self.features = Sequential(*list(self.original_model.backbone.children())[:-1], self.fc) 
+    def __init__(self):
+        super(FasterRCNN, self).__init__()
+        self.original_model = models.detection.fasterrcnn_resnet50_fpn(pretrained = True)
+        self.fc = Linear(2048, 1024)
+        self.backbone = Sequential(*list(self.original_model.backbone.children())[:-1])
+        self.features = Sequential(self.fc)
 
-
-            def forward(self, x):
-                out = self.features(x)
-                return out
-
-
-
-
-    
+    def forward(self, x):
+        out = self.features(x)
+        return out

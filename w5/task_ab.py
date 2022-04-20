@@ -1,6 +1,8 @@
 import torch
 import wandb
 import numpy as np
+import umap
+import matplotlib.pyplot as plt
 
 from torch import nn
 from torch.nn.utils.clip_grad import clip_grad_norm_
@@ -8,7 +10,7 @@ from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from models import ImgEncoder, TextEncoder
+from models import ImgEncoder, TextEncoder, LinearEncoder
 from utils import decay_learning_rate, mpk
 from dataset import FlickrImagesAndCaptions
 
@@ -24,7 +26,7 @@ output_path = "./results/task_a/"
 parser = ArgumentParser(
         description='Torch-based image classification system',
         formatter_class=ArgumentDefaultsHelpFormatter
-    )
+)
 parser.add_argument("anchor",
                     type=str,
                     help="Which modality to use as anchor")
@@ -56,7 +58,33 @@ parser.add_argument("mining_type",
 args = parser.parse_args()
 
 
-def validate(valid_dataloader, image_model, text_model, anchor):
+def display_embeddings(text_embeddings, image_embeddings, text_labels, image_labels, epoch):
+    reducer = umap.UMAP()
+    n_text, _ = text_embeddings.shape
+    n_imag, dim = image_embeddings.shape
+
+    all_embeddings = np.vstack([text_embeddings, image_embeddings])
+    all_embeddings = reducer.fit_transform(all_embeddings)
+
+    text_embeddings = all_embeddings[:n_text]
+    image_embeddings = all_embeddings[n_text:]
+
+    plt.figure(dpi=300, figsize=(15, 15))
+    plt.title(f"UMAP of the embedding space at epoch {epoch}")
+    plt.scatter(text_embeddings[:, 0], text_embeddings[:, 1], color="orange", label="Text Embeddings")
+    plt.scatter(image_embeddings[:, 0], image_embeddings[:, 1], color="cyan", label="Image Embeddings")
+
+    for ii, label in enumerate(text_labels):
+        plt.annotate(label, (text_embeddings[ii, 0], text_embeddings[ii, 1]), color="red", alpha=0.5)
+    for ii, label in enumerate(image_labels):
+        plt.annotate(label, (image_embeddings[ii, 0], image_embeddings[ii, 1]), color="blue", alpha=0.5)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+    plt.close()
+
+
+def validate(valid_dataloader, image_model, text_model, anchor, epoch):
     all_img_features = []
     all_txt_features = []
 
@@ -104,6 +132,9 @@ def validate(valid_dataloader, image_model, text_model, anchor):
         p1 = mpk(all_img_labels, predictions, 1)
         p5 = mpk(all_img_labels, predictions, 5)
 
+    if not epoch % 10:
+        display_embeddings(all_txt_features, all_img_features, all_txt_labels, all_img_labels, epoch)
+
     image_model.train()
     text_model.train()
 
@@ -120,6 +151,7 @@ if __name__ == '__main__':
     )
     reducer = reducers.MeanReducer()
     loss_func = losses.TripletMarginLoss(args.margin, reducer=reducer)
+    # loss_func = nn.TripletMarginLoss(args.margin)
     miner = miners.TripletMarginMiner(args.margin, type_of_triplets=args.mining_type)
 
     train_set = FlickrImagesAndCaptions(dataset_path, "train")
@@ -146,8 +178,11 @@ if __name__ == '__main__':
     )
 
     # TEXT & IMGS MODELS
-    image_model = ImgEncoder(embedding_size=16)
-    text_model = TextEncoder(embedding_size=16)
+    # image_model = ImgEncoder(embedding_size=64)
+    # text_model = TextEncoder(embedding_size=64)
+
+    image_model = LinearEncoder(4096, [256, 128, 64])
+    text_model = LinearEncoder(300, [256, 128, 64])
 
     image_model.init_weights()
     text_model.init_weights()
@@ -166,7 +201,7 @@ if __name__ == '__main__':
     image_model.train()
     text_model.train()
 
-    p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor)
+    p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor, -1)
 
     # training loop
     iterations = 1
@@ -209,8 +244,8 @@ if __name__ == '__main__':
             optimizer.zero_grad()
 
             loss.backward()
-            if args.grad_clip > 0:
-                clip_grad_norm_(params, args.grad_clip)
+            # if args.grad_clip > 0:
+            #     clip_grad_norm_(params, args.grad_clip)
             optimizer.step()
             iterations += 1
 
@@ -219,7 +254,7 @@ if __name__ == '__main__':
                 "train_loss": loss,
                 "learning_rate": scheduler.get_last_lr()[0],
             })
-        p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor)
+        p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor, epoch)
         wandb.log({
             "epoch": epoch,
             "p1": p1,
