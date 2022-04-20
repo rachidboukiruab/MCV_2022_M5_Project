@@ -50,14 +50,14 @@ def main(config):
     with torch.no_grad():
         if type_of_retrieval == 'task_a':
             for ii, (img, caption, _) in enumerate(val_dataloader):
-                img.to(device)
+                img = img.to(device)
                 print(img)
                 print(image_model)
                 xb[ii, :] = image_model(img).squeeze().numpy()
 
         else:
             for ii, (caption, img, _) in enumerate(val_dataloader):
-                caption.to(device)
+                caption = caption.to(device)
                 xb[ii, :] = text_model(caption).squeeze().numpy()
 
     xb = np.float32(xb)
@@ -69,7 +69,7 @@ def main(config):
     with torch.no_grad():
         if type_of_retrieval == 'task_a':
             for ii, (img, pos_caption, _) in enumerate(val_dataloader):
-                caption.to(device)
+                caption = caption.to(device)
                 xq = text_model(caption).squeeze().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
@@ -81,7 +81,7 @@ def main(config):
                 pred_label_all.append(pred)
         else:
             for ii, (caption, img, _) in enumerate(val_dataloader):
-                img.to(device)
+                img = img.to(device)
                 xq = image_model(img).squeeze().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
