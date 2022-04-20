@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 
 from dataset import Img2TextDataset, Text2ImgDataset
 from models import ImgEncoder, TextEncoder
-from utils import mAP
+from utils import mAP, mpk
 
 
 def main(config):
@@ -93,13 +93,13 @@ def main(config):
 
     ground_truth = np.ones_like(pred_label_all)
 
-    # p_1 = mpk(ground_truth, pred_label_all, 1)
-    # p_5 = mpk(ground_truth, pred_label_all, 5)
-    # print('P@1={:.3f}'.format(p_1 * 100))
-    # print('P@5={:.3f}'.format(p_5 * 100))
+    p_1 = mpk(ground_truth, pred_label_all, 1)
+    p_5 = mpk(ground_truth, pred_label_all, 5)
+    print('P@1={:.3f}'.format(p_1 * 100))
+    print('P@5={:.3f}'.format(p_5 * 100))
 
-    map = mAP(ground_truth, pred_label_all)
-    print('mAP={:.3f}'.format(map * 100))
+    # map = mAP(ground_truth, pred_label_all)
+    # print('mAP={:.3f}'.format(map * 100))
 
 
 if __name__ == "__main__":
