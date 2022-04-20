@@ -1,16 +1,13 @@
 import os.path
 
+import faiss
 import numpy as np
 import torch
-from scipy.io import loadmat
 from torch.utils.data import DataLoader
-from utils import mpk, mAP
-import json
-from sklearn.neighbors import KNeighborsClassifier
-import pickle
-import faiss
+
 from dataset import Img2TextDataset, Text2ImgDataset
 from models import ImgEncoder, TextEncoder
+from utils import mAP
 
 
 def main(config):
