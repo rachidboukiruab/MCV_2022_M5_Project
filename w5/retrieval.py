@@ -50,10 +50,12 @@ def main(config):
     with torch.no_grad():
         if type_of_retrieval == 'task_a':
             for ii, (img, caption, _) in enumerate(val_dataloader):
+                img.to(device)
                 xb[ii, :] = image_model(img).squeeze().numpy()
 
         else:
             for ii, (caption, img, _) in enumerate(val_dataloader):
+                caption.to(device)
                 xb[ii, :] = text_model(caption).squeeze().numpy()
 
     xb = np.float32(xb)
