@@ -14,7 +14,6 @@ from models import ImgEncoder, TextEncoder
 
 
 def main(config):
-    # TODO: dataset correct
     # TODO: faiss store labels for mpk
 
     data_path = config['data_path']
