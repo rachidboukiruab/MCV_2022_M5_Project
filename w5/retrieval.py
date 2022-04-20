@@ -51,6 +51,8 @@ def main(config):
         if type_of_retrieval == 'task_a':
             for ii, (img, caption, _) in enumerate(val_dataloader):
                 img.to(device)
+                print(img)
+                print(image_model)
                 xb[ii, :] = image_model(img).squeeze().numpy()
 
         else:
