@@ -65,6 +65,7 @@ def main(config):
     with torch.no_grad():
         if type_of_retrieval == 'task_a':
             for ii, (img, pos_caption, _) in enumerate(val_dataloader):
+                caption.to(device)
                 xq = text_model(caption).squeeze().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
@@ -76,6 +77,7 @@ def main(config):
                 pred_label_all.append(pred)
         else:
             for ii, (caption, img, _) in enumerate(val_dataloader):
+                img.to(device)
                 xq = image_model(img).squeeze().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
