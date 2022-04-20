@@ -12,12 +12,24 @@ from torchvision import transforms
 
 
 class Img2TextDataset(Dataset):
-    def __init__(self, img_features_file: str, text_features_file: str):
+    def __init__(self, img_features_file: str, text_features_file: str, mode: str):
         assert img_features_file.split('/')[-1].split('.')[-1] == 'mat' and \
                text_features_file.split('/')[-1].split('.')[-1] == 'npy', 'img`s features must be .mat & text .npy'
+        assert mode == 'train' or mode == 'test' or mode == 'val'
         self.img_features = loadmat(img_features_file)['feats']
         self.text_features = np.load(text_features_file, allow_pickle=True)
         self.text_features = reduce_txt_embeds(self.text_features)
+
+        # split depending on mode
+        if mode == 'train':
+            self.img_features = self.img_features[:, :29000]
+            self.text_features = self.text_features[:29000, :]
+        elif mode == 'val':
+            self.img_features = self.img_features[:, 29000:30014]
+            self.text_features = self.text_features[2900:30014, :]
+        else:
+            self.img_features = self.img_features[:, 30014:-1]
+            self.text_features = self.text_features[30014:-1, :]
 
     def __getitem__(self, index):
         image = self.img_features[:, index]  # (4096,)
@@ -41,12 +53,24 @@ class Img2TextDataset(Dataset):
 
 
 class Text2ImgDataset(Dataset):
-    def __init__(self, img_features_file: str, text_features_file: str):
+    def __init__(self, img_features_file: str, text_features_file: str, mode: str):
         assert img_features_file.split('/')[-1].split('.')[-1] == 'mat' and \
                text_features_file.split('/')[-1].split('.')[-1] == 'npy', 'img`s features must be .mat & text .npy'
+        assert mode == 'train' or mode == 'test' or mode == 'val'
         self.img_features = loadmat(img_features_file)['feats']
         self.text_features = np.load(text_features_file, allow_pickle=True)
         self.text_features = reduce_txt_embeds(self.text_features)
+
+        # split depending on mode
+        if mode == 'train':
+            self.img_features = self.img_features[:, :29000]
+            self.text_features = self.text_features[:29000, :]
+        elif mode == 'val':
+            self.img_features = self.img_features[:, 29000:30014]
+            self.text_features = self.text_features[29000:30014, :]
+        else:
+            self.img_features = self.img_features[:, 30014:-1]
+            self.text_features = self.text_features[30014:-1, :]
 
     def __getitem__(self, index):
         image = self.img_features[:, index]  # (4096,)
@@ -93,8 +117,8 @@ class FlickrImagesAndCaptions(Dataset):
         self.text_features = self._mean_reduction(self.text_features)[indices]
 
     def __getitem__(self, index):
-        img_features = self.img_features[index]     # (Images, FeatureSize)
-        txt_features = self.text_features[index]    # (Images, FeatureSize)
+        img_features = self.img_features[index]  # (Images, FeatureSize)
+        txt_features = self.text_features[index]  # (Images, FeatureSize)
 
         return img_features, txt_features
 
@@ -150,15 +174,14 @@ class ImageData(Dataset):
     def __init__(self, directory):
         self.img_path = directory
         self.images = os.listdir(self.img_path)
-        self.image_features = np.empty((1024,len(self.images)))
+        self.image_features = np.empty((1024, len(self.images)))
         self.tfms = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
 
     def __len__(self):
-        
         return len(self.images)
 
     def __getitem__(self, idx):

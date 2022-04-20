@@ -6,23 +6,22 @@ from sklearn.neighbors import KNeighborsClassifier
 import pickle
 
 
-
 def main(config):
     data_path = config['data_path']
     out_path = config['data_path']
-    with open(f'{data_path}/train.json') as f: #CATALOGUE META: select sentences id from training set
-        train = json.load(f) 
+    with open(f'{data_path}/train.json') as f:  # CATALOGUE META: select sentences id from training set
+        train = json.load(f)
 
-    with open(f'{data_path}/test.json') as f: #QUERY META: images from test set
+    with open(f'{data_path}/test.json') as f:  # QUERY META: images from test set
         test = json.load(f)
 
-    catalogue_meta = [(train[i]['filename'],train[i]['sentids']) for i in range(len(train))]
+    catalogue_meta = [(train[i]['filename'], train[i]['sentids']) for i in range(len(train))]
     train_img = [train[i]['imgid'] for i in range(len(train))]
     test_img = [test[i]['imgid'] for i in range(len(test))]
-    query_meta = [(test[i]['filename'],test[i]['sentids']) for i in range(len(test))]
+    query_meta = [(test[i]['filename'], test[i]['sentids']) for i in range(len(test))]
 
     if config['type'] == 'image2text':
-        #EMBEDDINGS
+        # EMBEDDINGS
         """ catalogue_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
 
         catalogue_data = [catalogue_data[i][:] for i in (train_img)]
@@ -32,7 +31,7 @@ def main(config):
         query_data = [query_data[:][i] for i in (test_img)] """
 
     else:
-        #EMBEDDINGS
+        # EMBEDDINGS
         """ query_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
 
         query_data = [query_data[i][:] for i in (test_img)]        
@@ -68,7 +67,6 @@ def main(config):
     print('mAP=', map)
     with open(f'{out_path}/image2text.pkl', 'wb') as handle:
         pickle.dump(neighbors, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
 
 
 if __name__ == "__main__":
