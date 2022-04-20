@@ -71,7 +71,6 @@ def main(config):
                 xq = text_model(caption).squeeze().cpu().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
-                print(pred_label)
                 pred = 0
                 for lab in pred_label:
                     if lab == img:
@@ -83,7 +82,6 @@ def main(config):
                 xq = image_model(img).squeeze().cpu().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
-                print(pred_label)
                 pred = 0
                 for lab in pred_label:
                     for cap in caption:
@@ -93,6 +91,7 @@ def main(config):
 
     ground_truth = np.ones_like(pred_label_all)
 
+    print(ground_truth)
     p_1 = mpk(ground_truth, pred_label_all, 1)
     p_5 = mpk(ground_truth, pred_label_all, 5)
     print('P@1={:.3f}'.format(p_1 * 100))
