@@ -80,7 +80,7 @@ def display_embeddings(text_embeddings, image_embeddings, text_labels, image_lab
         plt.annotate(label, (image_embeddings[ii, 0], image_embeddings[ii, 1]), color="blue", alpha=0.5)
     plt.legend()
     plt.tight_layout()
-    plt.show()
+    plt.savefig(output_path + f"/plots/plot_epoch_{epoch}.png")
     plt.close()
 
 
@@ -132,7 +132,7 @@ def validate(valid_dataloader, image_model, text_model, anchor, epoch):
         p1 = mpk(all_img_labels, predictions, 1)
         p5 = mpk(all_img_labels, predictions, 5)
 
-    if not epoch % 10:
+    if not epoch % 100:
         display_embeddings(all_txt_features, all_img_features, all_txt_labels, all_img_labels, epoch)
 
     image_model.train()
@@ -143,6 +143,7 @@ def validate(valid_dataloader, image_model, text_model, anchor, epoch):
 
 if __name__ == '__main__':
     os.makedirs(output_path, exist_ok=True)
+    os.makedirs(output_path + "/plots")
     wandb.init(
         dir=output_path,
         project="w5",
