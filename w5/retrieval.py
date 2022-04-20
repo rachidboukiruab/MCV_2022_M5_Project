@@ -51,14 +51,12 @@ def main(config):
         if type_of_retrieval == 'task_a':
             for ii, (img, caption, _) in enumerate(val_dataloader):
                 img = img.to(device)
-                print(img)
-                print(image_model)
-                xb[ii, :] = image_model(img).squeeze().numpy()
+                xb[ii, :] = image_model(img).squeeze().detach().numpy()
 
         else:
             for ii, (caption, img, _) in enumerate(val_dataloader):
                 caption = caption.to(device)
-                xb[ii, :] = text_model(caption).squeeze().numpy()
+                xb[ii, :] = text_model(caption).squeeze().detach().numpy()
 
     xb = np.float32(xb)
     index.add(xb)
@@ -70,7 +68,7 @@ def main(config):
         if type_of_retrieval == 'task_a':
             for ii, (img, pos_caption, _) in enumerate(val_dataloader):
                 caption = caption.to(device)
-                xq = text_model(caption).squeeze().numpy()
+                xq = text_model(caption).squeeze().detach().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
                 print(pred_label)
@@ -82,7 +80,7 @@ def main(config):
         else:
             for ii, (caption, img, _) in enumerate(val_dataloader):
                 img = img.to(device)
-                xq = image_model(img).squeeze().numpy()
+                xq = image_model(img).squeeze().detach().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
                 print(pred_label)
