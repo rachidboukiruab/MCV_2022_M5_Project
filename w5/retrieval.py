@@ -68,6 +68,7 @@ def main(config):
                 xq = text_model(caption).squeeze().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
+                print(pred_label)
                 pred = 0
                 for lab in pred_label:
                     if lab == img:
@@ -78,6 +79,7 @@ def main(config):
                 xq = image_model(img).squeeze().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
+                print(pred_label)
                 pred = 0
                 for lab in pred_label:
                     for cap in caption:
