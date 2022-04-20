@@ -1,78 +1,101 @@
+import os.path
+
 import numpy as np
+import torch
 from scipy.io import loadmat
+from torch.utils.data import DataLoader
 from utils import mpk, mAP
 import json
 from sklearn.neighbors import KNeighborsClassifier
 import pickle
+import faiss
+from dataset import Img2TextDataset, Text2ImgDataset
+from models import ImgEncoder, TextEncoder
 
 
 def main(config):
+    # TODO: dataset correct
+    # TODO: faiss store labels for mpk
+
     data_path = config['data_path']
     out_path = config['data_path']
-    with open(f'{data_path}/train.json') as f:  # CATALOGUE META: select sentences id from training set
-        train = json.load(f)
+    type_of_retrieval = config['type']
 
-    with open(f'{data_path}/test.json') as f:  # QUERY META: images from test set
-        test = json.load(f)
+    img_features_file = os.path.join(data_path,'vgg_feats.mat')
+    text_features_file = os.path.join(data_path,'fasttext_feats.npy')
 
-    catalogue_meta = [(train[i]['filename'], train[i]['sentids']) for i in range(len(train))]
-    train_img = [train[i]['imgid'] for i in range(len(train))]
-    test_img = [test[i]['imgid'] for i in range(len(test))]
-    query_meta = [(test[i]['filename'], test[i]['sentids']) for i in range(len(test))]
+    image_model = ImgEncoder()
+    text_model = TextEncoder()
 
-    if config['type'] == 'image2text':
-        # EMBEDDINGS
-        """ catalogue_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        catalogue_data = [catalogue_data[i][:] for i in (train_img)]
-    
-        query_data = loadmat(f'{data_path}/vgg_feats.mat')
-
-        query_data = [query_data[:][i] for i in (test_img)] """
-
+    # val dataset
+    if type_of_retrieval == 'task_a':
+        val_set = Img2TextDataset(img_features_file, text_features_file, mode='val')
+        val_dataloader = DataLoader(val_set, batch_size=1, shuffle=False)
+        checkpoint = torch.load(os.path.join(out_path, 'task_a/models/Image2Text_weights.pth'))
     else:
-        # EMBEDDINGS
-        """ query_data = np.load(f'{data_path}/fasttext_feats.npy', allow_pickle=True)
+        val_set = Text2ImgDataset(img_features_file, text_features_file, mode='val')
+        val_dataloader = DataLoader(val_set, batch_size=1, shuffle=False)
+        checkpoint = torch.load(os.path.join(out_path, 'task_b/models/Text2Image_weights.pth'))
 
-        query_data = [query_data[i][:] for i in (test_img)]        
-    
-        catalogue_data = loadmat(f'{data_path}/vgg_feats.mat')
+    # load model's weights
+    image_model.load_state_dict(checkpoint[0])
+    text_model.load_state_dict(checkpoint[1])
+    image_model.to(device)
+    text_model.to(device)
+    image_model.eval()
+    text_model.eval()
 
-        catalogue_data = [catalogue_data[:][i] for i in (train_img)] """
+    # create indx
+    index = faiss.IndexFlatL2(1000)
+    with torch.no_grad():
+        if type_of_retrieval == 'task_a':
+            for ii, (img, caption) in enumerate(val_dataloader):
+                xb = image_model(img).squeeze().numpy()
+                xb = np.float32(xb)
+                index.add(xb)
+        else:
+            for ii, (img, caption) in enumerate(val_dataloader):
+                xb = text_model(caption).squeeze().numpy()
+                xb = np.float32(xb)
+                index.add(xb)
 
-    ############REVISAR RETRIEVAL (5 POSIBLES SENTENCES)
-    catalogue_labels = np.asarray([x[1] for x in catalogue_meta])
-    query_labels = np.asarray([x[1] for x in query_meta])
+    # FAISS retrieval
+    k = 5
+    pred_label_all = []
+    metrics_all = []
+    with torch.no_grad():
+        if type_of_retrieval == 'task_a':
+            for ii, (img, caption) in enumerate(val_dataloader):
+                xq = image_model(caption).squeeze().numpy()
+                xq = np.float32(xq)
+                metrics, pred_label = index.search(np.array([xq]), k)
+                pred_label_all.append(pred_label)
+                metrics_all.append(metrics)
+        else:
+            for ii, (img, caption) in enumerate(val_dataloader):
+                xq = text_model(caption).squeeze().numpy()
+                xq = np.float32(xq)
+                metrics, pred_label = index.search(np.array([xq]), k)
+                pred_label_all.append(pred_label)
+                metrics_all.append(metrics)
 
-    # Image retrieval:
+    p_1 = mpk(gt_label_list, pd_single, 1)
+    p_5 = mpk(gt_label_list, pd_single, 5)
+    print('P@1={:.3f}'.format(p_1 * 100))
+    print('P@5={:.3f}'.format(p_5 * 100))
 
-    knn = KNeighborsClassifier(n_neighbors=len(catalogue_labels), p=1)
-    knn = knn.fit(catalogue_data, catalogue_labels)
-    neighbors = knn.kneighbors(query_data)[1]
-    # print(neighbors)
-
-    neighbors_labels = []
-    for i in range(len(neighbors)):
-        neighbors_class = [catalogue_meta[j][1] for j in neighbors[i]]
-        neighbors_labels.append(neighbors_class)
-
-    query_labels = [x[1] for x in query_meta]
-
-    p_1 = mpk(query_labels, neighbors_labels, 1)
-    p_5 = mpk(query_labels, neighbors_labels, 5)
-    print('P@1=', p_1)
-    print('P@5=', p_5)
-
-    map = mAP(query_labels, neighbors_labels)
-    print('mAP=', map)
-    with open(f'{out_path}/image2text.pkl', 'wb') as handle:
-        pickle.dump(neighbors, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    map = mAP(gt_label_list, pd_single)
+    print('mAP={:.3f}'.format(map * 100))
+    time_list = np.asarray(time_list)
+    print(f"FAISS mean TIME{np.mean(time_list)}")
 
 
 if __name__ == "__main__":
     config = {
         "data_path": "/home/aharris/shared/m5/Flickr30k",
         "out_path": "./results/",
-        "type": "image2text"
+        "type": "task_a"
     }
     main(config)

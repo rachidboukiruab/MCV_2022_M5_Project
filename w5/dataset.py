@@ -77,6 +77,7 @@ class Text2ImgDataset(Dataset):
         # pos_caption = self.text_features[index]  # (5, W, 300)
         positive_cap_sub_id = random.randint(0, self.text_features.shape[1] - 1)
         pos_caption = self.text_features[index][positive_cap_sub_id]
+        # aux_4_val = self.text_features[index] # returns all captions for that img, useful 4 retrieval eval
 
         while True:
             negative_img_id = random.randint(0, self.img_features.shape[1] - 1)

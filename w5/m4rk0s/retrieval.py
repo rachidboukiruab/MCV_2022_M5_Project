@@ -14,7 +14,6 @@ from models import ImgEncoder, TextEncoder
 
 
 def main(config):
-    # TODO: split .npy & .mat into train/test/val
     # TODO: dataset correct
     # TODO: faiss store labels for mpk
 
@@ -32,11 +31,11 @@ def main(config):
 
     # val dataset
     if type_of_retrieval == 'task_a':
-        val_set = Img2TextDataset(img_features_file, text_features_file)
+        val_set = Img2TextDataset(img_features_file, text_features_file, mode='val')
         val_dataloader = DataLoader(val_set, batch_size=1, shuffle=False)
         checkpoint = torch.load(os.path.join(out_path, 'task_a/models/Image2Text_weights.pth'))
     else:
-        val_set = Text2ImgDataset(img_features_file, text_features_file)
+        val_set = Text2ImgDataset(img_features_file, text_features_file, mode='val')
         val_dataloader = DataLoader(val_set, batch_size=1, shuffle=False)
         checkpoint = torch.load(os.path.join(out_path, 'task_b/models/Text2Image_weights.pth'))
 
@@ -52,12 +51,12 @@ def main(config):
     index = faiss.IndexFlatL2(1000)
     with torch.no_grad():
         if type_of_retrieval == 'task_a':
-            for ii, (img, caption) in enumerate(val_dataloader):
+            for ii, (img, caption, _) in enumerate(val_dataloader):
                 xb = image_model(img).squeeze().numpy()
                 xb = np.float32(xb)
                 index.add(xb)
         else:
-            for ii, (img, caption) in enumerate(val_dataloader):
+            for ii, (caption, img, _) in enumerate(val_dataloader):
                 xb = text_model(caption).squeeze().numpy()
                 xb = np.float32(xb)
                 index.add(xb)
@@ -65,37 +64,43 @@ def main(config):
     # FAISS retrieval
     k = 5
     pred_label_all = []
-    metrics_all = []
     with torch.no_grad():
         if type_of_retrieval == 'task_a':
-            for ii, (img, caption) in enumerate(val_dataloader):
+            for ii, (img, pos_caption, _) in enumerate(val_dataloader):
                 xq = image_model(caption).squeeze().numpy()
                 xq = np.float32(xq)
-                metrics, pred_label = index.search(np.array([xq]), k)
-                pred_label_all.append(pred_label)
-                metrics_all.append(metrics)
+                _, pred_label = index.search(np.array([xq]), k)
+                pred = 0
+                for lab in pred_label:
+                    if lab == img:
+                        pred = 1
+                pred_label_all.append(pred)
         else:
-            for ii, (img, caption) in enumerate(val_dataloader):
-                xq = text_model(caption).squeeze().numpy()
+            for ii, (caption, img, _) in enumerate(val_dataloader):
+                xq = text_model(img).squeeze().numpy()
                 xq = np.float32(xq)
-                metrics, pred_label = index.search(np.array([xq]), k)
-                pred_label_all.append(pred_label)
-                metrics_all.append(metrics)
+                _, pred_label = index.search(np.array([xq]), k)
+                pred = 0
+                for lab in pred_label:
+                    for cap in caption:
+                        if lab == cap:
+                            pred = 1
+                pred_label_all.append(pred)
 
-    p_1 = mpk(gt_label_list, pd_single, 1)
-    p_5 = mpk(gt_label_list, pd_single, 5)
-    print('P@1={:.3f}'.format(p_1 * 100))
-    print('P@5={:.3f}'.format(p_5 * 100))
+    ground_truth = np.ones_like(pred_label_all)
 
-    map = mAP(gt_label_list, pd_single)
+    # p_1 = mpk(ground_truth, pred_label_all, 1)
+    # p_5 = mpk(ground_truth, pred_label_all, 5)
+    # print('P@1={:.3f}'.format(p_1 * 100))
+    # print('P@5={:.3f}'.format(p_5 * 100))
+
+    map = mAP(ground_truth, pred_label_all)
     print('mAP={:.3f}'.format(map * 100))
-    time_list = np.asarray(time_list)
-    print(f"FAISS mean TIME{np.mean(time_list)}")
 
 
 if __name__ == "__main__":
     config = {
-        "data_path": "/home/aharris/shared/m5/Flickr30k",
+        "data_path": "/home/group01/mcv/datasets/Flickr30k",
         "out_path": "./results/",
         "type": "task_a"
     }
