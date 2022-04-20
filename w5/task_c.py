@@ -6,41 +6,16 @@ from torch.utils.data import DataLoader
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from models import ImgEncoder, TextEncoder, FasterRCNN
 from utils import decay_learning_rate
-from dataset import FlickrFaster
+from dataset import TripletFaster, ImageData
 import os
 import numpy as np
 import sys
-from torchvision import transforms
 from PIL import Image
 
-
-
-
-def extract_visual_features(model,device, filepath,in_features):
-    model.to(device=device)
-
-    tfms = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-
-    dir = os.listdir(filepath)
-    image_features = np.empty((in_features,len(dir)))
-    
-    for i in dir: 
-        image = tfms(Image.open(os.path.join(filepath,i)))
-        model.eval()
-        with torch.no_grad():
-            img_tensor = image.to(device=device)
-            output = model(img_tensor.unsqueeze(0))
-            print(output)
-            print(len(output))
-            break
-            #image_features[i,:] = model(img_tensor.unsqueeze(0)).numpy
-
-            break
-    return image_features
+def get_features(name):
+    def hook(model, input, output):
+        features[name] = output.detach()
+    return hook
 
 
 
@@ -77,18 +52,31 @@ if __name__ == '__main__':
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    train_data = ImageData(train_path)
+    train_dataloader = DataLoader(train_data, batch_size=32, shuffle=False, num_workers=2)
+
     faster = FasterRCNN()
+    faster.to(device)
     print(faster)
+
+    faster.fc.register_forward_hook(get_features('features'))
+    print('--------Extracting visual features for the training set---------------')
+    features = {}
+    feats = []
+
+    for idx, imgs in enumerate(train_dataloader):
+        imgs = imgs.to(device)
+        out = faster(imgs)
+        feats.append(features['features'].cpu().numpy())
+
     
-    
-    img_features = extract_visual_features(faster,device,train_path,in_features=2048)
     sys.exit()
 
     loss_func = nn.TripletMarginLoss(args.margin, p=2)
 
-    train_set = FlickrFaster(img_features, text_features_file)
+    triplet_set = TripletFaster(img_features, text_features_file)
     
-    train_dataloader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, num_workers=4)
+    triplet_dataloader = DataLoader(triplet_set, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
     # TEXT & IMGS MODELS
     image_model = ImgEncoder(dim=2048)

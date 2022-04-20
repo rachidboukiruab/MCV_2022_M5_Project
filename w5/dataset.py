@@ -6,6 +6,9 @@ from scipy.io import loadmat
 
 from utils import reduce_txt_embeds
 from pathlib import Path
+import os
+from PIL import Image
+from torchvision import transforms
 
 
 class Img2TextDataset(Dataset):
@@ -116,7 +119,7 @@ class FlickrImagesAndCaptions(Dataset):
         return np.asarray(aux1)
 
 
-class FlickrFaster(Dataset):
+class TripletFaster(Dataset):
     def __init__(self, img_features, text_features_file: str):
         assert text_features_file.split('/')[-1].split('.')[-1] == 'npy', 'img`s features must be .mat & text .npy'
         self.text_features = np.load(text_features_file, allow_pickle=True)
@@ -141,3 +144,24 @@ class FlickrFaster(Dataset):
 
     def __len__(self):
         return self.img_features.shape[1]
+
+
+class ImageData(Dataset):
+    def __init__(self, directory):
+        self.img_path = directory
+        self.images = os.listdir(self.img_path)
+        self.image_features = np.empty((1024,len(self.images)))
+        self.tfms = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+    def __len__(self):
+        
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image = Image.open(os.path.join(self.img_path, self.images[idx]))
+        tensor_img = self.tfms(image)
+        return tensor_img

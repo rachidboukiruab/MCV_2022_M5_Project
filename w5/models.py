@@ -41,17 +41,19 @@ class TextEncoder(Module):
 
 
 
-
 class FasterRCNN(Module):
             def __init__(self):
                 super(FasterRCNN, self).__init__()
                 self.original_model = models.detection.fasterrcnn_resnet50_fpn(pretrained = True)
                 self.fc = Linear(2048,1024)
-                self.backbone = Sequential(*list(self.original_model.backbone.children())[:-1]) 
-                self.features = Sequential(self.fc)
+                self.features = Sequential(*list(self.original_model.backbone.children())[:-1], self.fc) 
+
 
             def forward(self, x):
                 out = self.features(x)
                 return out
+
+
+
 
     
