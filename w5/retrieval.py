@@ -17,11 +17,11 @@ def main(config):
     # TODO: faiss store labels for mpk
 
     data_path = config['data_path']
-    out_path = config['data_path']
+    out_path = config['out_path']
     type_of_retrieval = config['type']
 
-    img_features_file = os.path.join(data_path,'vgg_feats.mat')
-    text_features_file = os.path.join(data_path,'fasttext_feats.npy')
+    img_features_file = os.path.join(data_path, 'vgg_feats.mat')
+    text_features_file = os.path.join(data_path, 'fasttext_feats.npy')
 
     image_model = ImgEncoder()
     text_model = TextEncoder()
@@ -47,18 +47,20 @@ def main(config):
     text_model.eval()
 
     # create indx
-    index = faiss.IndexFlatL2(1000)
+    d = 1000
+    index = faiss.IndexFlatL2(d)
+    xb = np.empty((len(val_set), d))
     with torch.no_grad():
         if type_of_retrieval == 'task_a':
             for ii, (img, caption, _) in enumerate(val_dataloader):
-                xb = image_model(img).squeeze().numpy()
-                xb = np.float32(xb)
-                index.add(xb)
+                xb[ii, :] = image_model(img).squeeze().numpy()
+
         else:
             for ii, (caption, img, _) in enumerate(val_dataloader):
-                xb = text_model(caption).squeeze().numpy()
-                xb = np.float32(xb)
-                index.add(xb)
+                xb[ii, :] = text_model(caption).squeeze().numpy()
+
+    xb = np.float32(xb)
+    index.add(xb)
 
     # FAISS retrieval
     k = 5
@@ -66,7 +68,7 @@ def main(config):
     with torch.no_grad():
         if type_of_retrieval == 'task_a':
             for ii, (img, pos_caption, _) in enumerate(val_dataloader):
-                xq = image_model(caption).squeeze().numpy()
+                xq = text_model(caption).squeeze().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
                 pred = 0
@@ -76,7 +78,7 @@ def main(config):
                 pred_label_all.append(pred)
         else:
             for ii, (caption, img, _) in enumerate(val_dataloader):
-                xq = text_model(img).squeeze().numpy()
+                xq = image_model(img).squeeze().numpy()
                 xq = np.float32(xq)
                 _, pred_label = index.search(np.array([xq]), k)
                 pred = 0
