@@ -3,6 +3,7 @@ import wandb
 import numpy as np
 import umap
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from torch import nn
 from torch.nn.utils.clip_grad import clip_grad_norm_
@@ -94,14 +95,13 @@ def validate(valid_dataloader, image_model, text_model, anchor, epoch):
     with torch.no_grad():
         for i, (img_features, txt_features) in enumerate(valid_dataloader):
             img_features = img_features.to(device)  # (batch, ifeatures)
-            print(img_features.size())
             txt_features = txt_features.to(device)  # (batch, ncaptions, tfeatures)
 
             batch_size, ncaptions, tfeatures = txt_features.shape
 
             # Reshape textual features so they are all encoded at once
             txt_features = txt_features.reshape((-1, tfeatures))
-            img_encoded = image_model(img_features)
+            img_encoded = image_model(img_features.float())
             txt_encoded = text_model(txt_features)
 
             all_img_features.append(img_encoded.detach().to("cpu").numpy())
@@ -179,10 +179,7 @@ if __name__ == '__main__':
         num_workers=0
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    for i, (img_features, txt_features) in enumerate(val_dataloader):
-            img_features = img_features.to(device)  # (batch, ifeatures)
-            print(img_features.size())
-    sys.exit()
+    
     # TEXT & IMGS MODELS
     # image_model = ImgEncoder(embedding_size=64)
     # text_model = TextEncoder(embedding_size=64)
@@ -212,55 +209,60 @@ if __name__ == '__main__':
 
     # training loop
     iterations = 1
+    n_train = len(train_dataloader.dataset)
     for epoch in range(args.num_epochs):
-        for i, (img_features, txt_features) in enumerate(train_dataloader):
-            img_features = img_features.to(device)  # (batch, ifeatures)
-            txt_features = txt_features.to(device)  # (batch, ncaptions, tfeatures)
+        with tqdm(total=n_train, desc=f'Epoch {epoch + 1}/{args.num_epochs}', unit='img') as pbar:
+            for i, (img_features, txt_features) in enumerate(train_dataloader):
+                img_features = img_features.to(device)  # (batch, ifeatures)
+                txt_features = txt_features.to(device)  # (batch, ncaptions, tfeatures)
 
-            batch_size, ncaptions, tfeatures = txt_features.shape
+                batch_size, ncaptions, tfeatures = txt_features.shape
 
-            # Reshape textual features so they are all encoded at once
-            txt_features = txt_features.reshape((-1, tfeatures))
+                # Reshape textual features so they are all encoded at once
+                txt_features = txt_features.reshape((-1, tfeatures))
 
-            img_encoded = image_model(img_features)
-            txt_encoded = text_model(txt_features)
+                img_encoded = image_model(img_features)
+                txt_encoded = text_model(txt_features)
 
-            img_labels = torch.arange(batch_size)
-            txt_labels = torch.arange(batch_size).repeat_interleave(ncaptions)
+                img_labels = torch.arange(batch_size)
+                txt_labels = torch.arange(batch_size).repeat_interleave(ncaptions)
 
-            # Create all training tuples according to modality anchor
-            if args.anchor == "text":
-                tuples = miner(txt_encoded, txt_labels, img_encoded, img_labels)
-                loss = loss_func(
-                    txt_encoded,
-                    txt_labels,
-                    tuples,
-                    ref_emb=img_encoded,
-                    ref_labels=img_labels
-                )
-            else:
-                tuples = miner(img_encoded, img_labels, txt_encoded, txt_labels)
-                loss = loss_func(
-                    img_encoded,
-                    img_labels,
-                    tuples,
-                    ref_emb=txt_encoded,
-                    ref_labels=txt_labels
-                )
+                # Create all training tuples according to modality anchor
+                if args.anchor == "text":
+                    tuples = miner(txt_encoded, txt_labels, img_encoded, img_labels)
+                    loss = loss_func(
+                        txt_encoded,
+                        txt_labels,
+                        tuples,
+                        ref_emb=img_encoded,
+                        ref_labels=img_labels
+                    )
+                else:
+                    tuples = miner(img_encoded, img_labels, txt_encoded, txt_labels)
+                    loss = loss_func(
+                        img_encoded,
+                        img_labels,
+                        tuples,
+                        ref_emb=txt_encoded,
+                        ref_labels=txt_labels
+                    )
 
-            optimizer.zero_grad()
+                optimizer.zero_grad()
 
-            loss.backward()
-            # if args.grad_clip > 0:
-            #     clip_grad_norm_(params, args.grad_clip)
-            optimizer.step()
-            iterations += 1
+                loss.backward()
+                # if args.grad_clip > 0:
+                #     clip_grad_norm_(params, args.grad_clip)
+                optimizer.step()
+                iterations += 1
 
-            wandb.log({
-                "step": iterations,
-                "train_loss": loss,
-                "learning_rate": scheduler.get_last_lr()[0],
-            })
+                pbar.set_postfix(**{'loss (batch) ': loss.item()})
+                pbar.update(batch_size)
+
+                wandb.log({
+                    "step": iterations,
+                    "train_loss": loss,
+                    "learning_rate": scheduler.get_last_lr()[0],
+                })
         p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor, epoch)
         wandb.log({
             "epoch": epoch,

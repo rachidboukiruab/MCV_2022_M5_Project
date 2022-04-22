@@ -120,7 +120,8 @@ class FlickrImagesAndCaptions(Dataset):
 
 
         if task == 'c':
-            self.text_features = np.load(str(root_path / "imgfeatures.npy"), allow_pickle=True).T[indices]
+            self.img_features = np.load(str(root_path / "imgfeatures.npy"), allow_pickle=True).T[indices]
+            self.img_features = self.img_features.astype(np.float32)
         else:
             self.img_features = loadmat(str(root_path / "vgg_feats.mat"))['feats'].T[indices]
             
