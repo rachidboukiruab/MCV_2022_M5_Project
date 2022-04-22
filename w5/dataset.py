@@ -94,7 +94,7 @@ class Text2ImgDataset(Dataset):
 
 
 class FlickrImagesAndCaptions(Dataset):
-    #SPLITS = ["train", "val", "test"]
+    SPLITS = ["train", "val", "test"]
 
     def __init__(
             self,
@@ -105,47 +105,25 @@ class FlickrImagesAndCaptions(Dataset):
         root_path = Path(dataset_path)
         self.split = split
 
+        assert (root_path / "fasttext_feats.npy").exists(), "No textual features in data dir"
+        assert (root_path / "vgg_feats.mat").exists(), "No image features in data dir"
+        assert split in self.SPLITS, "Invalid dataset split"
+        assert (root_path / f"{self.split}.json").exists(), "No split data in data dir"
+
+        # To determine partition files, use imgid from partition jsons
+        with open(root_path / f"{self.split}.json", 'r') as f_json:
+            split = json.load(f_json)
+            indices = self._get_split_indices(split)
+
+        self.text_features = np.load(str(root_path / "fasttext_feats.npy"), allow_pickle=True)
+        self.text_features = self._mean_reduction(self.text_features)[indices]
+
 
         if task == 'c':
-            assert (root_path / "fasttext_feats.npy").exists(), "No textual features in data dir"
-            assert (root_path / "train_imgfeatures.npy").exists(), "No train image features in data dir"
-            assert (root_path / "test_imgfeatures.npy").exists(), "No test image features in data dir"
-            assert (root_path / "val_imgfeatures.npy").exists(), "No val image features in data dir"
-            #assert split in self.SPLITS, "Invalid dataset split"
-            
-            # To determine partition files, use imgid from partition jsons
-            with open(root_path / f"{self.split}.json", 'r') as f_json:
-                split = json.load(f_json)
-                indices = self._get_split_indices(split)
-
-            if self.split == 'train':
-                self.img_features = np.concatenate(np.load(str(root_path / "train_imgfeatures.npy")))
-            if self.split == 'test':
-                self.img_features = np.concatenate(np.load(str(root_path / "test_imgfeatures.npy")))
-            if self.split == 'val':
-                self.img_features = np.concatenate(np.load(str(root_path / "train_imgfeatures.npy")))
-            
-            self.text_features = np.load(str(root_path / "fasttext_feats.npy"), allow_pickle=True)
-            self.text_features = self._mean_reduction(self.text_features)[indices]
-
-            
-
+            self.text_features = np.load(str(root_path / "imgfeatures.npy"), allow_pickle=True).T[indices]
         else:
-            assert (root_path / "fasttext_feats.npy").exists(), "No textual features in data dir"
-            assert (root_path / "vgg_feats.mat").exists(), "No image features in data dir"
-            #assert split in self.SPLITS, "Invalid dataset split"
-            assert (root_path / f"{self.split}.json").exists(), "No split data in data dir"
-
-            # To determine partition files, use imgid from partition jsons
-            with open(root_path / f"{self.split}.json", 'r') as f_json:
-                split = json.load(f_json)
-                indices = self._get_split_indices(split)
-
             self.img_features = loadmat(str(root_path / "vgg_feats.mat"))['feats'].T[indices]
-            self.text_features = np.load(str(root_path / "fasttext_feats.npy"), allow_pickle=True)
-            self.text_features = self._mean_reduction(self.text_features)[indices]
-
-        
+            
 
     def __getitem__(self, index):
         img_features = self.img_features[index]  # (Images, FeatureSize)
@@ -193,6 +171,7 @@ class ImageData(Dataset):
         image = Image.open(os.path.join(self.img_path, self.images[idx]))
         tensor_img = self.tfms(image)
         return tensor_img
+
 
 class FlickrImagesAndCaptionsBERT(Dataset):
     SPLITS = ["train", "val", "test"]
