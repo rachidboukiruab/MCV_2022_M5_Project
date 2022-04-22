@@ -68,7 +68,7 @@ class LinearEncoder(Module):
 
 
 class FasterRCNN(Module):
-    def __init__(self, embed_size):
+    def __init__(self, embed_size=4096):
         super(FasterRCNN, self).__init__()
         original_model = models.detection.fasterrcnn_resnet50_fpn(pretrained = True)
         self.fc = Linear(3840, embed_size)
@@ -80,6 +80,6 @@ class FasterRCNN(Module):
         outputs = []
         for v in x.values():
             outputs.append(v.reshape(v.shape[0], v.shape[1], -1).max(dim=-1)[0])
-        out = torch.concat(outputs, dim=1)
+        out = torch.cat(outputs, dim=1)
         out = self.fc(out)
         return out

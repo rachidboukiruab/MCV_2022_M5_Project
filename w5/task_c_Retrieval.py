@@ -19,8 +19,8 @@ from pytorch_metric_learning import miners, losses, reducers
 from sklearn.neighbors import KNeighborsClassifier
 
 import os
-
-dataset_path = '/home/aharris/shared/m5/Flickr30k'
+import sys
+dataset_path = '../Flickr30k'
 output_path = "./results/task_c/"
 
 parser = ArgumentParser(
@@ -94,13 +94,13 @@ def validate(valid_dataloader, image_model, text_model, anchor, epoch):
     with torch.no_grad():
         for i, (img_features, txt_features) in enumerate(valid_dataloader):
             img_features = img_features.to(device)  # (batch, ifeatures)
+            print(img_features.size())
             txt_features = txt_features.to(device)  # (batch, ncaptions, tfeatures)
 
             batch_size, ncaptions, tfeatures = txt_features.shape
 
             # Reshape textual features so they are all encoded at once
             txt_features = txt_features.reshape((-1, tfeatures))
-
             img_encoded = image_model(img_features)
             txt_encoded = text_model(txt_features)
 
@@ -142,8 +142,9 @@ def validate(valid_dataloader, image_model, text_model, anchor, epoch):
 
 
 if __name__ == '__main__':
-    os.makedirs(output_path, exist_ok=True)
-    os.makedirs(output_path + "/plots")
+    if not os.path.exists(output_path + "/plots"):
+        os.makedirs(output_path + "/plots")
+    
     wandb.init(
         dir=output_path,
         project="w5",
@@ -155,9 +156,9 @@ if __name__ == '__main__':
     # loss_func = nn.TripletMarginLoss(args.margin)
     miner = miners.TripletMarginMiner(args.margin, type_of_triplets=args.mining_type)
 
-    train_set = FlickrImagesAndCaptions(dataset_path, "train")
-    val_set = FlickrImagesAndCaptions(dataset_path, "val")
-    test_set = FlickrImagesAndCaptions(dataset_path, "test")
+    train_set = FlickrImagesAndCaptions(dataset_path, split="train", task='c')
+    val_set = FlickrImagesAndCaptions(dataset_path, split="val", task='c')
+    test_set = FlickrImagesAndCaptions(dataset_path, split="test", task='c')
 
     train_dataloader = DataLoader(
         train_set,
@@ -177,7 +178,11 @@ if __name__ == '__main__':
         shuffle=False,
         num_workers=0
     )
-
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    for i, (img_features, txt_features) in enumerate(val_dataloader):
+            img_features = img_features.to(device)  # (batch, ifeatures)
+            print(img_features.size())
+    sys.exit()
     # TEXT & IMGS MODELS
     # image_model = ImgEncoder(embedding_size=64)
     # text_model = TextEncoder(embedding_size=64)
@@ -187,6 +192,7 @@ if __name__ == '__main__':
 
     image_model.init_weights()
     text_model.init_weights()
+    
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     image_model.to(device)

@@ -94,28 +94,58 @@ class Text2ImgDataset(Dataset):
 
 
 class FlickrImagesAndCaptions(Dataset):
-    SPLITS = ["train", "val", "test"]
+    #SPLITS = ["train", "val", "test"]
 
     def __init__(
             self,
             dataset_path: str,
-            split: str
+            split: str,
+            task = None
     ):
         root_path = Path(dataset_path)
+        self.split = split
 
-        assert (root_path / "fasttext_feats.npy").exists(), "No textual features in data dir"
-        assert (root_path / "vgg_feats.mat").exists(), "No image features in data dir"
-        assert split in self.SPLITS, "Invalid dataset split"
-        assert (root_path / f"{split}.json").exists(), "No split data in data dir"
 
-        # To determine partition files, use imgid from partition jsons
-        with open(root_path / f"{split}.json", 'r') as f_json:
-            split = json.load(f_json)
-            indices = self._get_split_indices(split)
+        if task == 'c':
+            assert (root_path / "fasttext_feats.npy").exists(), "No textual features in data dir"
+            assert (root_path / "train_imgfeatures.npy").exists(), "No train image features in data dir"
+            assert (root_path / "test_imgfeatures.npy").exists(), "No test image features in data dir"
+            assert (root_path / "val_imgfeatures.npy").exists(), "No val image features in data dir"
+            #assert split in self.SPLITS, "Invalid dataset split"
+            
+            # To determine partition files, use imgid from partition jsons
+            with open(root_path / f"{self.split}.json", 'r') as f_json:
+                split = json.load(f_json)
+                indices = self._get_split_indices(split)
 
-        self.img_features = loadmat(str(root_path / "vgg_feats.mat"))['feats'].T[indices]
-        self.text_features = np.load(str(root_path / "fasttext_feats.npy"), allow_pickle=True)
-        self.text_features = self._mean_reduction(self.text_features)[indices]
+            if self.split == 'train':
+                self.img_features = np.concatenate(np.load(str(root_path / "train_imgfeatures.npy")))
+            if self.split == 'test':
+                self.img_features = np.concatenate(np.load(str(root_path / "test_imgfeatures.npy")))
+            if self.split == 'val':
+                self.img_features = np.concatenate(np.load(str(root_path / "train_imgfeatures.npy")))
+            
+            self.text_features = np.load(str(root_path / "fasttext_feats.npy"), allow_pickle=True)
+            self.text_features = self._mean_reduction(self.text_features)[indices]
+
+            
+
+        else:
+            assert (root_path / "fasttext_feats.npy").exists(), "No textual features in data dir"
+            assert (root_path / "vgg_feats.mat").exists(), "No image features in data dir"
+            #assert split in self.SPLITS, "Invalid dataset split"
+            assert (root_path / f"{self.split}.json").exists(), "No split data in data dir"
+
+            # To determine partition files, use imgid from partition jsons
+            with open(root_path / f"{self.split}.json", 'r') as f_json:
+                split = json.load(f_json)
+                indices = self._get_split_indices(split)
+
+            self.img_features = loadmat(str(root_path / "vgg_feats.mat"))['feats'].T[indices]
+            self.text_features = np.load(str(root_path / "fasttext_feats.npy"), allow_pickle=True)
+            self.text_features = self._mean_reduction(self.text_features)[indices]
+
+        
 
     def __getitem__(self, index):
         img_features = self.img_features[index]  # (Images, FeatureSize)
@@ -143,32 +173,6 @@ class FlickrImagesAndCaptions(Dataset):
             aux1.append(aux2)
         return np.asarray(aux1)
 
-
-class TripletFaster(Dataset):
-    def __init__(self, img_features, text_features_file: str):
-        assert text_features_file.split('/')[-1].split('.')[-1] == 'npy', 'img`s features must be .mat & text .npy'
-        self.text_features = np.load(text_features_file, allow_pickle=True)
-        self.text_features = reduce_txt_embeds(self.text_features)
-        self.img_features = img_features
-
-    def __getitem__(self, index):
-        image = self.img_features[:, index]  # (4096,)
-        # pos_caption = self.text_features[index]  # (5, W, 300)
-        positive_cap_sub_id = random.randint(0, self.text_features.shape[1] - 1)
-        pos_caption = self.text_features[index][positive_cap_sub_id]
-
-        while True:
-            negative_img_id = random.randint(0, self.img_features.shape[1] - 1)
-            if negative_img_id != index:
-                break
-
-        # neg img extraction
-        negative_image = self.img_features[:, negative_img_id]
-
-        return pos_caption, image, negative_image
-
-    def __len__(self):
-        return self.img_features.shape[1]
 
 
 class ImageData(Dataset):
