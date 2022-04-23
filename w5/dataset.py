@@ -184,7 +184,7 @@ class FlickrImagesAndCaptionsBERT(Dataset):
     ):
         root_path = Path(dataset_path)
 
-        assert ("./results/task_d/bert_feats.npy").exists(), "No textual features in data dir"
+        assert (Path("./results/task_d/bert_feats.npy")).exists(), "No textual features in data dir"
         assert (root_path / "vgg_feats.mat").exists(), "No image features in data dir"
         assert split in self.SPLITS, "Invalid dataset split"
         assert (root_path / f"{split}.json").exists(), "No split data in data dir"

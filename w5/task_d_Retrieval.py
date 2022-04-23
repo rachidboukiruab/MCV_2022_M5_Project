@@ -183,8 +183,8 @@ if __name__ == '__main__':
     # image_model = ImgEncoder(embedding_size=64)
     # text_model = TextEncoder(embedding_size=64)
 
-    image_model = LinearEncoder(4096, [256, 128, 64])
-    text_model = LinearEncoder(768, [256, 128, 64])
+    image_model = LinearEncoder(4096, [384, 256])
+    text_model = LinearEncoder(768, [384, 256])
 
     image_model.init_weights()
     text_model.init_weights()
@@ -192,6 +192,11 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     image_model.to(device)
     text_model.to(device)
+
+    #LOAD PRETRAINED WEIGHTS
+    state_dict =  torch.load('{}/image_weights.pth'.format(output_path))
+    image_model.load_state_dict(state_dict[0])
+    text_model.load_state_dict(state_dict[1])
 
     # optimizer
     params = list(image_model.parameters())
