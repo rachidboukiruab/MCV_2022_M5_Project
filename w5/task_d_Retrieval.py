@@ -194,9 +194,9 @@ if __name__ == '__main__':
     text_model.to(device)
 
     #LOAD PRETRAINED WEIGHTS
-    state_dict =  torch.load('{}/image_weights.pth'.format(output_path))
-    image_model.load_state_dict(state_dict[0])
-    text_model.load_state_dict(state_dict[1])
+    #state_dict =  torch.load('{}/image_weights.pth'.format(output_path))
+    #image_model.load_state_dict(state_dict[0])
+    #text_model.load_state_dict(state_dict[1])
 
     # optimizer
     params = list(image_model.parameters())
