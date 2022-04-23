@@ -19,10 +19,12 @@ from pytorch_metric_learning import miners, losses, reducers
 from sklearn.neighbors import KNeighborsClassifier
 
 import os
+import pickle
 
 dataset_path = '/home/group01/mcv/datasets/Flickr30k'
 output_path = "./results/task_d"
 os.makedirs(output_path, exist_ok=True)
+training = False
 
 parser = ArgumentParser(
         description='Torch-based image classification system',
@@ -85,7 +87,7 @@ def display_embeddings(text_embeddings, image_embeddings, text_labels, image_lab
     plt.close()
 
 
-def validate(valid_dataloader, image_model, text_model, anchor, epoch):
+def validate(valid_dataloader, image_model, text_model, anchor, epoch, file_name):
     all_img_features = []
     all_txt_features = []
 
@@ -132,6 +134,13 @@ def validate(valid_dataloader, image_model, text_model, anchor, epoch):
 
         p1 = mpk(all_img_labels, predictions, 1)
         p5 = mpk(all_img_labels, predictions, 5)
+    
+
+    all_features = {'txt_features': all_txt_features, 'img_features': all_img_features, 'txt_labels': all_txt_labels, 'img_labels': all_img_labels}
+    #Save data
+    with open('{}/all_features_{}.pkl'.format(output_path, file_name), "wb") as f:
+        pickle.dump(all_features, f)       
+    print('Features and labels saved.')
 
     if not epoch % 100:
         display_embeddings(all_txt_features, all_img_features, all_txt_labels, all_img_labels, epoch)
@@ -193,83 +202,100 @@ if __name__ == '__main__':
     image_model.to(device)
     text_model.to(device)
 
-    #LOAD PRETRAINED WEIGHTS
-    #state_dict =  torch.load('{}/image_weights.pth'.format(output_path))
-    #image_model.load_state_dict(state_dict[0])
-    #text_model.load_state_dict(state_dict[1])
+    if training:
+         # optimizer
+        params = list(image_model.parameters())
+        params += list(text_model.parameters())
 
-    # optimizer
-    params = list(image_model.parameters())
-    params += list(text_model.parameters())
+        optimizer = Adam(params, lr=args.lr, weight_decay=args.weight_decay)
+        scheduler = ExponentialLR(optimizer, args.gamma)
 
-    optimizer = Adam(params, lr=args.lr, weight_decay=args.weight_decay)
-    scheduler = ExponentialLR(optimizer, args.gamma)
+        image_model.train()
+        text_model.train()
 
-    image_model.train()
-    text_model.train()
+        #p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor, -1)
 
-    p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor, -1)
+        # training loop
+        iterations = 1
+        for epoch in range(args.num_epochs):
+            for i, (img_features, txt_features) in enumerate(train_dataloader):
+                img_features = img_features.to(device)  # (batch, ifeatures)
+                txt_features = txt_features.to(device)  # (batch, ncaptions, tfeatures)
 
-    # training loop
-    iterations = 1
-    for epoch in range(args.num_epochs):
-        for i, (img_features, txt_features) in enumerate(train_dataloader):
-            img_features = img_features.to(device)  # (batch, ifeatures)
-            txt_features = txt_features.to(device)  # (batch, ncaptions, tfeatures)
+                batch_size, ncaptions, tfeatures = txt_features.shape
 
-            batch_size, ncaptions, tfeatures = txt_features.shape
+                # Reshape textual features so they are all encoded at once
+                txt_features = txt_features.reshape((-1, tfeatures))
 
-            # Reshape textual features so they are all encoded at once
-            txt_features = txt_features.reshape((-1, tfeatures))
+                img_encoded = image_model(img_features)
+                txt_encoded = text_model(txt_features)
 
-            img_encoded = image_model(img_features)
-            txt_encoded = text_model(txt_features)
+                img_labels = torch.arange(batch_size)
+                txt_labels = torch.arange(batch_size).repeat_interleave(ncaptions)
 
-            img_labels = torch.arange(batch_size)
-            txt_labels = torch.arange(batch_size).repeat_interleave(ncaptions)
+                # Create all training tuples according to modality anchor
+                if args.anchor == "text":
+                    tuples = miner(txt_encoded, txt_labels, img_encoded, img_labels)
+                    loss = loss_func(
+                        txt_encoded,
+                        txt_labels,
+                        tuples,
+                        ref_emb=img_encoded,
+                        ref_labels=img_labels
+                    )
+                else:
+                    tuples = miner(img_encoded, img_labels, txt_encoded, txt_labels)
+                    loss = loss_func(
+                        img_encoded,
+                        img_labels,
+                        tuples,
+                        ref_emb=txt_encoded,
+                        ref_labels=txt_labels
+                    )
 
-            # Create all training tuples according to modality anchor
-            if args.anchor == "text":
-                tuples = miner(txt_encoded, txt_labels, img_encoded, img_labels)
-                loss = loss_func(
-                    txt_encoded,
-                    txt_labels,
-                    tuples,
-                    ref_emb=img_encoded,
-                    ref_labels=img_labels
-                )
-            else:
-                tuples = miner(img_encoded, img_labels, txt_encoded, txt_labels)
-                loss = loss_func(
-                    img_encoded,
-                    img_labels,
-                    tuples,
-                    ref_emb=txt_encoded,
-                    ref_labels=txt_labels
-                )
+                optimizer.zero_grad()
 
-            optimizer.zero_grad()
+                loss.backward()
+                # if args.grad_clip > 0:
+                #     clip_grad_norm_(params, args.grad_clip)
+                optimizer.step()
+                iterations += 1
 
-            loss.backward()
-            # if args.grad_clip > 0:
-            #     clip_grad_norm_(params, args.grad_clip)
-            optimizer.step()
-            iterations += 1
-
+                wandb.log({
+                    "step": iterations,
+                    "train_loss": loss,
+                    "learning_rate": scheduler.get_last_lr()[0],
+                })
+            p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor, epoch)
             wandb.log({
-                "step": iterations,
-                "train_loss": loss,
-                "learning_rate": scheduler.get_last_lr()[0],
+                "epoch": epoch,
+                "p1": p1,
+                "p5": p5,
             })
-        p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor, epoch)
-        wandb.log({
-            "epoch": epoch,
-            "p1": p1,
-            "p5": p5,
-        })
-        scheduler.step()
-    
-    state_dict = [image_model.state_dict(), text_model.state_dict()]
-    model_folder = str(output_path + "/models")
-    os.makedirs(model_folder, exist_ok=True)
-    torch.save(state_dict, f'{model_folder}/{args.anchor}_weights.pth')
+            scheduler.step()
+        
+        state_dict = [image_model.state_dict(), text_model.state_dict()]
+        model_folder = str(output_path + "/models")
+        os.makedirs(model_folder, exist_ok=True)
+        torch.save(state_dict, f'{model_folder}/{args.anchor}_weights.pth')
+    else:
+        #LOAD PRETRAINED WEIGHTS
+        state_dict =  torch.load('{}/models/image_weights.pth'.format(output_path))
+        image_model.load_state_dict(state_dict[0])
+        text_model.load_state_dict(state_dict[1])
+
+        # optimizer
+        params = list(image_model.parameters())
+        params += list(text_model.parameters())
+
+        optimizer = Adam(params, lr=args.lr, weight_decay=args.weight_decay)
+        scheduler = ExponentialLR(optimizer, args.gamma)
+
+        image_model.train()
+        text_model.train()
+
+        p1, p5 = validate(train_dataloader, image_model, text_model, args.anchor, -1, 'train')
+        p1, p5 = validate(val_dataloader, image_model, text_model, args.anchor, -1, 'validation')
+        p1, p5 = validate(test_dataloader, image_model, text_model, args.anchor, -1, 'test')
+
+   
