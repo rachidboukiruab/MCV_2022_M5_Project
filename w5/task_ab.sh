@@ -5,4 +5,4 @@
 #SBATCH --gres gpu:1 # Para pedir Pascales MAX 8
 #SBATCH -o %x_%u_%j.out # File to which STDOUT will be written
 #SBATCH -e %x_%u_%j.err # File to which STDERR will be written
-python task_ab.py text 1000 0.0003 0.005 25 0.2 1.0 1.0 semihard
+python task_ab.py text 200 0.0003 0.005 50 0.2 1.0 1.0 semihard
