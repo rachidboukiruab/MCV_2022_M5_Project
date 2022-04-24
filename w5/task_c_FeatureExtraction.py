@@ -6,18 +6,13 @@ import numpy as np
 import sys
 import json
 import os
-
-def get_features(name):
-    def hook(model, input, output):
-        features[name] = output.detach()
-    return hook
-
+from torch.nn import Module, Linear, ReLU, init, Sequential
+from torchvision import models
 
 
 data_path = '/home/aharris/shared/m5/Flickr30k/dataset'
 
 output_path = "/home/aharris/shared/m5/w5/results/task_c"
-
 
 
 if __name__ == '__main__':
@@ -32,21 +27,17 @@ if __name__ == '__main__':
     faster = FasterRCNN()
     faster.to(device)
     print(faster)
-    
-    faster.fc.register_forward_hook(get_features('features'))
+
     print('--------Extracting visual features---------------')
-    
 
-    features = {}
-    feats = np.empty((4096,len(os.listdir(data_path))))
-    for idx, imgs in enumerate(dataloader):
-        print(idx)
-        imgs = imgs.to(device)
-        out = faster(imgs)
-        feats[:,idx] = (features['features'].cpu().numpy())
+    feats = np.empty((len(os.listdir(data_path)),4096))
+    with torch.no_grad():
+      faster.eval()
+      for idx, imgs in enumerate(dataloader):
+          print(idx)
+          imgs = imgs.to(device)
+          feats[:,idx] = faster(imgs).cpu().numpy()
 
-        
-        
-    with open('{}/imgfeatures.npy'.format(output_path), "wb") as f:
+    with open('{}/imgfeatures_resnet.npy'.format(output_path), "wb") as f:
         np.save(f, feats)       
     print('Image features from dataset saved.')
