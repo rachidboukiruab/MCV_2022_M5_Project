@@ -28,5 +28,5 @@
 
 ## Week 5
 - [Source Code](https://github.com/rachidboukiruab/MCV_2022_M5_Project/tree/main/w5)
-- [Final Presentation](link)
+- [Final Presentation](https://docs.google.com/presentation/d/1wlqq8YTPNl9SIiIL4aIp43KiDTmCtoRbRz5WRqVlICY/edit?usp=sharing)
 - [Overleaf Report](https://www.overleaf.com/read/rqkcgrynmnqm)
